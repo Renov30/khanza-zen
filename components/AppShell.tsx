@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaKey,
@@ -35,6 +35,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
   const pathname = usePathname();
+  const router = useRouter();
 
   // Auth States
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -66,13 +67,45 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     checkSession();
 
+    // Listen for logout from other tabs
+    const authChannel = new BroadcastChannel("auth_sync");
+    authChannel.onmessage = (event) => {
+      if (event.data === "logout") {
+        setIsLoggedIn(false);
+        setIsLoginModalOpen(true);
+        if (pathname !== "/") {
+          router.push("/");
+        }
+      }
+    };
+
     const handleClick = () => {
       setContextMenu((prev) => ({ ...prev, show: false }));
       setIsAccountMenuOpen(false);
     };
     window.addEventListener("click", handleClick);
-    return () => window.removeEventListener("click", handleClick);
-  }, []);
+    return () => {
+      window.removeEventListener("click", handleClick);
+      authChannel.close();
+    };
+  }, [pathname, router]);
+
+  const handleLogout = async () => {
+    await logoutAction();
+    
+    // Notify other tabs
+    const authChannel = new BroadcastChannel("auth_sync");
+    authChannel.postMessage("logout");
+    authChannel.close();
+
+    setIsLoggedIn(false);
+    setIsAccountMenuOpen(false);
+    setIsLoginModalOpen(true);
+    
+    if (pathname !== "/") {
+      router.push("/");
+    }
+  };
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -241,11 +274,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     </button>
                     <div className="h-px bg-slate-100 my-1 mx-2"></div>
                     <button
-                      onClick={async () => {
-                        await logoutAction();
-                        setIsLoggedIn(false);
-                        setIsLoginModalOpen(true);
-                      }}
+                      onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors font-bold"
                     >
                       <FaSignInAlt className="text-red-400 rotate-180" />
@@ -305,11 +334,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <ContextMenuItem
                 icon={<FaKey className="text-yellow-600" />}
                 label="Log Out"
-                onClick={async () => {
-                  await logoutAction();
-                  setIsLoggedIn(false);
-                  setIsLoginModalOpen(true);
-                }}
+                onClick={handleLogout}
               />
             )}
             <div className="w-full h-px bg-slate-100 my-1"></div>
