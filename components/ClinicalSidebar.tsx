@@ -45,8 +45,8 @@ export default function ClinicalSidebar({
   const searchParams = useSearchParams();
 
   const noRawat = searchParams.get("noRawat") || "";
-  const noRM = searchParams.get("noRM") || "617211";
-  const namaPasien = searchParams.get("nama") || "Tn. Sukarji";
+  const noRM = searchParams.get("noRM") || "";
+  const namaPasien = searchParams.get("nama") || "";
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("khanza_clinical_sidebar_open");

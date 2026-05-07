@@ -2,6 +2,131 @@
 
 import { db } from "@/lib/db";
 
+/**
+ * Fetch patient info (no_rkm_medis, nm_pasien) given a no_rawat.
+ * Mirrors isRawat() + isPsien() from Java DlgRawatInap.
+ */
+export async function getPatientInfoByNoRawat(noRawat: string) {
+  try {
+    const query = `
+      SELECT reg_periksa.no_rkm_medis, pasien.nm_pasien 
+      FROM reg_periksa 
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis 
+      WHERE reg_periksa.no_rawat = ?
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    if (rows.length > 0) {
+      return {
+        success: true,
+        data: {
+          no_rkm_medis: rows[0].no_rkm_medis,
+          nm_pasien: rows[0].nm_pasien,
+        },
+      };
+    }
+    return { success: false, message: "Pasien tidak ditemukan" };
+  } catch (error: any) {
+    console.error("Error fetching patient info:", error);
+    return { success: false, message: "Gagal mengambil data pasien", error: error.message };
+  }
+}
+
+/**
+ * Fetch pemeriksaan/CPPT data for inpatient (rawat inap).
+ * Mirrors tampilPemeriksaan() from Java DlgRawatInap (case 3).
+ * Joins pemeriksaan_ranap, reg_periksa, pasien, pegawai tables
+ * with audit trail filtering (only 'aktif' or null status).
+ */
+export async function getPemeriksaanRanap(
+  noRawat: string,
+  keyword: string = "",
+) {
+  try {
+    const params: any[] = [noRawat];
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          pemeriksaan_ranap.no_rawat LIKE ? OR
+          reg_periksa.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          pemeriksaan_ranap.alergi LIKE ? OR
+          pemeriksaan_ranap.keluhan LIKE ? OR
+          pemeriksaan_ranap.penilaian LIKE ? OR
+          pemeriksaan_ranap.rtl LIKE ? OR
+          pemeriksaan_ranap.pemeriksaan LIKE ? OR
+          pegawai.nama LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 9; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT 
+        pemeriksaan_ranap.no_rawat,
+        reg_periksa.no_rkm_medis,
+        pasien.nm_pasien,
+        pemeriksaan_ranap.tgl_perawatan,
+        pemeriksaan_ranap.jam_rawat,
+        pemeriksaan_ranap.suhu_tubuh,
+        pemeriksaan_ranap.tensi,
+        pemeriksaan_ranap.nadi,
+        pemeriksaan_ranap.respirasi,
+        pemeriksaan_ranap.tinggi,
+        pemeriksaan_ranap.berat,
+        pemeriksaan_ranap.spo2,
+        pemeriksaan_ranap.gcs,
+        pemeriksaan_ranap.kesadaran,
+        pemeriksaan_ranap.keluhan,
+        pemeriksaan_ranap.pemeriksaan,
+        pemeriksaan_ranap.alergi,
+        pemeriksaan_ranap.penilaian,
+        pemeriksaan_ranap.rtl,
+        pemeriksaan_ranap.instruksi,
+        pemeriksaan_ranap.evaluasi,
+        pemeriksaan_ranap.nip,
+        pegawai.nama AS nm_pegawai,
+        pegawai.jbtn AS jabatan
+      FROM pasien 
+      INNER JOIN reg_periksa ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis 
+      INNER JOIN pemeriksaan_ranap ON pemeriksaan_ranap.no_rawat = reg_periksa.no_rawat 
+      LEFT JOIN pemeriksaan_ranap_audit_trail 
+        ON pemeriksaan_ranap.no_rawat = pemeriksaan_ranap_audit_trail.no_rawat 
+        AND pemeriksaan_ranap.tgl_perawatan = pemeriksaan_ranap_audit_trail.tgl_perawatan 
+        AND pemeriksaan_ranap.jam_rawat = pemeriksaan_ranap_audit_trail.jam_rawat 
+      INNER JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik 
+      WHERE 
+        (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
+        AND pemeriksaan_ranap.no_rawat = ?
+        ${searchClause}
+      ORDER BY pemeriksaan_ranap.tgl_perawatan DESC, pemeriksaan_ranap.jam_rawat DESC
+    `;
+
+    const [rows]: any = await db.execute(query, params);
+
+    // Format dates to avoid serialization issues
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      tgl_perawatan:
+        row.tgl_perawatan instanceof Date
+          ? row.tgl_perawatan.toISOString().split("T")[0]
+          : row.tgl_perawatan,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching pemeriksaan ranap:", error);
+    return {
+      success: false,
+      message: "Gagal mengambil data pemeriksaan",
+      error: error.message,
+      data: [],
+    };
+  }
+}
+
 export async function getDaftarRanap(
   keyword: string = "",
   status: string = "Belum Pulang",
