@@ -40,6 +40,8 @@ export async function getPatientInfoByNoRawat(noRawat: string) {
 export async function getPemeriksaanRanap(
   noRawat: string,
   keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
 ) {
   try {
     const params: any[] = [noRawat];
@@ -100,9 +102,15 @@ export async function getPemeriksaanRanap(
       WHERE 
         (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
         AND pemeriksaan_ranap.no_rawat = ?
+        ${tglAwal && tglAkhir ? 'AND pemeriksaan_ranap.tgl_perawatan BETWEEN ? AND ?' : ''}
         ${searchClause}
       ORDER BY pemeriksaan_ranap.tgl_perawatan DESC, pemeriksaan_ranap.jam_rawat DESC
     `;
+
+    // Insert date range params right after noRawat param
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal, tglAkhir);
+    }
 
     const [rows]: any = await db.execute(query, params);
 
@@ -124,6 +132,56 @@ export async function getPemeriksaanRanap(
       error: error.message,
       data: [],
     };
+  }
+}
+
+/**
+ * Fetch pegawai info (nama, jabatan) for the logged-in user.
+ * Mirrors Java: pegawai.tampil3(KdPeg) + pegawai.tampilJbatan(KdPeg)
+ * where KdPeg = akses.getkode() (the session user ID / NIP / NIK).
+ */
+export async function getLoggedInPegawai() {
+  try {
+    // Import getSession from auth module
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    const userId = session.id;
+
+    const query = `
+      SELECT pegawai.nik, pegawai.nama, pegawai.jbtn
+      FROM pegawai
+      WHERE pegawai.nik = ?
+    `;
+    const [rows]: any = await db.execute(query, [userId]);
+
+    if (rows.length > 0) {
+      return {
+        success: true,
+        data: {
+          nik: rows[0].nik,
+          nama: rows[0].nama,
+          jabatan: rows[0].jbtn,
+        },
+      };
+    }
+
+    // If user not found in pegawai, return session id as fallback
+    return {
+      success: true,
+      data: {
+        nik: userId,
+        nama: userId,
+        jabatan: "-",
+      },
+    };
+  } catch (error: any) {
+    console.error("Error fetching pegawai info:", error);
+    return { success: false, message: "Gagal mengambil data petugas", error: error.message };
   }
 }
 
