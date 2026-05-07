@@ -18,10 +18,10 @@ interface PemeriksaanRow {
 }
 
 const TABLE_COLUMNS = [
-  { key: 'no_rawat', label: 'No.Rawat', w: '105px' },
+  { key: 'no_rawat', label: 'No.Rawat', w: '150px' },
   { key: 'no_rkm_medis', label: 'No.R.M.', w: '70px' },
-  { key: 'nm_pasien', label: 'Nama Pasien', w: '150px' },
-  { key: 'tgl_perawatan', label: 'Tgl.Rawat', w: '80px' },
+  { key: 'nm_pasien', label: 'Nama Pasien', w: '220px' },
+  { key: 'tgl_perawatan', label: 'Tgl.Rawat', w: '100px' },
   { key: 'jam_rawat', label: 'Jam', w: '60px' },
   { key: 'suhu_tubuh', label: 'Suhu(C)', w: '50px' },
   { key: 'tensi', label: 'Tensi', w: '65px' },
@@ -47,40 +47,53 @@ const TABLE_COLUMNS = [
 function CpptTable({ data, isLoading }: { data: PemeriksaanRow[]; isLoading: boolean }) {
   return (
     <table className="w-full text-left border-collapse text-xs whitespace-nowrap table-fixed">
-      <colgroup>
-        <col style={{ width: '35px' }} />
-        {TABLE_COLUMNS.map(c => (
-          <col key={c.key} style={{ width: c.w }} />
-        ))}
-      </colgroup>
       <thead className="sticky top-0 bg-slate-100 border-b border-slate-300 z-10 shadow-sm text-slate-600">
         <tr>
-          <th className="py-2 px-3 border-r border-slate-300 font-semibold">P</th>
+          <th className="py-2 px-3 border-r border-slate-300 font-semibold w-8 text-center" style={{ width: '40px', minWidth: '40px' }}>P</th>
           {TABLE_COLUMNS.map(c => (
-            <th key={c.key} className="py-2 px-3 border-r border-slate-300 font-semibold">{c.label}</th>
+            <th key={c.key} className="py-2 px-3 border-r border-slate-300 font-semibold" style={{ width: c.w, minWidth: c.w }}>{c.label}</th>
           ))}
         </tr>
       </thead>
       <tbody>
+        {/* Invisible spacer row to anchor column widths */}
+        <tr className="h-0 border-none overflow-hidden">
+          <td style={{ width: '40px', minWidth: '40px' }} className="p-0 border-none" />
+          {TABLE_COLUMNS.map(c => (
+            <td key={c.key} style={{ width: c.w, minWidth: c.w }} className="p-0 border-none" />
+          ))}
+        </tr>
+
         {isLoading ? (
-          <tr><td colSpan={TABLE_COLUMNS.length + 1} className="py-8 text-center text-slate-400 italic">
-            <div className="flex flex-col items-center gap-2"><FaSync className="animate-spin text-xl text-brand-500" /><span>Mengambil data...</span></div>
-          </td></tr>
-        ) : data.length === 0 ? (
-          <tr><td colSpan={TABLE_COLUMNS.length + 1} className="py-8 text-center text-slate-400 italic">Belum ada data pemeriksaan...</td></tr>
-        ) : data.map((row, i) => (
-          <tr key={`${row.tgl_perawatan}-${row.jam_rawat}-${i}`}
-            className={`border-b border-slate-100 cursor-pointer transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'} hover:bg-brand-50`}>
-            <td className="py-1.5 px-3 border-r border-slate-200 text-center">
-              <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 cursor-pointer" />
+          <tr>
+            <td colSpan={TABLE_COLUMNS.length + 1} className="py-8 text-center text-slate-400 italic">
+              <div className="flex flex-col items-center gap-2">
+                <FaSync className="animate-spin text-xl text-brand-500" />
+                <span>Mengambil data...</span>
+              </div>
             </td>
-            {TABLE_COLUMNS.map(c => (
-              <td key={c.key} className="py-1.5 px-3 border-r border-slate-200 truncate max-w-[200px]" title={String(row[c.key as keyof PemeriksaanRow] ?? '')}>
-                {row[c.key as keyof PemeriksaanRow] ?? ''}
-              </td>
-            ))}
           </tr>
-        ))}
+        ) : data.length === 0 ? (
+          <tr>
+            <td colSpan={TABLE_COLUMNS.length + 1} className="py-8 text-center text-slate-400 italic">
+              Belum ada data pemeriksaan...
+            </td>
+          </tr>
+        ) : (
+          data.map((row, i) => (
+            <tr key={`${row.tgl_perawatan}-${row.jam_rawat}-${i}`}
+              className={`border-b border-slate-100 cursor-pointer transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'} hover:bg-brand-50`}>
+              <td className="py-1.5 px-3 border-r border-slate-200 text-center">
+                <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 cursor-pointer" />
+              </td>
+              {TABLE_COLUMNS.map(c => (
+                <td key={c.key} className="py-1.5 px-3 border-r border-slate-200 truncate" style={{ width: c.w, minWidth: c.w }} title={String(row[c.key as keyof PemeriksaanRow] ?? '')}>
+                  {row[c.key as keyof PemeriksaanRow] ?? ''}
+                </td>
+              ))}
+            </tr>
+          ))
+        )}
       </tbody>
     </table>
   );
