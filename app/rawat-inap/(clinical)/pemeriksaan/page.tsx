@@ -46,12 +46,18 @@ const TABLE_COLUMNS = [
 
 function CpptTable({ data, isLoading }: { data: PemeriksaanRow[]; isLoading: boolean }) {
   return (
-    <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
+    <table className="w-full text-left border-collapse text-xs whitespace-nowrap table-fixed">
+      <colgroup>
+        <col style={{ width: '35px' }} />
+        {TABLE_COLUMNS.map(c => (
+          <col key={c.key} style={{ width: c.w }} />
+        ))}
+      </colgroup>
       <thead className="sticky top-0 bg-slate-100 border-b border-slate-300 z-10 shadow-sm text-slate-600">
         <tr>
-          <th className="py-2 px-3 border-r border-slate-300 font-semibold w-8">P</th>
+          <th className="py-2 px-3 border-r border-slate-300 font-semibold">P</th>
           {TABLE_COLUMNS.map(c => (
-            <th key={c.key} className="py-2 px-3 border-r border-slate-300 font-semibold" style={{ minWidth: c.w }}>{c.label}</th>
+            <th key={c.key} className="py-2 px-3 border-r border-slate-300 font-semibold">{c.label}</th>
           ))}
         </tr>
       </thead>
@@ -236,9 +242,9 @@ function PemeriksaanContent() {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-auto bg-white px-4 pt-4 pb-8 relative">
+      <div className="flex-1 overflow-auto bg-white px-4 pt-4 pb-2 relative">
         {activeTab === 'cppt' && (
-          <div className="flex flex-col min-h-full gap-4 max-w-7xl mx-auto w-full">
+          <div className="flex flex-col min-h-full gap-4 mx-auto w-full">
             <div className="flex flex-col gap-5">
               {/* Feature 3 & 5: Petugas from logged-in user */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
