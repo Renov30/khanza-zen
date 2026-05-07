@@ -46,6 +46,10 @@ export async function getPemeriksaanRanap(
   try {
     const params: any[] = [noRawat];
 
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal, tglAkhir);
+    }
+
     let searchClause = "";
     if (keyword.trim()) {
       searchClause = `
@@ -102,15 +106,10 @@ export async function getPemeriksaanRanap(
       WHERE 
         (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
         AND pemeriksaan_ranap.no_rawat = ?
-        ${tglAwal && tglAkhir ? 'AND pemeriksaan_ranap.tgl_perawatan BETWEEN ? AND ?' : ''}
+        ${tglAwal && tglAkhir ? "AND pemeriksaan_ranap.tgl_perawatan BETWEEN ? AND ?" : ""}
         ${searchClause}
       ORDER BY pemeriksaan_ranap.tgl_perawatan DESC, pemeriksaan_ranap.jam_rawat DESC
     `;
-
-    // Insert date range params right after noRawat param
-    if (tglAwal && tglAkhir) {
-      params.push(tglAwal, tglAkhir);
-    }
 
     const [rows]: any = await db.execute(query, params);
 
