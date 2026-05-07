@@ -240,7 +240,7 @@ function AsuhannGiziContent() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            transition={{ duration: 0.15, ease: 'easeInOut' }}
             className="overflow-hidden border-b border-slate-200 flex flex-col flex-1"
           >
             <div className="p-3 bg-white overflow-y-auto custom-scrollbar flex-1">

@@ -90,7 +90,7 @@ export default function ClinicalSidebar({
     <div className="flex flex-1 overflow-hidden">
       {/* Shared Clinical Sidebar */}
       <motion.div
-        initial={true}
+        initial={false}
         animate={{ width: isSidebarOpen ? 224 : 48 }}
         transition={{ duration: 0.15, ease: "linear" }}
         className="bg-white border-r border-slate-200 flex flex-col overflow-hidden shrink-0"
