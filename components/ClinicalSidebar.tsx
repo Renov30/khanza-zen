@@ -69,8 +69,8 @@ export default function ClinicalSidebar({
 
   const filteredMenu = searchTerm
     ? menuItems.filter((item) =>
-        item.label.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+      item.label.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
     : menuItems;
 
   const handleNavigate = (item: (typeof menuItems)[0]) => {
@@ -90,7 +90,7 @@ export default function ClinicalSidebar({
     <div className="flex flex-1 overflow-hidden">
       {/* Shared Clinical Sidebar */}
       <motion.div
-        initial={false}
+        initial={true}
         animate={{ width: isSidebarOpen ? 224 : 48 }}
         transition={{ duration: 0.2 }}
         className="bg-white border-r border-slate-200 flex flex-col overflow-hidden shrink-0"
@@ -124,13 +124,12 @@ export default function ClinicalSidebar({
             <div
               key={idx}
               onClick={() => handleNavigate(item)}
-              className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap ${
-                isActive(item.path)
-                  ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500"
-                  : item.path
-                    ? "text-slate-700 hover:bg-brand-50"
-                    : "text-slate-400 cursor-default"
-              }`}
+              className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap ${isActive(item.path)
+                ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500"
+                : item.path
+                  ? "text-slate-700 hover:bg-brand-50"
+                  : "text-slate-400 cursor-default"
+                }`}
               title={!isSidebarOpen ? item.label : undefined}
             >
               <span
