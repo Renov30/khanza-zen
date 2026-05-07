@@ -125,9 +125,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     >
       {/* Primary Top Bar (Dark Green Gradient) */}
       <motion.nav
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15 }}
         className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 text-white flex overflow-x-auto whitespace-nowrap px-2 py-0.5 lg:py-1 shadow-md z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="flex items-center gap-1 w-max">
@@ -156,9 +156,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Secondary Toolbar (Light Glassmorphic Style) */}
       <motion.nav
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15 }}
         className="bg-white/80 backdrop-blur-md border-b border-brand-100 flex items-center px-4 shadow-sm z-20 relative"
       >
         {/* Scrolling Menu Items Container */}
@@ -466,8 +466,7 @@ function TopMenuItem({
 }) {
   return (
     <motion.button
-      whileHover={{ y: -1, backgroundColor: "rgba(255,255,255,0.15)" }}
-      whileTap={{ scale: 0.96 }}
+      whileHover={{ backgroundColor: "rgba(255,255,255,0.15)" }}
       transition={{ duration: 0.1 }}
       className="flex items-center gap-1 lg:gap-2 px-3 py-0.5 lg:py-1 rounded-lg text-[10px] lg:text-xs font-medium transition-colors duration-150 hover:shadow-sm"
     >
@@ -494,13 +493,10 @@ function SecondaryMenuItem({
     <motion.button
       onClick={onClick}
       whileHover={{
-        y: -3,
-        scale: 1.02,
         backgroundColor: isRed
           ? "rgba(254,226,226,0.5)"
           : "rgba(209,250,229,0.3)",
       }}
-      whileTap={{ scale: 0.95 }}
       transition={{ duration: 0.1 }}
       className={`group flex flex-col items-center justify-center gap-1 min-w-[70px] lg:min-w-[76px] p-1 lg:p-2 rounded-xl transition-all duration-150 border ${active ? "border-brand-200 bg-brand-50/60 shadow-sm" : "border-transparent"} hover:border-brand-100 hover:shadow-sm relative overflow-hidden`}
     >

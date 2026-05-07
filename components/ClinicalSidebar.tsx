@@ -92,7 +92,7 @@ export default function ClinicalSidebar({
       <motion.div
         initial={true}
         animate={{ width: isSidebarOpen ? 224 : 48 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.15, ease: "linear" }}
         className="bg-white border-r border-slate-200 flex flex-col overflow-hidden shrink-0"
       >
         {/* Toggle + Search */}
@@ -146,9 +146,9 @@ export default function ClinicalSidebar({
       {/* Main Content */}
       <motion.div
         key={pathname} // use pathname to trigger animation on route change
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15 }}
         className="flex-1 flex flex-col overflow-hidden bg-slate-50 relative"
       >
         {children}

@@ -208,11 +208,10 @@ export default function DaftarMenuPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0 }}
-      transition={{ type: "spring", stiffness: 220, damping: 25 }}
-      style={{ transformOrigin: "10% 0%" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       className="flex h-full w-full bg-slate-50/50 overflow-hidden relative rounded-tl-xl shadow-inner border-t border-l border-white"
     >
       {/* Sidebar Control / Animation */}
@@ -222,7 +221,7 @@ export default function DaftarMenuPage() {
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 320, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            transition={{ duration: 0.15, ease: "linear" }}
             className="h-full border-r border-slate-200 bg-white shadow-sm flex flex-col z-10 shrink-0"
           >
             {/* Sidebar Header & Search */}

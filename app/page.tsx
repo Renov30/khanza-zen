@@ -17,9 +17,9 @@ export default function Home() {
     <div className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30">
       {/* Background Image with slight animation */}
       <motion.div
-        initial={{ scale: 1.05, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15 }}
         className="absolute inset-0 z-0 bg-no-repeat bg-cover bg-center"
         style={{ backgroundImage: "url('/img/background.png')" }}
       />
@@ -29,14 +29,13 @@ export default function Home() {
 
       {/* Bottom Left Logo Area */}
       <motion.div
-        initial={{ x: -50, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15 }}
         className="absolute bottom-16 left-4 sm:bottom-8 sm:left-8 z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5"
       >
         {/* Logo 3D effect */}
-        <motion.div
-          whileHover={{ rotate: 10, scale: 1.05 }}
+        <div
           className="w-14 h-14 sm:w-20 sm:h-20 bg-white/90 backdrop-blur-xl rounded-2xl flex items-center justify-center p-2 sm:p-3 shadow-2xl border border-white/50 relative overflow-hidden group shrink-0"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
@@ -44,7 +43,7 @@ export default function Home() {
           <div className="absolute bottom-1 right-1">
             <FaCubes className="text-sm sm:text-xl text-brand-500 opacity-80" />
           </div>
-        </motion.div>
+        </div>
 
         <div className="flex flex-col drop-shadow-lg bg-white/40 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-xl border border-white/40">
           <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-800 tracking-tight italic flex items-center gap-2">
