@@ -214,25 +214,25 @@ function PemeriksaanContent() {
       </div>
 
       {/* Top Patient Info Bar */}
-      <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-4 items-center text-xs">
+      <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
         <div className="flex items-center gap-1 w-full sm:w-auto">
           <label className="font-semibold text-slate-600 min-w-[80px] sm:min-w-0">Pasien :</label>
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 sm:w-35 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 sm:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
         </div>
         <div className="flex items-center gap-1 w-full sm:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 sm:w-20 bg-slate-50 focus:outline-none focus:border-brand-500"
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 sm:w-16 bg-slate-50 focus:outline-none focus:border-brand-500"
             value={isLoadingPatient ? '...' : noRM} readOnly placeholder="No. RM" />
         </div>
         <div className="flex items-center gap-1 w-full md:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 md:w-50 bg-slate-50 focus:outline-none focus:border-brand-500"
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 sm:w-35 bg-slate-50 focus:outline-none focus:border-brand-500"
             value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
         </div>
         {/* Feature 4: Real-time date/time */}
         <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
           <label className="font-semibold text-slate-600">Tanggal :</label>
-          <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-2 focus:outline-none focus:border-brand-500"
+          <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500"
             value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-          <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none focus:border-brand-500 bg-white"
+          <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs sm:w-24 focus:outline-none focus:border-brand-500 bg-white"
             value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
           <input type="checkbox" className="accent-brand-500 w-4 h-4 cursor-pointer ml-2"
             checked={isClockRunning} onChange={e => setIsClockRunning(e.target.checked)} title="Centang untuk jam real-time" />
