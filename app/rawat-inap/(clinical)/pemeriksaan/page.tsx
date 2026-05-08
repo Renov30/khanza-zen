@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FaBed, FaEdit, FaExpand, FaCompress, FaSync, FaSearch } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
+import TopFormContainer from '@/components/TopFormContainer';
+import TabbedTable from '@/components/TabbedTable';
 import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 
 interface PemeriksaanRow {
@@ -45,57 +47,48 @@ const TABLE_COLUMNS = [
 ];
 
 function CpptTable({ data, isLoading }: { data: PemeriksaanRow[]; isLoading: boolean }) {
-  return (
-    <table className="w-full text-left border-collapse text-xs whitespace-nowrap table-fixed">
-      <thead className="sticky top-0 bg-slate-100 border-b border-slate-300 z-10 shadow-sm text-slate-600">
-        <tr>
-          <th className="py-2 px-3 border-r border-slate-300 font-semibold w-8 text-center" style={{ width: '40px', minWidth: '40px' }}>P</th>
-          {TABLE_COLUMNS.map(c => (
-            <th key={c.key} className="py-2 px-3 border-r border-slate-300 font-semibold" style={{ width: c.w, minWidth: c.w }}>{c.label}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {/* Invisible spacer row to anchor column widths */}
-        <tr className="h-0 border-none overflow-hidden">
-          <td style={{ width: '40px', minWidth: '40px' }} className="p-0 border-none" />
-          {TABLE_COLUMNS.map(c => (
-            <td key={c.key} style={{ width: c.w, minWidth: c.w }} className="p-0 border-none" />
-          ))}
-        </tr>
+  if (isLoading) return (
+    <tr>
+      <td colSpan={TABLE_COLUMNS.length + 1} className="py-20 text-center text-slate-400 italic">
+        <div className="flex flex-col items-center gap-3">
+          <FaSync className="animate-spin text-3xl text-brand-500" />
+          <span>Mengambil data dari server...</span>
+        </div>
+      </td>
+    </tr>
+  );
 
-        {isLoading ? (
-          <tr>
-            <td colSpan={TABLE_COLUMNS.length + 1} className="py-8 text-center text-slate-400 italic">
-              <div className="flex flex-col items-center gap-2">
-                <FaSync className="animate-spin text-xl text-brand-500" />
-                <span>Mengambil data...</span>
-              </div>
+  if (data.length === 0) return (
+    <tr>
+      <td colSpan={TABLE_COLUMNS.length + 1} className="py-20 text-center text-slate-400 italic">
+        Tidak ada data pemeriksaan yang ditemukan.
+      </td>
+    </tr>
+  );
+
+  return (
+    <>
+      {data.map((row, i) => (
+        <tr key={`${row.tgl_perawatan}-${row.jam_rawat}-${i}`}
+          className={`border-b border-slate-100 cursor-pointer transition-all duration-200
+            ${i % 2 === 0 ? "bg-white" : "bg-slate-50/80"} 
+            hover:bg-brand-50 hover:shadow-[inset_4px_0_0_0_var(--color-brand-500)]`}>
+          <td className="py-2 px-3 border-r border-slate-200 text-center">
+            <input type="checkbox" className="accent-brand-600 w-4 h-4 cursor-pointer rounded" />
+          </td>
+          {TABLE_COLUMNS.map(c => (
+            <td key={c.key} className={`py-2 px-3 border-r border-slate-100 truncate ${
+              c.key === 'no_rawat' ? 'text-brand-600 font-bold hover:underline' :
+              c.key === 'nm_pasien' ? 'text-slate-800 font-bold' :
+              c.key === 'no_rkm_medis' ? 'text-brand-600 font-semibold' :
+              'text-slate-600'
+            }`} style={{ width: c.w, minWidth: c.w }} title={String(row[c.key as keyof PemeriksaanRow] ?? '')}>
+              {row[c.key as keyof PemeriksaanRow] ?? ''}
             </td>
-          </tr>
-        ) : data.length === 0 ? (
-          <tr>
-            <td colSpan={TABLE_COLUMNS.length + 1} className="py-8 text-center text-slate-400 italic">
-              Belum ada data pemeriksaan...
-            </td>
-          </tr>
-        ) : (
-          data.map((row, i) => (
-            <tr key={`${row.tgl_perawatan}-${row.jam_rawat}-${i}`}
-              className={`border-b border-slate-100 cursor-pointer transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'} hover:bg-brand-50`}>
-              <td className="py-1.5 px-3 border-r border-slate-200 text-center">
-                <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 cursor-pointer" />
-              </td>
-              {TABLE_COLUMNS.map(c => (
-                <td key={c.key} className="py-1.5 px-3 border-r border-slate-200 truncate" style={{ width: c.w, minWidth: c.w }} title={String(row[c.key as keyof PemeriksaanRow] ?? '')}>
-                  {row[c.key as keyof PemeriksaanRow] ?? ''}
-                </td>
-              ))}
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+          ))}
+        </tr>
+      ))}
+    </>
   );
 }
 
@@ -255,10 +248,11 @@ function PemeriksaanContent() {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-auto bg-white px-4 pt-4 pb-2 relative">
+      <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
         {activeTab === 'cppt' && (
-          <div className="flex flex-col min-h-full gap-4 mx-auto w-full">
-            <div className="flex flex-col gap-5">
+          <div className="flex flex-col min-h-full w-full">
+            <TopFormContainer title="Form Input Pemeriksaan / CPPT">
+              <div className="flex flex-col gap-5">
               {/* Feature 3 & 5: Petugas from logged-in user */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                 <div className="flex flex-col gap-1.5">
@@ -329,27 +323,28 @@ function PemeriksaanContent() {
                 </div>
               </div>
             </div>
+          </TopFormContainer>
 
-            {/* Inline Table */}
-            <div className={`flex flex-col mt-4 mb-4 transition-opacity duration-150 h-[400px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
-                <h3 className="font-bold text-slate-700 text-[13px] flex items-center gap-2">
-                  Tabel Riwayat Pemeriksaan / CPPT
-                </h3>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir)}
-                    className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors text-xs shadow-sm" title="Refresh">
-                    <FaSync className={isLoadingData ? 'animate-spin' : ''} />
-                  </button>
-                  <button onClick={() => setIsTableExpanded(true)}
-                    className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
-                    <FaExpand className="text-[10px]" /> Perbesar
-                  </button>
-                </div>
-              </div>
-              <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
-                <CpptTable data={pemeriksaanData} isLoading={isLoadingData} />
-              </div>
+            {/* Inline Table using TabbedTable component for consistency with registration style */}
+            <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              <TabbedTable
+                hideTabBar={true}
+                tabs={[
+                  {
+                    id: 'cppt_history',
+                    label: 'Riwayat Pemeriksaan / CPPT',
+                    header: (
+                      <tr>
+                        <th className="py-2.5 px-3 border-r border-slate-200 font-bold w-10 text-center">P</th>
+                        {TABLE_COLUMNS.map(c => (
+                          <th key={c.key} className="py-2.5 px-3 border-r border-slate-200 font-bold" style={{ width: c.w, minWidth: c.w }}>{c.label}</th>
+                        ))}
+                      </tr>
+                    ),
+                    body: <CpptTable data={pemeriksaanData} isLoading={isLoadingData} />
+                  }
+                ]}
+              />
             </div>
 
             {/* Expanded Modal Table */}
