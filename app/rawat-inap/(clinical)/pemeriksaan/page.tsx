@@ -251,7 +251,7 @@ function PemeriksaanContent() {
       <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
         {activeTab === 'cppt' && (
           <div className="flex flex-col min-h-full w-full">
-            <TopFormContainer title="Form Input Pemeriksaan / CPPT">
+            <TopFormContainer title="Form Input Pemeriksaan / CPPT" persistenceKey="khanza_cppt_form_open">
               <div className="flex flex-col gap-5">
               {/* Feature 3 & 5: Petugas from logged-in user */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">

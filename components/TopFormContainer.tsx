@@ -7,21 +7,37 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 interface TopFormContainerProps {
   title?: string;
   defaultOpen?: boolean;
+  persistenceKey?: string;
   children: React.ReactNode;
 }
 
 export default function TopFormContainer({
   title = "Input Data",
   defaultOpen = false,
+  persistenceKey,
   children
 }: TopFormContainerProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window !== "undefined" && persistenceKey) {
+      const saved = localStorage.getItem(persistenceKey);
+      if (saved !== null) return JSON.parse(saved);
+    }
+    return defaultOpen;
+  });
+
+  const handleToggle = () => {
+    const newState = !isOpen;
+    setIsOpen(newState);
+    if (typeof window !== "undefined" && persistenceKey) {
+      localStorage.setItem(persistenceKey, JSON.stringify(newState));
+    }
+  };
 
   return (
     <div className="bg-white shadow-sm z-0 shrink-0 flex flex-col">
       {/* Toggle Button / Header */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         className="bg-white border-b border-slate-200 px-4 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50 transition-colors flex items-center gap-2 shrink-0 w-full text-left"
       >
         {isOpen ? <FaChevronUp className="text-[10px]" /> : <FaChevronDown className="text-[10px]" />}
