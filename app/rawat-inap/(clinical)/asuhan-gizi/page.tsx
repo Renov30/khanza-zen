@@ -249,13 +249,6 @@ function AsuhannGiziContent() {
 
   return (
     <>
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
-        <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
-          <FaUtensils className="text-brand-600" />
-          Data Asuhan Gizi Pasien
-        </h2>
-      </div>
 
       {/* Toggle Button - above table when form is closed */}
       {!isFormOpen && (
@@ -299,6 +292,8 @@ function AsuhannGiziContent() {
       {/* Data Table - using DataTableMulti */}
       <div className={`flex-1 overflow-auto ${isFormOpen ? 'hidden' : 'block'}`}>
         <DataTableMulti
+          title="Data Asuhan Gizi Pasien"
+          icon={<FaUtensils />}
           columns={columns}
           data={demoData}
           idKey="id"

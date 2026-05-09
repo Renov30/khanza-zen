@@ -166,23 +166,11 @@ export default function RawatInap() {
       transition={{ duration: 0.15 }}
       className="flex flex-col w-full h-full overflow-hidden bg-slate-50 text-slate-800 rounded-tl-xl shadow-inner border-t border-l border-white"
     >
-      {/* Elegant Page Header */}
-      <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
-        <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
-          <FaBed className="text-brand-600" />
-          Daftar Pasien Rawat Inap
-        </h2>
-        <button
-          onClick={fetchData}
-          className="p-1.5 hover:bg-brand-200 rounded-full transition-colors text-brand-700"
-          title="Refresh Data"
-        >
-          <FaSync className={isLoading ? "animate-spin" : ""} />
-        </button>
-      </div>
 
-      {/* Table Area - Using SingleSelect Component */}
       <DataTableSingle
+        title="Daftar Pasien Rawat Inap"
+        icon={<FaBed />}
+        onRefresh={fetchData}
         columns={columns}
         data={data}
         idKey="no_rawat"

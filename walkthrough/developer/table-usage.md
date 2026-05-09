@@ -52,9 +52,12 @@ const [selectedId, setSelectedId] = useState<string | null>(null);
 
 ```tsx
 <DataTableMulti
+  title="Daftar Pasien"
+  icon={<FaBed />}
+  onRefresh={fetchData} // Optional
   columns={columns}
   data={data}
-  idKey="no_rawat" // The unique key in your data
+  idKey="no_rawat" 
   selectedIds={selectedIds}
   onSelectionChange={setSelectedIds}
   isLoading={isLoading}
@@ -65,6 +68,8 @@ const [selectedId, setSelectedId] = useState<string | null>(null);
 
 ```tsx
 <DataTableSingle
+  title="Detail Pasien"
+  icon={<FaUser />}
   columns={columns}
   data={data}
   idKey="no_rawat"

@@ -168,13 +168,6 @@ function PemeriksaanContent() {
 
   return (
     <>
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
-        <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
-          <FaBed className="text-brand-600" />
-          <span className="truncate">Pemeriksaan / Tindakan Rawat Inap</span>
-        </h2>
-      </div>
 
       {/* Top Patient Info Bar */}
       <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
@@ -298,6 +291,9 @@ function PemeriksaanContent() {
             {/* Inline Table using DataTableMulti component */}
             <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
+                title="Riwayat Pemeriksaan / CPPT"
+                icon={<FaBed />}
+                onRefresh={handleBottomSearch}
                 columns={columns}
                 data={pemeriksaanData}
                 idKey="id"

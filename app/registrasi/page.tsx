@@ -69,13 +69,6 @@ export default function Registrasi() {
       transition={{ duration: 0.15 }}
       className="flex flex-col w-full h-full overflow-hidden bg-slate-50 text-slate-800 rounded-tl-xl shadow-inner border-t border-l border-white"
     >
-      {/* Elegant Page Header */}
-      <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
-        <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
-          <FaIdCard className="text-brand-600" />
-          Daftar Registrasi Pasien
-        </h2>
-      </div>
 
       <TopFormContainer title="Input Data">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-xs">
@@ -181,6 +174,8 @@ export default function Registrasi() {
             header: null,
             body: (
               <DataTableMulti
+                title="Daftar Registrasi Pasien"
+                icon={<FaIdCard />}
                 columns={columns}
                 data={mockData}
                 idKey="id"

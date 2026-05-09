@@ -5,6 +5,9 @@ import { FaSync } from "react-icons/fa";
 import { TableColumn } from "./TableTypes";
 
 interface DataTableSingleProps {
+  title?: string;
+  icon?: React.ReactNode;
+  onRefresh?: () => void;
   columns: TableColumn[];
   data: any[];
   idKey: string;
@@ -15,6 +18,9 @@ interface DataTableSingleProps {
 }
 
 export default function DataTableSingle({
+  title,
+  icon,
+  onRefresh,
   columns,
   data,
   idKey,
@@ -32,7 +38,25 @@ export default function DataTableSingle({
   };
 
   return (
-    <div className="flex-1 overflow-auto bg-slate-50/50 border-t border-slate-300 relative h-full custom-scrollbar">
+    <div className="flex flex-col flex-1 overflow-hidden h-full">
+      {title && (
+        <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
+          <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
+            {icon && <span className="text-brand-600">{icon}</span>}
+            {title}
+          </h2>
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              className="p-1.5 hover:bg-brand-200 rounded-full transition-colors text-brand-700"
+              title="Refresh Data"
+            >
+              <FaSync className={isLoading ? "animate-spin" : ""} />
+            </button>
+          )}
+        </div>
+      )}
+      <div className="flex-1 overflow-auto bg-slate-50/50 border-t border-slate-300 relative h-full custom-scrollbar">
       <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
         <thead className="sticky top-0 z-10 text-slate-600 shadow-sm backdrop-blur-md bg-white/95 border-b-2 border-brand-500">
           <tr>
@@ -92,6 +116,7 @@ export default function DataTableSingle({
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
