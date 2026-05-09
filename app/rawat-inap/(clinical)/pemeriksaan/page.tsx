@@ -6,7 +6,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { FaBed, FaEdit, FaExpand, FaCompress, FaSync, FaSearch } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
-import TabbedTable from '@/components/TabbedTable';
 import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
