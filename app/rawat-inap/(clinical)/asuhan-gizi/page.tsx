@@ -7,10 +7,13 @@ import {
   FaUtensils, FaSearch, FaChevronDown, FaChevronUp, FaClipboardList
 } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
+import DataTableMulti from '@/components/DataTableMulti';
+import { TableColumn } from '@/components/TableTypes';
 
 // Demo data for table
 const demoData = [
   {
+    id: '1',
     noRawat: '2025/10/23/000065', noRM: '617244', nama: 'Tn. Sukarji', jk: 'L',
     tglLahir: '1959-06-22', tglAsuhan: '2025-10-23', bb: 55, tb: 155, imt: 22.9,
     lla: 0, tl: 0, ulna: 0, llaU: 0, bbIdeal: 0, bbU: 0, tbU: 0, bbTb: 0, llaUPersen: 0,
@@ -23,6 +26,37 @@ const demoData = [
     instruksi: '', monitoringEvaluasi: '', petugas: 'ayu',
     namaPetugas: 'Ukhuwwatun Hasanah Pristari Rahayu, S.Gz',
   },
+];
+
+const columns: TableColumn[] = [
+  { header: 'No.Rawat', key: 'noRawat', className: 'text-brand-600 font-bold' },
+  { header: 'No.RM', key: 'noRM' },
+  { header: 'Nama Pasien', key: 'nama' },
+  { header: 'J.K.', key: 'jk', className: 'text-center' },
+  { header: 'Tgl.Lahir', key: 'tglLahir' },
+  { header: 'Tgl.Asuhan', key: 'tglAsuhan' },
+  { header: 'BB(Kg)', key: 'bb', className: 'text-right' },
+  { header: 'TB(Cm)', key: 'tb', className: 'text-right' },
+  { header: 'IMT(Kg/m²)', key: 'imt', className: 'text-right' },
+  { header: 'LLA(Cm)', key: 'lla', className: 'text-right' },
+  { header: 'TL(Cm)', key: 'tl', className: 'text-right' },
+  { header: 'ULNA(Cm)', key: 'ulna', className: 'text-right' },
+  { header: 'LLA/U(%)', key: 'llaU', className: 'text-right' },
+  { header: 'BB Ideal(Kg)', key: 'bbIdeal', className: 'text-right' },
+  { header: 'BB/U(%)', key: 'bbU', className: 'text-right' },
+  { header: 'TB/U(%)', key: 'tbU', className: 'text-right' },
+  { header: 'BB/TB(%)', key: 'bbTb', className: 'text-right' },
+  { header: 'LLA/U(SD)', key: 'llaUPersen', className: 'text-right' },
+  { header: 'Subjektif', key: 'subjektif', className: 'max-w-[200px] truncate' },
+  { header: 'Fisik/Klinis', key: 'fisikKlinis', className: 'max-w-[200px] truncate' },
+  { header: 'Telur', key: 'telur', className: 'text-center', render: (row) => (row.telur ? 'Ya' : 'Tidak') },
+  { header: 'Susu Sapi', key: 'susuSapi', className: 'text-center', render: (row) => (row.susuSapi ? 'Ya' : 'Tidak') },
+  { header: 'Kacang', key: 'kacang', className: 'text-center', render: (row) => (row.kacang ? 'Ya' : 'Tidak') },
+  { header: 'Gluten', key: 'gluten', className: 'text-center', render: (row) => (row.gluten ? 'Ya' : 'Tidak') },
+  { header: 'Udang', key: 'udang', className: 'text-center', render: (row) => (row.udang ? 'Ya' : 'Tidak') },
+  { header: 'Ikan', key: 'ikan', className: 'text-center', render: (row) => (row.ikan ? 'Ya' : 'Tidak') },
+  { header: 'Hazelnut', key: 'hazelnut', className: 'text-center', render: (row) => (row.hazelnut ? 'Ya' : 'Tidak') },
+  { header: 'Pola Makan', key: 'polaMakan' },
 ];
 
 // Allergy item component
@@ -51,6 +85,7 @@ function AsuhannGiziContent() {
 
   const [mounted, setMounted] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Form state
   const [bb, setBb] = useState('55');
@@ -261,58 +296,15 @@ function AsuhannGiziContent() {
         </button>
       )}
 
-      {/* Data Table - takes remaining space, hidden when form is open */}
+      {/* Data Table - using DataTableMulti */}
       <div className={`flex-1 overflow-auto ${isFormOpen ? 'hidden' : 'block'}`}>
-        <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
-          <thead className="sticky top-0 bg-slate-100 border-b border-slate-300 z-10 shadow-sm text-slate-600">
-            <tr>
-              {[
-                'No.Rawat', 'No.RM', 'Nama Pasien', 'J.K.', 'Tgl.Lahir', 'Tgl.Asuhan',
-                'BB(Kg)', 'TB(Cm)', 'IMT(Kg/m²)', 'LLA(Cm)', 'TL(Cm)', 'ULNA(Cm)',
-                'LLA/U(%)', 'BB Ideal(Kg)', 'BB/U(%)', 'TB/U(%)', 'BB/TB(%)', 'LLA/U(SD)',
-                'Subjektif', 'Fisik/Klinis',
-                'Telur', 'Susu Sapi', 'Kacang', 'Gluten', 'Udang', 'Ikan', 'Hazelnut',
-                'Pola Makan'
-              ].map(h => (
-                <th key={h} className="py-2 px-3 border-r border-slate-300 font-semibold last:border-r-0">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {demoData.map((row, i) => (
-              <tr key={i} className={`${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'} hover:bg-brand-50 hover:shadow-[inset_3px_0_0_0_var(--color-brand-500)] transition-colors cursor-pointer`}>
-                <td className="py-2 px-3 border-r border-slate-200 text-brand-600 font-bold">{row.noRawat}</td>
-                <td className="py-2 px-3 border-r border-slate-200">{row.noRM}</td>
-                <td className="py-2 px-3 border-r border-slate-200">{row.nama}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-center">{row.jk}</td>
-                <td className="py-2 px-3 border-r border-slate-200">{row.tglLahir}</td>
-                <td className="py-2 px-3 border-r border-slate-200">{row.tglAsuhan}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.bb}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.tb}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.imt}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.lla}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.tl}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.ulna}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.llaU}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.bbIdeal}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.bbU}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.tbU}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.bbTb}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-right">{row.llaUPersen}</td>
-                <td className="py-2 px-3 border-r border-slate-200 max-w-[200px] truncate">{row.subjektif}</td>
-                <td className="py-2 px-3 border-r border-slate-200 max-w-[200px] truncate">{row.fisikKlinis}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-center">{row.telur ? 'Ya' : 'Tidak'}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-center">{row.susuSapi ? 'Ya' : 'Tidak'}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-center">{row.kacang ? 'Ya' : 'Tidak'}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-center">{row.gluten ? 'Ya' : 'Tidak'}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-center">{row.udang ? 'Ya' : 'Tidak'}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-center">{row.ikan ? 'Ya' : 'Tidak'}</td>
-                <td className="py-2 px-3 border-r border-slate-200 text-center">{row.hazelnut ? 'Ya' : 'Tidak'}</td>
-                <td className="py-2 px-3">{row.polaMakan}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTableMulti
+          columns={columns}
+          data={demoData}
+          idKey="id"
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
+        />
       </div>
       {/* Bottom Action Panel - always at bottom */}
       <BottomActionPanel

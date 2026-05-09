@@ -19,6 +19,8 @@ import BottomActionPanel, {
   ActionButton,
 } from "@/components/BottomActionPanel";
 import { getDaftarRanap } from "@/lib/actions/ranap";
+import DataTableSingle from "@/components/DataTableSingle";
+import { TableColumn } from "@/components/TableTypes";
 
 export default function RawatInap() {
   const [mounted, setMounted] = useState(false);
@@ -26,6 +28,13 @@ export default function RawatInap() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [status, setStatus] = useState("Belum Pulang");
+  const [selectedNoRawat, setSelectedNoRawat] = useState<string | null>(null);
+
+  const toggleSelection = (noRawat: string) => {
+    setSelectedNoRawat(prev =>
+      prev.includes(noRawat) ? prev.filter(i => i !== noRawat) : [...prev, noRawat]
+    );
+  };
   const [tglAwal, setTglAwal] = useState(
     new Date().toISOString().split("T")[0],
   );
@@ -33,6 +42,101 @@ export default function RawatInap() {
     new Date().toISOString().split("T")[0],
   );
   const router = useRouter();
+
+  const columns: TableColumn[] = [
+    {
+      header: "No.Rawat",
+      key: "no_rawat",
+      render: (row) => (
+        <Link
+          href={`/rawat-inap/pemeriksaan?noRawat=${encodeURIComponent(row.no_rawat)}`}
+          className="text-brand-600 hover:text-brand-800 hover:underline font-bold"
+        >
+          {row.no_rawat}
+        </Link>
+      ),
+    },
+    { header: "Nomor RM", key: "no_rkm_medis", className: "text-brand-600 font-semibold" },
+    {
+      header: "Nama Pasien",
+      key: "nm_pasien",
+      className: "text-slate-800 font-bold",
+      render: (row) => `${row.nm_pasien} (${row.umur})`,
+    },
+    {
+      header: "Alamat Pasien",
+      key: "alamat",
+      className: "text-slate-600 truncate max-w-[200px]",
+    },
+    { header: "Penanggung Jawab", key: "p_jawab", className: "text-slate-600" },
+    { header: "Hubungan P.J.", key: "hubunganpj", className: "text-slate-600" },
+    {
+      header: "Jenis Bayar",
+      key: "png_jawab",
+      className: "text-center",
+      render: (row) => (
+        <span className="bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full text-[9px] font-bold">
+          {row.png_jawab}
+        </span>
+      ),
+    },
+    { header: "Kamar", key: "kamar", className: "text-slate-700 font-medium" },
+    {
+      header: "Tarif Kamar",
+      key: "trf_kamar",
+      className: "text-right text-slate-700",
+      render: (row) => new Intl.NumberFormat("id-ID").format(row.trf_kamar),
+    },
+    {
+      header: "Diagnosa Awal",
+      key: "diagnosa_awal",
+      className: "text-slate-600 truncate max-w-[150px]",
+    },
+    {
+      header: "Diagnosa Akhir",
+      key: "diagnosa_akhir",
+      className: "text-slate-600 truncate max-w-[150px]",
+    },
+    { header: "Tgl.Masuk", key: "tgl_masuk", className: "text-center text-slate-600" },
+    { header: "Jam Masuk", key: "jam_masuk", className: "text-center text-slate-600" },
+    { header: "Tgl.Keluar", key: "tgl_keluar", className: "text-center text-slate-600", render: (row) => row.tgl_keluar || "-" },
+    { header: "Jam Keluar", key: "jam_keluar", className: "text-center text-slate-600", render: (row) => row.jam_keluar || "-" },
+    {
+      header: "Ttl.Biaya",
+      key: "ttl_biaya",
+      className: "text-right text-brand-700 font-bold",
+      render: (row) => new Intl.NumberFormat("id-ID").format(row.ttl_biaya),
+    },
+    {
+      header: "Stts.Pulang",
+      key: "stts_pulang",
+      className: "text-center",
+      render: (row) => (
+        <span
+          className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.stts_pulang === "-" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"}`}
+        >
+          {row.stts_pulang}
+        </span>
+      ),
+    },
+    { header: "Lama", key: "lama", className: "text-center text-slate-600" },
+    { header: "Dokter P.J.", key: "nm_dokter", className: "text-slate-700" },
+    { header: "Kd Kamar", key: "kd_kamar", className: "text-slate-500" },
+    {
+      header: "Status Bayar",
+      key: "status_bayar",
+      className: "text-center",
+      render: (row) => (
+        <span
+          className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.status_bayar === "Sudah Bayar" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}
+        >
+          {row.status_bayar}
+        </span>
+      ),
+    },
+    { header: "Agama", key: "agama", className: "text-slate-600" },
+    { header: "No. HP", key: "no_tlp", className: "text-slate-600" },
+  ];
 
   const fetchData = async (keyword: string = searchKeyword) => {
     setIsLoading(true);
@@ -77,215 +181,16 @@ export default function RawatInap() {
         </button>
       </div>
 
-      {/* Table Area - Modernized with Horizontal Scroll */}
-      <div className="flex-1 overflow-auto bg-slate-50/50 border-t border-slate-300 relative custom-scrollbar">
-        <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
-          <thead className="sticky top-0 z-10 text-slate-600 shadow-sm backdrop-blur-md bg-white/95 border-b-2 border-brand-500">
-            <tr className="border-b-2 border-brand-500">
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                No.
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                No.Rawat
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Nomor RM
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Nama Pasien
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Alamat Pasien
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Penanggung Jawab
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Hubungan P.J.
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Jenis Bayar
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Kamar
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200 text-right">
-                Tarif Kamar
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Diagnosa Awal
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Diagnosa Akhir
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200 text-center">
-                Tgl.Masuk
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200 text-center">
-                Jam Masuk
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200 text-center">
-                Tgl.Keluar
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200 text-center">
-                Jam Keluar
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200 text-right">
-                Ttl.Biaya
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200 text-center">
-                Stts.Pulang
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200 text-center">
-                Lama
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Dokter P.J.
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Kd Kamar
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Status Bayar
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                Agama
-              </th>
-              <th className="py-2.5 px-3 font-bold border-r border-slate-200">
-                No. HP
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td
-                  colSpan={23}
-                  className="py-20 text-center text-slate-400 italic"
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <FaSync className="animate-spin text-3xl text-brand-500" />
-                    <span>Mengambil data dari server...</span>
-                  </div>
-                </td>
-              </tr>
-            ) : data.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={23}
-                  className="py-20 text-center text-slate-400 italic"
-                >
-                  Tidak ada data pasien rawat inap yang ditemukan.
-                </td>
-              </tr>
-            ) : (
-              data.map((row, i) => (
-                <tr
-                  key={i}
-                  className={`border-b border-slate-100 cursor-pointer transition-all duration-200
-                    ${i % 2 === 0 ? "bg-white" : "bg-slate-50/80"} 
-                    hover:bg-brand-50 hover:shadow-[inset_4px_0_0_0_var(--color-brand-500)]`}
-                >
-                  <td className="py-2 px-3 text-slate-500 text-center border-r border-slate-100 font-medium">
-                    {i + 1}
-                  </td>
-                  <td className="py-2 px-3 text-slate-700 font-medium border-r border-slate-100">
-                    <Link
-                      href={`/rawat-inap/pemeriksaan?noRawat=${encodeURIComponent(row.no_rawat)}`}
-                      className="text-brand-600 hover:text-brand-800 hover:underline font-bold"
-                    >
-                      {row.no_rawat}
-                    </Link>
-                  </td>
-                  <td className="py-2 px-3 text-brand-600 font-semibold border-r border-slate-100">
-                    {row.no_rkm_medis}
-                  </td>
-                  <td className="py-2 px-3 text-slate-800 font-bold border-r border-slate-100">
-                    {row.nm_pasien} ({row.umur})
-                  </td>
-                  <td
-                    className="py-2 px-3 text-slate-600 truncate max-w-[200px] border-r border-slate-100"
-                    title={row.alamat}
-                  >
-                    {row.alamat}
-                  </td>
-                  <td className="py-2 px-3 text-slate-600 border-r border-slate-100">
-                    {row.p_jawab}
-                  </td>
-                  <td className="py-2 px-3 text-slate-600 border-r border-slate-100">
-                    {row.hubunganpj}
-                  </td>
-                  <td className="py-2 px-3 text-center border-r border-slate-100">
-                    <span className="bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full text-[9px] font-bold">
-                      {row.png_jawab}
-                    </span>
-                  </td>
-                  <td className="py-2 px-3 text-slate-700 font-medium border-r border-slate-100">
-                    {row.kamar}
-                  </td>
-                  <td className="py-2 px-3 text-right text-slate-700 border-r border-slate-100">
-                    {new Intl.NumberFormat("id-ID").format(row.trf_kamar)}
-                  </td>
-                  <td
-                    className="py-2 px-3 text-slate-600 border-r border-slate-100 truncate max-w-[150px]"
-                    title={row.diagnosa_awal}
-                  >
-                    {row.diagnosa_awal}
-                  </td>
-                  <td
-                    className="py-2 px-3 text-slate-600 border-r border-slate-100 truncate max-w-[150px]"
-                    title={row.diagnosa_akhir}
-                  >
-                    {row.diagnosa_akhir}
-                  </td>
-                  <td className="py-2 px-3 text-center text-slate-600 border-r border-slate-100">
-                    {row.tgl_masuk}
-                  </td>
-                  <td className="py-2 px-3 text-center text-slate-600 border-r border-slate-100">
-                    {row.jam_masuk}
-                  </td>
-                  <td className="py-2 px-3 text-center text-slate-600 border-r border-slate-100">
-                    {row.tgl_keluar || "-"}
-                  </td>
-                  <td className="py-2 px-3 text-center text-slate-600 border-r border-slate-100">
-                    {row.jam_keluar || "-"}
-                  </td>
-                  <td className="py-2 px-3 text-right text-brand-700 font-bold border-r border-slate-100">
-                    {new Intl.NumberFormat("id-ID").format(row.ttl_biaya)}
-                  </td>
-                  <td className="py-2 px-3 text-center text-slate-600 border-r border-slate-100">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.stts_pulang === "-" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"}`}
-                    >
-                      {row.stts_pulang}
-                    </span>
-                  </td>
-                  <td className="py-2 px-3 text-center text-slate-600 border-r border-slate-100">
-                    {row.lama}
-                  </td>
-                  <td className="py-2 px-3 text-slate-700 border-r border-slate-100">
-                    {row.nm_dokter}
-                  </td>
-                  <td className="py-2 px-3 text-slate-500 border-r border-slate-100">
-                    {row.kd_kamar}
-                  </td>
-                  <td className="py-2 px-3 text-center border-r border-slate-100">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.status_bayar === "Sudah Bayar" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}
-                    >
-                      {row.status_bayar}
-                    </span>
-                  </td>
-                  <td className="py-2 px-3 text-slate-600 border-r border-slate-100">
-                    {row.agama}
-                  </td>
-                  <td className="py-2 px-3 text-slate-600">{row.no_tlp}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* Table Area - Using SingleSelect Component */}
+      <DataTableSingle
+        columns={columns}
+        data={data}
+        idKey="no_rawat"
+        selectedId={selectedNoRawat}
+        onSelectionChange={setSelectedNoRawat}
+        isLoading={isLoading}
+        emptyMessage="Tidak ada data pasien rawat inap yang ditemukan."
+      />
 
       {/* Actions and Filters Panel */}
       <BottomActionPanel

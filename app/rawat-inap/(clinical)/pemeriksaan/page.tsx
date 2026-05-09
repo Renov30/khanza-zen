@@ -8,6 +8,8 @@ import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import TabbedTable from '@/components/TabbedTable';
 import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
+import DataTableMulti from '@/components/DataTableMulti';
+import { TableColumn } from '@/components/TableTypes';
 
 interface PemeriksaanRow {
   no_rawat: string; no_rkm_medis: string; nm_pasien: string;
@@ -19,78 +21,32 @@ interface PemeriksaanRow {
   evaluasi: string; nip: string; nm_pegawai: string; jabatan: string;
 }
 
-const TABLE_COLUMNS = [
-  { key: 'no_rawat', label: 'No.Rawat', w: '140px' },
-  { key: 'no_rkm_medis', label: 'No.R.M.', w: '70px' },
-  { key: 'nm_pasien', label: 'Nama Pasien', w: '200px' },
-  { key: 'tgl_perawatan', label: 'Tgl.Rawat', w: '100px' },
-  { key: 'jam_rawat', label: 'Jam', w: '80px' },
-  { key: 'suhu_tubuh', label: 'Suhu(C)', w: '80px' },
-  { key: 'tensi', label: 'Tensi', w: '80px' },
-  { key: 'nadi', label: 'Nadi(/mnt)', w: '80px' },
-  { key: 'respirasi', label: 'Respirasi(/mnt)', w: '112px' },
-  { key: 'tinggi', label: 'Tinggi(Cm)', w: '90px' },
-  { key: 'berat', label: 'Berat(Kg)', w: '80px' },
-  { key: 'spo2', label: 'SpO2(%)', w: '80px' },
-  { key: 'gcs', label: 'GCS(E,V,M)', w: '90px' },
-  { key: 'kesadaran', label: 'Kesadaran', w: '140px' },
-  { key: 'keluhan', label: 'Subjek', w: '180px' },
-  { key: 'pemeriksaan', label: 'Objek', w: '180px' },
-  { key: 'alergi', label: 'Alergi', w: '180px' },
-  { key: 'penilaian', label: 'Asesmen', w: '180px' },
-  { key: 'rtl', label: 'Plan', w: '180px' },
-  { key: 'instruksi', label: 'Instruksi', w: '180px' },
-  { key: 'evaluasi', label: 'Evaluasi', w: '180px' },
-  { key: 'nip', label: 'NIP', w: '100px' },
-  { key: 'nm_pegawai', label: 'Dokter/Paramedis', w: '160px' },
-  { key: 'jabatan', label: 'Profesi/Jabatan', w: '130px' },
+const columns: TableColumn[] = [
+  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold hover:underline', width: '140px' },
+  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 font-semibold', width: '70px' },
+  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
+  { header: 'Tgl.Rawat', key: 'tgl_perawatan', width: '100px' },
+  { header: 'Jam', key: 'jam_rawat', width: '80px' },
+  { header: 'Suhu(C)', key: 'suhu_tubuh', width: '80px' },
+  { header: 'Tensi', key: 'tensi', width: '80px' },
+  { header: 'Nadi(/mnt)', key: 'nadi', width: '80px' },
+  { header: 'Respirasi(/mnt)', key: 'respirasi', width: '112px' },
+  { header: 'Tinggi(Cm)', key: 'tinggi', width: '90px' },
+  { header: 'Berat(Kg)', key: 'berat', width: '80px' },
+  { header: 'SpO2(%)', key: 'spo2', width: '80px' },
+  { header: 'GCS(E,V,M)', key: 'gcs', width: '90px' },
+  { header: 'Kesadaran', key: 'kesadaran', width: '140px' },
+  { header: 'Subjek', key: 'keluhan', width: '180px', className: 'truncate' },
+  { header: 'Objek', key: 'pemeriksaan', width: '180px', className: 'truncate' },
+  { header: 'Alergi', key: 'alergi', width: '180px', className: 'truncate' },
+  { header: 'Asesmen', key: 'penilaian', width: '180px', className: 'truncate' },
+  { header: 'Plan', key: 'rtl', width: '180px', className: 'truncate' },
+  { header: 'Instruksi', key: 'instruksi', width: '180px', className: 'truncate' },
+  { header: 'Evaluasi', key: 'evaluasi', width: '180px', className: 'truncate' },
+  { header: 'NIP', key: 'nip', width: '100px' },
+  { header: 'Dokter/Paramedis', key: 'nm_pegawai', width: '160px' },
+  { header: 'Profesi/Jabatan', key: 'jabatan', width: '130px' },
 ];
-
-function CpptTable({ data, isLoading }: { data: PemeriksaanRow[]; isLoading: boolean }) {
-  if (isLoading) return (
-    <tr>
-      <td colSpan={TABLE_COLUMNS.length + 1} className="py-20 text-center text-slate-400 italic">
-        <div className="flex flex-col items-center gap-3">
-          <FaSync className="animate-spin text-3xl text-brand-500" />
-          <span>Mengambil data dari server...</span>
-        </div>
-      </td>
-    </tr>
-  );
-
-  if (data.length === 0) return (
-    <tr>
-      <td colSpan={TABLE_COLUMNS.length + 1} className="py-20 text-center text-slate-400 italic">
-        Tidak ada data pemeriksaan yang ditemukan.
-      </td>
-    </tr>
-  );
-
-  return (
-    <>
-      {data.map((row, i) => (
-        <tr key={`${row.tgl_perawatan}-${row.jam_rawat}-${i}`}
-          className={`border-b border-slate-100 cursor-pointer transition-all duration-200
-            ${i % 2 === 0 ? "bg-white" : "bg-slate-50/80"} 
-            hover:bg-brand-50 hover:shadow-[inset_4px_0_0_0_var(--color-brand-500)]`}>
-          <td className="py-2 px-3 border-r border-slate-200 text-center">
-            <input type="checkbox" className="accent-brand-600 w-4 h-4 cursor-pointer rounded" />
-          </td>
-          {TABLE_COLUMNS.map(c => (
-            <td key={c.key} className={`py-2 px-3 border-r border-slate-100 truncate ${
-              c.key === 'no_rawat' ? 'text-brand-600 font-bold hover:underline' :
-              c.key === 'nm_pasien' ? 'text-slate-800 font-bold' :
-              c.key === 'no_rkm_medis' ? 'text-brand-600 font-semibold' :
-              'text-slate-600'
-            }`} style={{ width: c.w, minWidth: c.w }} title={String(row[c.key as keyof PemeriksaanRow] ?? '')}>
-              {row[c.key as keyof PemeriksaanRow] ?? ''}
-            </td>
-          ))}
-        </tr>
-      ))}
-    </>
-  );
-}
 
 function PemeriksaanContent() {
   const searchParams = useSearchParams();
@@ -100,6 +56,13 @@ function PemeriksaanContent() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('cppt');
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  const toggleSelection = (id: string) => {
+    setSelectedRows(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
 
   // Patient info
   const [noRawat] = useState(noRawatParam);
@@ -161,7 +124,14 @@ function PemeriksaanContent() {
     setIsLoadingData(true);
     try {
       const result = await getPemeriksaanRanap(nrw, kw, ta, tb);
-      if (result.success && result.data) setPemeriksaanData(result.data);
+      if (result.success && result.data) {
+        // Map data to include a unique ID for selection
+        const mappedData = result.data.map((row: any, i: number) => ({
+          ...row,
+          id: `${row.tgl_perawatan}-${row.jam_rawat}-${i}`
+        }));
+        setPemeriksaanData(mappedData);
+      }
       else setPemeriksaanData([]);
     } catch { setPemeriksaanData([]); }
     setIsLoadingData(false);
@@ -325,25 +295,16 @@ function PemeriksaanContent() {
             </div>
           </TopFormContainer>
 
-            {/* Inline Table using TabbedTable component for consistency with registration style */}
+            {/* Inline Table using DataTableMulti component */}
             <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <TabbedTable
-                hideTabBar={true}
-                tabs={[
-                  {
-                    id: 'cppt_history',
-                    label: 'Riwayat Pemeriksaan / CPPT',
-                    header: (
-                      <tr>
-                        <th className="py-2.5 px-3 border-r border-slate-200 font-bold w-10 text-center">P</th>
-                        {TABLE_COLUMNS.map(c => (
-                          <th key={c.key} className="py-2.5 px-3 border-r border-slate-200 font-bold" style={{ width: c.w, minWidth: c.w }}>{c.label}</th>
-                        ))}
-                      </tr>
-                    ),
-                    body: <CpptTable data={pemeriksaanData} isLoading={isLoadingData} />
-                  }
-                ]}
+              <DataTableMulti
+                columns={columns}
+                data={pemeriksaanData}
+                idKey="id"
+                selectedIds={selectedRows}
+                onSelectionChange={setSelectedRows}
+                isLoading={isLoadingData}
+                emptyMessage="Tidak ada data pemeriksaan yang ditemukan."
               />
             </div>
 
@@ -362,7 +323,14 @@ function PemeriksaanContent() {
                     </button>
                   </div>
                   <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
-                    <CpptTable data={pemeriksaanData} isLoading={isLoadingData} />
+                    <DataTableMulti
+                      columns={columns}
+                      data={pemeriksaanData}
+                      idKey="id"
+                      selectedIds={selectedRows}
+                      onSelectionChange={setSelectedRows}
+                      isLoading={isLoadingData}
+                    />
                   </div>
                 </motion.div>
               </>)}

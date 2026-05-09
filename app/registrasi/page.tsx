@@ -9,9 +9,12 @@ import {
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import TabbedTable from '@/components/TabbedTable';
+import DataTableMulti from '@/components/DataTableMulti';
+import { TableColumn } from '@/components/TableTypes';
 
 export default function Registrasi() {
   const [mounted, setMounted] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     setMounted(true);
@@ -21,13 +24,41 @@ export default function Registrasi() {
 
   /* Mock Data for Table */
   const mockData = [
-    { p: false, no: "2026/02/23/000001", tgl: "2026-02-23", jam: "08:07:55", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000005", nama: "Sakha Hamizan Aqila", jk: "L", umur: "8 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "-", pj: "WINDIHARTO", alamatPj: "PAJANGAN BANTUL, -, -", hubPj: "AYAH", biaya: "10,000", sts: "Lama", telp: "0896267503923" },
-    { p: false, no: "2026/02/25/000005", tgl: "2026-02-25", jam: "20:22:37", kd_dok: "D0000005", nm_dok: "dr. Sri Rahma", rm: "000051", nama: "ADI KAZAMA", jk: "L", umur: "41 Th", poli: "Poliklinik Jantung", jnsB: "UMUM", pj: "-", alamatPj: ", CAMPURJO, BOJONEGO...", hubPj: "DIRI SENDIRI", biaya: "10,000", sts: "Lama", telp: "-" },
-    { p: false, no: "2026/02/25/000003", tgl: "2026-02-25", jam: "14:35:37", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000048", nama: "LIYA RAHMA", jk: "P", umur: "39 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "UMUM", pj: "-", alamatPj: "TES, JOYOTAKAN, SEREN...", hubPj: "DIRI SENDIRI", biaya: "10,000", sts: "Lama", telp: "08965786" },
-    { p: false, no: "2026/02/25/000002", tgl: "2026-02-25", jam: "11:55:49", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000009", nama: "WAHYUDI KURNIAWAN", jk: "L", umur: "36 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "-", pj: "-", alamatPj: "PEKALONGAN, -, -, -", hubPj: "SAUDARA", biaya: "10,000", sts: "Lama", telp: "083875000083" },
-    { p: true, no: "2026/02/25/000001", tgl: "2026-02-25", jam: "10:07:55", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000022", nama: "RUDI SANTOSO", jk: "L", umur: "68 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "BPJS", pj: "-", alamatPj: "TES, KEDUNGWARLU, PRE...", hubPj: "SAUDARA", biaya: "10,000", sts: "Lama", telp: "123123213" },
-    { p: false, no: "2026/03/03/000001", tgl: "2026-03-03", jam: "18:01:10", kd_dok: "D0000001", nm_dok: "dr. Hilyatul Nadia", rm: "000005", nama: "Sakha Hamizan Aqila", jk: "L", umur: "9 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "-", pj: "WINDIHARTO", alamatPj: "PAJANGAN BANTUL, -, -", hubPj: "AYAH", biaya: "10,000", sts: "Lama", telp: "0896267503923" },
-    { p: false, no: "2026/03/10/000001", tgl: "2026-03-10", jam: "11:46:36", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000047", nama: "RIDWAN HALIM", jk: "L", umur: "37 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "PT KERETA API", pj: "-", alamatPj: "GAS, KARANG TIMUR, KA...", hubPj: "DIRI SENDIRI", biaya: "10,000", sts: "Lama", telp: "-" },
+    { id: "1", p: false, no: "2026/02/23/000001", tgl: "2026-02-23", jam: "08:07:55", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000005", nama: "Sakha Hamizan Aqila", jk: "L", umur: "8 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "-", pj: "WINDIHARTO", alamatPj: "PAJANGAN BANTUL, -, -", hubPj: "AYAH", biaya: "10,000", sts: "Lama", telp: "0896267503923" },
+    { id: "2", p: false, no: "2026/02/25/000005", tgl: "2026-02-25", jam: "20:22:37", kd_dok: "D0000005", nm_dok: "dr. Sri Rahma", rm: "000051", nama: "ADI KAZAMA", jk: "L", umur: "41 Th", poli: "Poliklinik Jantung", jnsB: "UMUM", pj: "-", alamatPj: ", CAMPURJO, BOJONEGO...", hubPj: "DIRI SENDIRI", biaya: "10,000", sts: "Lama", telp: "-" },
+    { id: "3", p: false, no: "2026/02/25/000003", tgl: "2026-02-25", jam: "14:35:37", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000048", nama: "LIYA RAHMA", jk: "P", umur: "39 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "UMUM", pj: "-", alamatPj: "TES, JOYOTAKAN, SEREN...", hubPj: "DIRI SENDIRI", biaya: "10,000", sts: "Lama", telp: "08965786" },
+    { id: "4", p: false, no: "2026/02/25/000002", tgl: "2026-02-25", jam: "11:55:49", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000009", nama: "WAHYUDI KURNIAWAN", jk: "L", umur: "36 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "-", pj: "-", alamatPj: "PEKALONGAN, -, -, -", hubPj: "SAUDARA", biaya: "10,000", sts: "Lama", telp: "083875000083" },
+    { id: "5", p: true, no: "2026/02/25/000001", tgl: "2026-02-25", jam: "10:07:55", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000022", nama: "RUDI SANTOSO", jk: "L", umur: "68 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "BPJS", pj: "-", alamatPj: "TES, KEDUNGWARLU, PRE...", hubPj: "SAUDARA", biaya: "10,000", sts: "Lama", telp: "123123213" },
+    { id: "6", p: false, no: "2026/03/03/000001", tgl: "2026-03-03", jam: "18:01:10", kd_dok: "D0000001", nm_dok: "dr. Hilyatul Nadia", rm: "000005", nama: "Sakha Hamizan Aqila", jk: "L", umur: "9 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "-", pj: "WINDIHARTO", alamatPj: "PAJANGAN BANTUL, -, -", hubPj: "AYAH", biaya: "10,000", sts: "Lama", telp: "0896267503923" },
+    { id: "7", p: false, no: "2026/03/10/000001", tgl: "2026-03-10", jam: "11:46:36", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000047", nama: "RIDWAN HALIM", jk: "L", umur: "37 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "PT KERETA API", pj: "-", alamatPj: "GAS, KARANG TIMUR, KA...", hubPj: "DIRI SENDIRI", biaya: "10,000", sts: "Lama", telp: "-" },
+  ];
+
+  const columns: TableColumn[] = [
+    { header: "No.Rawat", key: "no", className: "text-slate-700 font-medium" },
+    { header: "Tanggal", key: "tgl", className: "text-center text-slate-600" },
+    { header: "Jam", key: "jam", className: "text-center text-slate-600" },
+    { header: "Kode Dokter", key: "kd_dok", className: "text-slate-500 text-[9px]" },
+    { header: "Dokter Dituju", key: "nm_dok", className: "font-semibold text-brand-800" },
+    { header: "Nomor RM", key: "rm", className: "font-bold text-slate-700" },
+    { header: "Pasien", key: "nama", className: "font-bold text-slate-800" },
+    { header: "J.K.", key: "jk", className: "text-center text-slate-600" },
+    { header: "Umur", key: "umur", className: "text-slate-600" },
+    { header: "Poliklinik", key: "poli", className: "text-slate-700 font-medium" },
+    {
+      header: "Jenis Bayar",
+      key: "jnsB",
+      render: (row) => (
+        <span className="bg-sky-100 text-sky-700 px-1.5 py-[2px] rounded-sm text-[8px] font-bold">
+          {row.jnsB}
+        </span>
+      ),
+    },
+    { header: "Penanggung Jawab", key: "pj", className: "text-slate-600" },
+    { header: "Alamat P.J.", key: "alamatPj", className: "truncate max-w-[120px]" },
+    { header: "Hubungan P.J.", key: "hubPj", className: "text-slate-600" },
+    { header: "Biaya Registrasi", key: "biaya", className: "text-right text-slate-700" },
+    { header: "Status", key: "sts", className: "text-slate-600" },
+    { header: "No. Telp", key: "telp", className: "text-brand-600 tabular-nums" },
   ];
 
   return (
@@ -147,60 +178,15 @@ export default function Registrasi() {
           {
             id: 'registrasi_awal',
             label: 'Registrasi Awal',
-            header: (
-              <tr>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer text-center">P</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">No.Rawat</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer text-center">Tanggal</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer text-center">Jam</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Kode Dokter</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Dokter Dituju</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Nomor RM</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Pasien</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer text-center">J.K.</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Umur</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Poliklinik</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Jenis Bayar</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Penanggung Jawab</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Alamat P.J.</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Hubungan P.J.</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer text-right">Biaya Registrasi</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">Status</th>
-                <th className="py-2.5 px-2 font-bold hover:bg-slate-100 cursor-pointer">No. Telp</th>
-              </tr>
-            ),
+            header: null,
             body: (
-              <>
-                {mockData.map((row, i) => (
-                  <tr
-                    key={i}
-                    className={`border-b border-slate-100 cursor-pointer transition-all duration-200
-                      ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'} 
-                      hover:bg-brand-50 hover:shadow-[inset_3px_0_0_0_var(--color-brand-500)]`}
-                  >
-                    <td className="py-1.5 px-2 text-center">
-                      <input type="checkbox" className="accent-brand-600 rounded" defaultChecked={row.p} />
-                    </td>
-                    <td className="py-1.5 px-2 text-slate-700 font-medium">{row.no}</td>
-                    <td className="py-1.5 px-2 text-center text-slate-600">{row.tgl}</td>
-                    <td className="py-1.5 px-2 text-center text-slate-600">{row.jam}</td>
-                    <td className="py-1.5 px-2 text-slate-500 text-[9px]">{row.kd_dok}</td>
-                    <td className="py-1.5 px-2 font-semibold text-brand-800">{row.nm_dok}</td>
-                    <td className="py-1.5 px-2 font-bold text-slate-700">{row.rm}</td>
-                    <td className="py-1.5 px-2 font-bold text-slate-800">{row.nama}</td>
-                    <td className="py-1.5 px-2 text-center text-slate-600">{row.jk}</td>
-                    <td className="py-1.5 px-2 text-slate-600">{row.umur}</td>
-                    <td className="py-1.5 px-2 text-slate-700 font-medium">{row.poli}</td>
-                    <td className="py-1.5 px-2"><span className="bg-sky-100 text-sky-700 px-1.5 py-[2px] rounded-sm text-[8px] font-bold">{row.jnsB}</span></td>
-                    <td className="py-1.5 px-2 text-slate-600">{row.pj}</td>
-                    <td className="py-1.5 px-2 truncate max-w-[120px]" title={row.alamatPj}>{row.alamatPj}</td>
-                    <td className="py-1.5 px-2 text-slate-600">{row.hubPj}</td>
-                    <td className="py-1.5 px-2 text-right text-slate-700">{row.biaya}</td>
-                    <td className="py-1.5 px-2 text-slate-600">{row.sts}</td>
-                    <td className="py-1.5 px-2 text-brand-600 tabular-nums">{row.telp}</td>
-                  </tr>
-                ))}
-              </>
+              <DataTableMulti
+                columns={columns}
+                data={mockData}
+                idKey="id"
+                selectedIds={selectedIds}
+                onSelectionChange={setSelectedIds}
+              />
             )
           },
           {
