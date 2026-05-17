@@ -21,6 +21,7 @@ import BottomActionPanel, {
 import { getDaftarRanap } from "@/lib/actions/ranap";
 import DataTableSingle from "@/components/DataTableSingle";
 import { TableColumn } from "@/components/TableTypes";
+import { ranapRowClass } from "@/lib/row-colors";
 
 export default function RawatInap() {
   const [mounted, setMounted] = useState(false);
@@ -178,6 +179,8 @@ export default function RawatInap() {
         onSelectionChange={setSelectedNoRawat}
         isLoading={isLoading}
         emptyMessage="Tidak ada data pasien rawat inap yang ditemukan."
+        getRowKey={(row) => `${row.no_rawat}-${row.kd_kamar}`}
+        getRowClass={ranapRowClass}
       />
 
       {/* Actions and Filters Panel */}

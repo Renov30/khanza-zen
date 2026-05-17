@@ -3,6 +3,7 @@
 import React from "react";
 import { FaSync } from "react-icons/fa";
 import { TableColumn } from "./TableTypes";
+import { type RowClassFn } from "@/lib/row-colors";
 
 interface DataTableSingleProps {
   title?: string;
@@ -15,6 +16,8 @@ interface DataTableSingleProps {
   onSelectionChange: (id: string | null) => void;
   isLoading?: boolean;
   emptyMessage?: string;
+  getRowKey?: (row: any, index: number) => string;
+  getRowClass?: RowClassFn;
 }
 
 export default function DataTableSingle({
@@ -28,6 +31,8 @@ export default function DataTableSingle({
   onSelectionChange,
   isLoading = false,
   emptyMessage = "Tidak ada data ditemukan.",
+  getRowKey,
+  getRowClass,
 }: DataTableSingleProps) {
   const handleRowClick = (id: string) => {
     if (selectedId === id) {
@@ -94,12 +99,17 @@ export default function DataTableSingle({
             data.map((row, i) => {
               const id = String(row[idKey]);
               const isSelected = selectedId === id;
+              const rowKey = getRowKey ? getRowKey(row, i) : `${id}-${i}`;
+              const rowClass = getRowClass
+                ? getRowClass(row, i, isSelected)
+                : isSelected
+                  ? "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)]"
+                  : "text-slate-700";
               return (
                 <tr
-                  key={id}
+                  key={rowKey}
                   onClick={() => handleRowClick(id)}
-                  className={`border-b border-slate-100 cursor-pointer transition-all duration-200
-                    ${isSelected ? "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)]" : i % 2 === 0 ? "bg-white" : "bg-slate-50/80"} 
+                  className={`border-b border-slate-100 cursor-pointer transition-all duration-200 ${rowClass}
                     hover:bg-brand-50 hover:shadow-[inset_4px_0_0_0_var(--color-brand-500)]`}
                 >
                   <td className="py-2 px-3 text-slate-500 text-center border-r border-slate-100 font-medium">
