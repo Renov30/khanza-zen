@@ -144,7 +144,7 @@ function PemeriksaanContent() {
         setPegawaiNama(result.data.nama);
         setPegawaiJabatan(result.data.jabatan);
       }
-    } catch { /* fallback stays empty */ }
+    } catch { /* fallback tetap kosong */ }
   }, []);
 
   useEffect(() => {
@@ -168,7 +168,7 @@ function PemeriksaanContent() {
   return (
     <>
 
-      {/* Top Patient Info Bar */}
+      {/* Bar Info Pasien Atas */}
       <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
         <div className="flex items-center gap-1 w-full sm:w-auto">
           <label className="font-semibold text-slate-600 min-w-[80px] sm:min-w-0">Pasien :</label>
@@ -182,7 +182,7 @@ function PemeriksaanContent() {
           <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-75 sm:w-35 bg-slate-50 focus:outline-none focus:border-brand-500"
             value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
         </div>
-        {/* Feature 4: Real-time date/time */}
+        {/* Fitur 4: Tanggal/jam real-time */}
         <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
           <label className="font-semibold text-slate-600">Tanggal :</label>
           <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500"
@@ -194,7 +194,7 @@ function PemeriksaanContent() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tab */}
       <div className="flex bg-white border-b border-slate-200 px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {['Penanganan Dokter', 'Penanganan Petugas', 'Penanganan Dokter & Petugas', 'Pemeriksaan / CPPT', 'Pemeriksaan Obstetri', 'Pemeriksaan Ginekologi'].map(tab => {
           const tabId = tab.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -209,13 +209,13 @@ function PemeriksaanContent() {
         })}
       </div>
 
-      {/* Tab Content */}
+      {/* Konten Tab */}
       <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
         {activeTab === 'cppt' && (
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Pemeriksaan / CPPT" persistenceKey="khanza_cppt_form_open">
               <div className="flex flex-col gap-5">
-              {/* Feature 3 & 5: Petugas from logged-in user */}
+              {/* Fitur 3 & 5: Petugas dari user yang login */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
@@ -287,7 +287,7 @@ function PemeriksaanContent() {
             </div>
           </TopFormContainer>
 
-            {/* Inline Table using DataTableMulti component */}
+            {/* Tabel Inline menggunakan komponen DataTableMulti */}
             <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Riwayat Pemeriksaan / CPPT"
@@ -303,7 +303,7 @@ function PemeriksaanContent() {
               />
             </div>
 
-            {/* Expanded Modal Table */}
+            {/* Modal Tabel Diperluas */}
             <AnimatePresence>
               {isTableExpanded && (<>
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
@@ -340,7 +340,7 @@ function PemeriksaanContent() {
         )}
       </div>
 
-      {/* Feature 1 & 2: BottomPanel with period filter + search */}
+      {/* Fitur 1 & 2: BottomPanel dengan filter periode + pencarian */}
       <BottomActionPanel
         recordCount={pemeriksaanData.length}
         onExit={() => router.push('/rawat-inap')}

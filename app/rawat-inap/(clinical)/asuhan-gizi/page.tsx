@@ -156,7 +156,7 @@ function AsuhannGiziContent() {
 
   const formContent = (
     <div className="space-y-6">
-      {/* Patient Data Summary Section */}
+      {/* Ringkasan Data Pasien */}
       <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <FormField label="No. Rawat" value={noRawatParam} readOnly />
@@ -169,7 +169,7 @@ function AsuhannGiziContent() {
         </div>
       </div>
 
-      {/* Antropometri Section */}
+      {/* Section Antropometri */}
       <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
         <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
           Pengukuran Antropometri
@@ -227,7 +227,7 @@ function AsuhannGiziContent() {
         </div>
       </div>
 
-      {/* Clinical Diagnosis & Interventions */}
+      {/* Diagnosis Klinis & Intervensi */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <FormTextarea label="Diagnosa Gizi (ADIME)" value={diagnosaGizi} onChange={setDiagnosaGizi} />
         <FormTextarea label="Intervensi Gizi" value={intervensiGizi} onChange={setIntervensiGizi} />
@@ -235,7 +235,7 @@ function AsuhannGiziContent() {
         <FormTextarea label="Monitoring & Evaluasi" value={monitoringEvaluasi} onChange={setMonitoringEvaluasi} />
       </div>
 
-      {/* Petugas Section */}
+      {/* Section Petugas */}
       <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 flex flex-wrap items-end gap-4">
         <div className="flex-1 min-w-[250px]">
           <FormField label="Petugas Pengisi Asuhan" value="Ukhuwwatun Hasanah Pristari Rahayu, S.Gz" readOnly />
@@ -250,7 +250,7 @@ function AsuhannGiziContent() {
   return (
     <>
 
-      {/* Toggle Button - above table when form is closed */}
+      {/* Tombol Toggle - di atas tabel saat form tertutup */}
       {!isFormOpen && (
         <button
           onClick={() => setIsFormOpen(true)}
@@ -261,7 +261,7 @@ function AsuhannGiziContent() {
         </button>
       )}
 
-      {/* Collapsible Input Form - expands from top, replacing table */}
+      {/* Form Input yang Dapat Dilipat - membesar dari atas, menggantikan tabel */}
       <AnimatePresence initial={false}>
         {isFormOpen && (
           <motion.div
@@ -278,7 +278,7 @@ function AsuhannGiziContent() {
         )}
       </AnimatePresence>
 
-      {/* Toggle Button - below form when form is open */}
+      {/* Tombol Toggle - di bawah tabel saat form terbuka */}
       {isFormOpen && (
         <button
           onClick={() => setIsFormOpen(false)}
@@ -289,7 +289,7 @@ function AsuhannGiziContent() {
         </button>
       )}
 
-      {/* Data Table - using DataTableMulti */}
+      {/* Tabel Data - menggunakan DataTableMulti */}
       <div className={`flex-1 overflow-auto ${isFormOpen ? 'hidden' : 'block'}`}>
         <DataTableMulti
           title="Data Asuhan Gizi Pasien"
@@ -301,7 +301,7 @@ function AsuhannGiziContent() {
           onSelectionChange={setSelectedIds}
         />
       </div>
-      {/* Bottom Action Panel - always at bottom */}
+      {/* Panel Aksi Bawah - selalu di bawah */}
       <BottomActionPanel
         recordCount={1}
         onExit={() => router.push('/rawat-inap')}

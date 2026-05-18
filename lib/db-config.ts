@@ -11,7 +11,7 @@ export interface DbConfig {
 }
 
 /**
- * Reads and parses SIMRS-Bunda/setting/database.xml
+ * Membaca dan mem-parsing SIMRS-Bunda/setting/database.xml
  */
 export function getDatabaseConfig(): DbConfig {
   const xmlPath = path.join(process.cwd(), 'setting', 'database.xml');

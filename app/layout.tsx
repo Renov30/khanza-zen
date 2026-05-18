@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SIMRS - RS SUKACITA BANTUL",
+  title: "SIMRS - RS Bunda Pengharapan",
   description: "Sistem Informasi Manajemen Rumah Sakit",
 };
 

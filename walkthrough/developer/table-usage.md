@@ -1,10 +1,10 @@
-# Walkthrough: Implementing Smart Tables in Your Page
+# Walkthrough: Menggunakan Tabel Interaktif di Halaman Anda
 
-This guide explains how to use `DataTableMulti` and `DataTableSingle` components to quickly build interactive tables.
+Panduan ini menjelaskan cara menggunakan komponen `DataTableMulti` dan `DataTableSingle` untuk membangun tabel interaktif dengan cepat.
 
-## Step 1: Import Types and Components
+## Langkah 1: Import Tipe dan Komponen
 
-First, import the necessary parts in your page file.
+Pertama, import bagian yang diperlukan di file halaman Anda.
 
 ```tsx
 import DataTableMulti from "@/components/DataTableMulti";
@@ -12,9 +12,9 @@ import DataTableSingle from "@/components/DataTableSingle";
 import { TableColumn } from "@/components/TableTypes";
 ```
 
-## Step 2: Define Your Columns
+## Langkah 2: Definisikan Kolom
 
-Create a configuration array for your columns. This keeps your JSX clean and logic separated.
+Buat array konfigurasi untuk kolom Anda. Ini menjaga JSX tetap bersih dan logika terpisah.
 
 ```tsx
 const columns: TableColumn[] = [
@@ -32,29 +32,29 @@ const columns: TableColumn[] = [
 ];
 ```
 
-## Step 3: Set Up Selection State
+## Langkah 3: Siapkan State Seleksi
 
-Choose the state based on whether you want multi-select or single-select.
+Pilih state berdasarkan kebutuhan: multi-select atau single-select.
 
-### For Multi-Select:
+### Untuk Multi-Select:
 ```tsx
 const [selectedIds, setSelectedIds] = useState<string[]>([]);
 ```
 
-### For Single-Select:
+### Untuk Single-Select:
 ```tsx
 const [selectedId, setSelectedId] = useState<string | null>(null);
 ```
 
-## Step 4: Render the Component
+## Langkah 4: Render Komponen
 
-### Example using `DataTableMulti`
+### Contoh menggunakan `DataTableMulti`
 
 ```tsx
 <DataTableMulti
   title="Daftar Pasien"
   icon={<FaBed />}
-  onRefresh={fetchData} // Optional
+  onRefresh={fetchData} // Opsional
   columns={columns}
   data={data}
   idKey="no_rawat" 
@@ -64,7 +64,7 @@ const [selectedId, setSelectedId] = useState<string | null>(null);
 />
 ```
 
-### Example using `DataTableSingle`
+### Contoh menggunakan `DataTableSingle`
 
 ```tsx
 <DataTableSingle
@@ -79,14 +79,14 @@ const [selectedId, setSelectedId] = useState<string | null>(null);
 />
 ```
 
-## Step 5: Handling Actions
+## Langkah 5: Menangani Aksi
 
-Use your state to perform actions (like printing, deleting, or navigating).
+Gunakan state untuk melakukan aksi (seperti mencetak, menghapus, atau navigasi).
 
 ```tsx
 <button 
   disabled={selectedIds.length === 0}
-  onClick={() => console.log("Processing IDs:", selectedIds)}
+  onClick={() => console.log("Memproses ID:", selectedIds)}
 >
   Proses Terpilih
 </button>
@@ -94,4 +94,4 @@ Use your state to perform actions (like printing, deleting, or navigating).
 
 ---
 > [!TIP]
-> The `render` function in `TableColumn` gives you full control over how a cell looks, including adding links, icons, or custom formatting.
+> Fungsi `render` di `TableColumn` memberi Anda kendali penuh atas tampilan sel, termasuk menambahkan tautan, ikon, atau format kustom.

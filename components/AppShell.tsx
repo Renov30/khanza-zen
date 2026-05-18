@@ -123,7 +123,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       className="flex flex-col h-screen w-full overflow-hidden bg-slate-50 font-sans relative"
       onContextMenu={handleContextMenu}
     >
-      {/* Primary Top Bar (Dark Green Gradient) */}
+      {/* Primary Top Bar (Gradien Hijau Tua) */}
       <motion.nav
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -154,14 +154,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </motion.nav>
 
-      {/* Secondary Toolbar (Light Glassmorphic Style) */}
+      {/* Secondary Toolbar (Gaya Glassmorphic Terang) */}
       <motion.nav
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
         className="bg-white/80 backdrop-blur-md border-b border-brand-100 flex items-center px-4 shadow-sm z-20 relative"
       >
-        {/* Scrolling Menu Items Container */}
+        {/* Container Menu Geser */}
         <div className="flex-1 flex items-center gap-1 overflow-x-auto py-1 lg:py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <Link href="/daftar-menu">
             <SecondaryMenuItem
@@ -223,7 +223,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           />
         </div>
 
-        {/* Fixed User Profile Container (No Overflow Clipping) */}
+        {/* Container Profil User Tetap (Tanpa Clipping Overflow) */}
         <div className="flex items-center pl-4 bg-white/20">
           {!isLoggedIn ? (
             <SecondaryMenuItem
@@ -288,12 +288,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </motion.nav>
 
-      {/* Main Content Area */}
+      {/* Area Konten Utama */}
       <main className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30">
         <div className="absolute inset-0 w-full h-full">{children}</div>
       </main>
 
-      {/* Context Menu */}
+      {/* Menu Konteks */}
       <AnimatePresence>
         {contextMenu.show && (
           <motion.div
@@ -347,7 +347,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         )}
       </AnimatePresence>
 
-      {/* Login Modal */}
+      {/* Modal Login */}
       <AnimatePresence>
         {isLoginModalOpen && (
           <motion.div
@@ -364,7 +364,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               transition={{ type: "spring", damping: 25, stiffness: 400 }}
               className="bg-white w-[380px] flex flex-col rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/50"
             >
-              {/* Login Header */}
+              {/* Header Login */}
               <div className="bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-4 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
                   <FaLock className="text-white text-lg" />
@@ -379,7 +379,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
 
-              {/* Form Area */}
+              {/* Area Form */}
               <form
                 action={async (formData) => {
                   setLoginError("");

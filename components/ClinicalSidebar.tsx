@@ -88,14 +88,14 @@ export default function ClinicalSidebar({
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      {/* Shared Clinical Sidebar */}
+      {/* Clinical Sidebar Bersama */}
       <motion.div
         initial={false}
         animate={{ width: isSidebarOpen ? 224 : 48 }}
         transition={{ duration: 0.15, ease: "linear" }}
         className="bg-white border-r border-slate-200 flex flex-col overflow-hidden shrink-0"
       >
-        {/* Toggle + Search */}
+        {/* Toggle + Pencarian */}
         <div className="p-2 border-b border-slate-100 flex items-center gap-2 h-12">
           <button
             onClick={toggleSidebar}
@@ -118,7 +118,7 @@ export default function ClinicalSidebar({
           )}
         </div>
 
-        {/* Menu Items */}
+        {/* Item Menu */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {filteredMenu.map((item, idx) => (
             <div
@@ -143,7 +143,7 @@ export default function ClinicalSidebar({
         </div>
       </motion.div>
 
-      {/* Main Content */}
+      {/* Konten Utama */}
       <motion.div
         key={pathname} // use pathname to trigger animation on route change
         initial={{ opacity: 0 }}

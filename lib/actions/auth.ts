@@ -4,9 +4,9 @@ import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 
 /**
- * Login action matching Khanza's encryption logic:
- * - Username key: 'nur'
- * - Password key: 'windi'
+ * Aksi login mengikuti logika enkripsi Khanza:
+ * - Key username: 'nur'
+ * - Key password: 'windi'
  */
 export async function loginAction(formData: FormData) {
   const id_user = formData.get("username") as string;
@@ -19,7 +19,7 @@ export async function loginAction(formData: FormData) {
   try {
     let userData = null;
 
-    // 1. Check in 'user' table (Petugas/Staff)
+    // 1. Cek di tabel 'user' (Petugas/Staff)
     const [rows]: any = await db.execute(
       `SELECT * FROM user WHERE id_user = AES_ENCRYPT(?, 'nur') AND password = AES_ENCRYPT(?, 'windi')`,
       [id_user, password]
@@ -32,7 +32,7 @@ export async function loginAction(formData: FormData) {
         role: 'user'
       };
     } else {
-      // 2. Fallback check in 'admin' table
+      // 2. Fallback cek di tabel 'admin'
       const [adminRows]: any = await db.execute(
         `SELECT * FROM admin WHERE usere = AES_ENCRYPT(?, 'nur') AND passworde = AES_ENCRYPT(?, 'windi')`,
         [id_user, password]
@@ -54,7 +54,7 @@ export async function loginAction(formData: FormData) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 24 // 24 hours
+        maxAge: 60 * 60 * 24 // 24 jam
       });
 
       return {

@@ -15,7 +15,7 @@ export default function Home() {
 
   return (
     <div className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30">
-      {/* Background Image with slight animation */}
+      {/* Gambar Latar dengan animasi ringan */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -24,17 +24,17 @@ export default function Home() {
         style={{ backgroundImage: "url('/img/background.png')" }}
       />
 
-      {/* Content Overlay */}
+            {/* Hamparan Konten */}
       <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent z-0"></div>
 
-      {/* Bottom Left Logo Area */}
+      {/* Area Logo Kiri Bawah */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
         className="absolute bottom-16 left-4 sm:bottom-8 sm:left-8 z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5"
       >
-        {/* Logo 3D effect */}
+        {/* Efek 3D Logo */}
         <div
           className="w-14 h-14 sm:w-20 sm:h-20 bg-white/90 backdrop-blur-xl rounded-2xl flex items-center justify-center p-2 sm:p-3 shadow-2xl border border-white/50 relative overflow-hidden group shrink-0"
         >

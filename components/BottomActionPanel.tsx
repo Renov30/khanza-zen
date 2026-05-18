@@ -82,7 +82,7 @@ export default function BottomActionPanel({
           {extraFilters}
         </div>
       )}
-      {/* Filters Row */}
+      {/* Baris Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
         <div className="flex items-center gap-2 flex-wrap">
           {leftFilters}
@@ -133,7 +133,7 @@ export default function BottomActionPanel({
         </div>
       </div>
 
-      {/* Buttons Row */}
+      {/* Baris Tombol */}
       <div className="flex items-center justify-between flex-wrap gap-y-2">
         <div className="flex items-center gap-1.5 flex-wrap">
           {customButtons}

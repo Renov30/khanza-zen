@@ -172,7 +172,7 @@ function RiwayatPasienContent() {
 
   return (
     <>
-      {/* Page Header */}
+      {/* Header Halaman */}
       <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
         <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
           <FaHistory className="text-brand-600" />
@@ -180,7 +180,7 @@ function RiwayatPasienContent() {
         </h2>
       </div>
 
-      {/* Patient Info Bar */}
+      {/* Bar Info Pasien */}
       <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-4 items-center text-xs">
         <div className="flex items-center gap-1">
           <label className="font-semibold text-slate-600">Pasien :</label>
@@ -228,7 +228,7 @@ function RiwayatPasienContent() {
         </div>
       </div>
 
-      {/* Toggle Patient Data */}
+      {/* Toggle Data Pasien */}
       <button
         onClick={() => setShowPatientData(!showPatientData)}
         className="bg-white border-b border-slate-200 px-4 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50 transition-colors flex items-center gap-2 shrink-0"
@@ -241,7 +241,7 @@ function RiwayatPasienContent() {
         {showPatientData ? "Sembunyikan" : "Tampilkan"} Data Pasien
       </button>
 
-      {/* Expandable Patient Data */}
+      {/* Data Pasien yang Dapat Diperluas */}
       <AnimatePresence>
         {showPatientData && (
           <motion.div
@@ -280,7 +280,7 @@ function RiwayatPasienContent() {
         )}
       </AnimatePresence>
 
-      {/* Tabs */}
+      {/* Tab */}
       <div className="flex bg-white border-b border-slate-200 px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {tabs.map((tab) => (
           <button
@@ -300,7 +300,7 @@ function RiwayatPasienContent() {
         ))}
       </div>
 
-      {/* Tab Content */}
+      {/* Konten Tab */}
       <div className="flex-1 overflow-hidden flex flex-col relative">
         <AnimatePresence mode="wait">
           {/* Tab 1: Riwayat Kunjungan */}
@@ -395,7 +395,7 @@ function RiwayatPasienContent() {
                     </span>
                   </div>
                   <div className="border border-slate-200 rounded-lg overflow-hidden">
-                    {/* CPPT Header */}
+                    {/* Header CPPT */}
                     <div className="bg-slate-100 text-[11px] font-bold text-slate-600 grid grid-cols-12 gap-0">
                       <div className="col-span-1 p-2 border-r border-slate-200 text-center">
                         Status
@@ -416,7 +416,7 @@ function RiwayatPasienContent() {
                         Review & Verifikasi DPJP
                       </div>
                     </div>
-                    {/* CPPT Entries */}
+                    {/* Entri CPPT */}
                     {group.entries.map((entry, ei) => (
                       <div
                         key={ei}
@@ -463,7 +463,7 @@ function RiwayatPasienContent() {
               transition={{ duration: 0.15 }}
               className="flex-1 flex overflow-hidden"
             >
-              {/* Left Sidebar with Checkboxes */}
+              {/* Sidebar Kiri dengan Checkbox */}
               <motion.div
                 initial={false}
                 animate={{ width: sidebarOpen ? 260 : 40 }}
@@ -506,10 +506,10 @@ function RiwayatPasienContent() {
                 )}
               </motion.div>
 
-              {/* Right Detail Panel */}
+              {/* Panel Detail Kanan */}
               <div className="flex-1 overflow-auto p-4">
                 <div className="space-y-4">
-                  {/* Registration Detail Card */}
+                  {/* Kartu Detail Registrasi */}
                   <div className="bg-white rounded-lg border border-slate-200 p-4">
                     <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">
                       <FaClipboardList className="text-brand-500" /> Detail
@@ -544,7 +544,7 @@ function RiwayatPasienContent() {
                     </div>
                   </div>
 
-                  {/* Care Detail Card */}
+                  {/* Kartu Detail Perawatan */}
                   <div className="bg-white rounded-lg border border-slate-200 p-4">
                     <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">
                       <FaNotesMedical className="text-brand-500" /> Detail
@@ -571,7 +571,7 @@ function RiwayatPasienContent() {
                     </div>
                   </div>
 
-                  {/* Placeholder for selected assessment modules */}
+                  {/* Placeholder untuk modul asesmen yang dipilih */}
                   <div className="bg-slate-50 rounded-lg border border-dashed border-slate-300 p-6 text-center text-xs text-slate-400 italic">
                     Pilih modul asesmen pada panel kiri untuk menampilkan data
                     perawatan lengkap
@@ -583,7 +583,7 @@ function RiwayatPasienContent() {
         </AnimatePresence>
       </div>
 
-      {/* Bottom Action Panel with Filters */}
+      {/* Panel Aksi Bawah dengan Filter */}
       <div className="bg-white border-t border-slate-200 px-4 py-2 flex flex-wrap items-center gap-3 text-xs shrink-0">
         <div className="flex items-center gap-3 flex-wrap">
           {[

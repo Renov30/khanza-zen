@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 
 /**
- * Utility for AES decryption matching Khanza's implementation
- * Algorithm: AES/CBC/PKCS5PADDING (Node.js uses PKCS7 which is compatible with PKCS5)
+ * Utilitas untuk dekripsi AES sesuai implementasi Khanza
+ * Algoritma: AES/CBC/PKCS5PADDING (Node.js menggunakan PKCS7 yang kompatibel dengan PKCS5)
  * Key: Bar12345Bar12345
  * IV: sayangsamakhanza
  */

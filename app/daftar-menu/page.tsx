@@ -214,7 +214,7 @@ export default function DaftarMenuPage() {
       transition={{ duration: 0.15 }}
       className="flex h-full w-full bg-slate-50/50 overflow-hidden relative rounded-tl-xl shadow-inner border-t border-l border-white"
     >
-      {/* Sidebar Control / Animation */}
+      {/* Kontrol Sidebar / Animasi */}
       <AnimatePresence initial={false}>
         {isSidebarOpen && (
           <motion.div
@@ -224,7 +224,7 @@ export default function DaftarMenuPage() {
             transition={{ duration: 0.15, ease: "linear" }}
             className="h-full border-r border-slate-200 bg-white shadow-sm flex flex-col z-10 shrink-0"
           >
-            {/* Sidebar Header & Search */}
+            {/* Header Sidebar & Pencarian */}
             <div className="p-4 border-b border-slate-100 bg-brand-50/50">
               <h3 className="font-bold text-brand-800 text-sm mb-3">
                 Navigasi Menu
@@ -241,7 +241,7 @@ export default function DaftarMenuPage() {
               </div>
             </div>
 
-            {/* Category List */}
+            {/* Daftar Kategori */}
             <div className="flex-1 overflow-y-auto w-full [scrollbar-width:thin] p-2 space-y-1">
               {CATEGORIES.map((cat, idx) => (
                 <button
@@ -261,7 +261,7 @@ export default function DaftarMenuPage() {
               ))}
             </div>
 
-            {/* Sidebar Footer info */}
+            {/* Footer info Sidebar */}
             <div className="p-3 border-t border-slate-100 bg-slate-50 text-[10px] text-slate-400 font-medium text-center">
               Total {MOCK_MENU_ITEMS.length} Menu Modul Tersedia
             </div>
@@ -269,9 +269,9 @@ export default function DaftarMenuPage() {
         )}
       </AnimatePresence>
 
-      {/* Main Grid Area */}
+      {/* Area Grid Utama */}
       <div className="flex-1 flex flex-col h-full relative transition-all duration-300">
-        {/* Top Floating Toggle Button */}
+        {/* Tombol Toggle Terapung Atas */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className={`cursor-pointer absolute top-6 ${isSidebarOpen ? "-left-4" : "left-4"} w-8 h-8 flex items-center justify-center z-20 bg-white border border-slate-200 rounded-full shadow-md hover:bg-brand-50 hover:text-brand-600 transition-all duration-300 text-slate-500`}
@@ -283,7 +283,7 @@ export default function DaftarMenuPage() {
           )}
         </button>
 
-        {/* Content Header with Full Width Divider */}
+        {/* Header Konten dengan Divider Lebar Penuh */}
         <div className="pt-5 pb-4 px-8 pl-16 border-b border-brand-100/70 bg-white/40 backdrop-blur-sm z-10 shrink-0 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex items-center justify-between">
           <h2 className="text-xl font-bold text-slate-700 font-serif tracking-tight">
             {searchQuery ? (
@@ -307,7 +307,7 @@ export default function DaftarMenuPage() {
           </Link>
         </div>
 
-        {/* Icons Grid - Centered Flex Wrap with standard vertical sizing */}
+        {/* Grid Ikon - Flex Wrap Terpusat dengan ukuran vertikal standar */}
         <div className="flex-1 overflow-y-auto p-8 pt-8 align-top bg-gradient-to-br from-slate-50/50 to-white/20">
           {filteredItems.length > 0 ? (
             <div className="flex flex-wrap justify-center gap-6 sm:gap-10 max-w-[1400px] mx-auto">

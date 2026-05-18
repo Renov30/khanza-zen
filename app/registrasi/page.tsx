@@ -22,7 +22,7 @@ export default function Registrasi() {
 
   if (!mounted) return null;
 
-  /* Mock Data for Table */
+  /* Data Mock untuk Tabel */
   const mockData = [
     { id: "1", p: false, no: "2026/02/23/000001", tgl: "2026-02-23", jam: "08:07:55", kd_dok: "D0000004", nm_dok: "dr. Hilyatul Nadia", rm: "000005", nama: "Sakha Hamizan Aqila", jk: "L", umur: "8 Th", poli: "Poliklinik Penyakit Dalam", jnsB: "-", pj: "WINDIHARTO", alamatPj: "PAJANGAN BANTUL, -, -", hubPj: "AYAH", biaya: "10,000", sts: "Lama", telp: "0896267503923" },
     { id: "2", p: false, no: "2026/02/25/000005", tgl: "2026-02-25", jam: "20:22:37", kd_dok: "D0000005", nm_dok: "dr. Sri Rahma", rm: "000051", nama: "ADI KAZAMA", jk: "L", umur: "41 Th", poli: "Poliklinik Jantung", jnsB: "UMUM", pj: "-", alamatPj: ", CAMPURJO, BOJONEGO...", hubPj: "DIRI SENDIRI", biaya: "10,000", sts: "Lama", telp: "-" },
@@ -72,7 +72,7 @@ export default function Registrasi() {
 
       <TopFormContainer title="Input Data">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-xs">
-          {/* Left Column */}
+          {/* Kolom Kiri */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-slate-600 w-20 text-right">No. Reg :</span>
@@ -117,7 +117,7 @@ export default function Registrasi() {
             </div>
           </div>
 
-          {/* Right Column */}
+          {/* Kolom Kanan */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-slate-600 w-[110px] text-right">No. Rekam Medik :</span>
@@ -165,7 +165,7 @@ export default function Registrasi() {
         </div>
       </TopFormContainer>
 
-      {/* Table Area (Tabbed) */}
+      {/* Area Tabel (Bertab) */}
       <TabbedTable
         tabs={[
           {
@@ -210,7 +210,7 @@ export default function Registrasi() {
         ]}
       />
 
-      {/* Actions and Filters Panel */}
+      {/* Panel Aksi dan Filter */}
       <BottomActionPanel
         recordCount={16}
       />

@@ -35,7 +35,7 @@ export default function TopFormContainer({
 
   return (
     <div className="bg-white shadow-sm z-0 shrink-0 flex flex-col">
-      {/* Toggle Button / Header */}
+      {/* Tombol Toggle / Header */}
       <button
         onClick={handleToggle}
         className="bg-white border-b border-slate-200 px-4 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50 transition-colors flex items-center gap-2 shrink-0 w-full text-left"
@@ -44,7 +44,7 @@ export default function TopFormContainer({
         <span className="tracking-wide">{isOpen ? 'Sembunyikan' : 'Tampilkan'} {title}</span>
       </button>
 
-      {/* Collapsible Content */}
+      {/* Konten yang Dapat Dilipat */}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div

@@ -3,8 +3,8 @@
 import { db } from "@/lib/db";
 
 /**
- * Fetch patient info (no_rkm_medis, nm_pasien) given a no_rawat.
- * Mirrors isRawat() + isPsien() from Java DlgRawatInap.
+ * Mengambil info pasien (no_rkm_medis, nm_pasien) berdasarkan no_rawat.
+ * Meniru isRawat() + isPsien() dari Java DlgRawatInap.
  */
 export async function getPatientInfoByNoRawat(noRawat: string) {
   try {
@@ -32,10 +32,10 @@ export async function getPatientInfoByNoRawat(noRawat: string) {
 }
 
 /**
- * Fetch pemeriksaan/CPPT data for inpatient (rawat inap).
- * Mirrors tampilPemeriksaan() from Java DlgRawatInap (case 3).
- * Joins pemeriksaan_ranap, reg_periksa, pasien, pegawai tables
- * with audit trail filtering (only 'aktif' or null status).
+ * Mengambil data pemeriksaan/CPPT untuk rawat inap.
+ * Meniru tampilPemeriksaan() dari Java DlgRawatInap (case 3).
+ * JOIN tabel pemeriksaan_ranap, reg_periksa, pasien, pegawai
+ * dengan filter audit trail (hanya status 'aktif' atau null).
  */
 export async function getPemeriksaanRanap(
   noRawat: string,
@@ -113,7 +113,7 @@ export async function getPemeriksaanRanap(
 
     const [rows]: any = await db.execute(query, params);
 
-    // Format dates to avoid serialization issues
+    // Format tanggal untuk menghindari masalah serialisasi
     const formattedRows = rows.map((row: any) => ({
       ...row,
       tgl_perawatan:
@@ -135,13 +135,13 @@ export async function getPemeriksaanRanap(
 }
 
 /**
- * Fetch pegawai info (nama, jabatan) for the logged-in user.
- * Mirrors Java: pegawai.tampil3(KdPeg) + pegawai.tampilJbatan(KdPeg)
- * where KdPeg = akses.getkode() (the session user ID / NIP / NIK).
+ * Mengambil info pegawai (nama, jabatan) untuk user yang sedang login.
+ * Meniru Java: pegawai.tampil3(KdPeg) + pegawai.tampilJbatan(KdPeg)
+ * di mana KdPeg = akses.getkode() (ID user sesi / NIP / NIK).
  */
 export async function getLoggedInPegawai() {
   try {
-    // Import getSession from auth module
+    // Import getSession dari modul auth
     const { getSession } = await import("@/lib/auth");
     const session = await getSession();
 
@@ -169,7 +169,7 @@ export async function getLoggedInPegawai() {
       };
     }
 
-    // If user not found in pegawai, return session id as fallback
+    // Jika user tidak ditemukan di pegawai, gunakan session id sebagai fallback
     return {
       success: true,
       data: {
@@ -194,7 +194,7 @@ export async function getDaftarRanap(
     let whereCondition = "";
     const params: any[] = [];
 
-    // 1. Handle Status & Date Filters
+    // 1. Filter berdasarkan Status & Tanggal
     if (status === "Belum Pulang") {
       whereCondition = "WHERE kamar_inap.stts_pulang = '-'";
     } else if (status === "Sudah Pulang") {
@@ -207,7 +207,7 @@ export async function getDaftarRanap(
       whereCondition = "WHERE 1=1";
     }
 
-    // 2. Handle Search Keyword
+    // 2. Filter berdasarkan Kata Kunci Pencarian
     if (keyword) {
       whereCondition += `
         AND (
@@ -276,7 +276,7 @@ export async function getDaftarRanap(
 
     const [rows]: any = await db.execute(query, params);
 
-    // Format dates to string to avoid React rendering errors
+    // Format tanggal ke string untuk menghindari error rendering React
     const formattedRows = rows.map((row: any) => ({
       ...row,
       tgl_masuk:

@@ -178,7 +178,7 @@ export default function RawatInap() {
         getRowClass={ranapRowClass}
       />
 
-      {/* Actions and Filters Panel */}
+      {/* Panel Aksi dan Filter */}
       <BottomActionPanel
         recordCount={data.length}
         hideStandardButtons

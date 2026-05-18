@@ -26,7 +26,7 @@ export async function getDbConnection() {
   return pool;
 }
 
-// Export db to match expected imports in actions
+// Ekspor db agar sesuai dengan import yang diharapkan di actions
 export const db = {
   execute: async (sql: string, params?: any[]) => {
     const pool = await getDbConnection();
@@ -39,7 +39,7 @@ export const db = {
 };
 
 /**
- * Execute a query with automatic connection management
+ * Mengeksekusi query dengan manajemen koneksi otomatis
  */
 export async function query<T>(sql: string, params?: any[]): Promise<T> {
   const connection = await getDbConnection();
