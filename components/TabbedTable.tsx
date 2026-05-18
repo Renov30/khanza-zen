@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import DataTable from './DataTable';
 
 export interface TabData {
   id: string;
   label: string;
-  header: React.ReactNode;
-  body: React.ReactNode;
+  content: React.ReactNode;
 }
 
 interface TabbedTableProps {
@@ -25,13 +23,10 @@ export default function TabbedTable({ tabs, defaultTabId, onTabChange, hideTabBa
     if (onTabChange) onTabChange(id);
   };
 
-  const activeTabData = tabs.find(t => t.id === activeTab) || tabs[0];
-
   if (!tabs || tabs.length === 0) return null;
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-      {/* Tabs Menu */}
       {!hideTabBar && (
         <div className="flex gap-1 px-4 mt-2 mb-0 shrink-0 border-b border-slate-200">
           {tabs.map((tab) => (
@@ -53,11 +48,11 @@ export default function TabbedTable({ tabs, defaultTabId, onTabChange, hideTabBa
         </div>
       )}
 
-      {/* Table Content */}
-      <DataTable 
-        header={activeTabData?.header} 
-        body={activeTabData?.body} 
-      />
+      <div className="flex-1 overflow-hidden">
+        {tabs.map((tab) => (
+          <div key={tab.id} className={activeTab === tab.id ? 'h-full' : 'hidden'}>{tab.content}</div>
+        ))}
+      </div>
     </div>
   );
 }

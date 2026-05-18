@@ -171,8 +171,7 @@ export default function Registrasi() {
           {
             id: 'registrasi_awal',
             label: 'Registrasi Awal',
-            header: null,
-            body: (
+            content: (
               <DataTableMulti
                 title="Daftar Registrasi Pasien"
                 icon={<FaIdCard />}
@@ -187,19 +186,25 @@ export default function Registrasi() {
           {
             id: 'rujukan_internal',
             label: 'Rujukan Internal Poli',
-            header: (
-              <tr>
-                <th className="py-2.5 px-2 font-bold">No. Rujukan</th>
-                <th className="py-2.5 px-2 font-bold">Poli Asal</th>
-                <th className="py-2.5 px-2 font-bold">Poli Tujuan</th>
-                <th className="py-2.5 px-2 font-bold">Dokter Perujuk</th>
-                <th className="py-2.5 px-2 font-bold">Keterangan</th>
-              </tr>
-            ),
-            body: (
-              <tr>
-                <td colSpan={5} className="py-8 text-center text-slate-400 italic font-medium">Belum ada data rujukan internal poli.</td>
-              </tr>
+            content: (
+              <div className="flex-1 overflow-auto">
+                <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
+                  <thead className="sticky top-0 z-10 text-slate-600 shadow-sm backdrop-blur-md bg-white/95 border-b-2 border-brand-500">
+                    <tr>
+                      <th className="py-2.5 px-2 font-bold">No. Rujukan</th>
+                      <th className="py-2.5 px-2 font-bold">Poli Asal</th>
+                      <th className="py-2.5 px-2 font-bold">Poli Tujuan</th>
+                      <th className="py-2.5 px-2 font-bold">Dokter Perujuk</th>
+                      <th className="py-2.5 px-2 font-bold">Keterangan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-slate-400 italic font-medium">Belum ada data rujukan internal poli.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             )
           }
         ]}

@@ -31,11 +31,6 @@ export default function RawatInap() {
   const [status, setStatus] = useState("Belum Pulang");
   const [selectedNoRawat, setSelectedNoRawat] = useState<string | null>(null);
 
-  const toggleSelection = (noRawat: string) => {
-    setSelectedNoRawat(prev =>
-      prev.includes(noRawat) ? prev.filter(i => i !== noRawat) : [...prev, noRawat]
-    );
-  };
   const [tglAwal, setTglAwal] = useState(
     new Date().toISOString().split("T")[0],
   );
