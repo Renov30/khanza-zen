@@ -217,17 +217,17 @@ function PemeriksaanContent() {
               <div className="flex flex-col gap-5">
               {/* Feature 3 & 5: Petugas from logged-in user */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Dilakukan Oleh</label>
-                  <div className="flex gap-1">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
+                  <div className="flex gap-1 flex-1">
                     <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                     <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
                     <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Jabatan / Departemen</label>
-                  <div className="flex gap-1">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Jabatan / Dept</label>
+                  <div className="flex gap-1 flex-1">
                     <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiJabatan} readOnly />
                     <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
                   </div>
@@ -236,49 +236,49 @@ function PemeriksaanContent() {
 
               {/* SOAP, Instruksi & Alergi */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Subjek (S)</label>
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Subjek (S)</label>
                   <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Keluhan pasien..." />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Objek (O)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Hasil pemeriksaan..." />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Alergi</label>
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Alergi</label>
                   <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Alergi pasien..." />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Asesmen (A)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Diagnosis/Asesmen..." />
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Objek (O)</label>
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Hasil pemeriksaan..." />
                 </div>
-                <div className="flex flex-col gap-1.5 md:col-span-2">
-                  <label className="text-xs font-semibold text-slate-600">Plan (P)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Rencana tindakan..." />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Instruksi</label>
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Instruksi</label>
                   <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Instruksi medis..." />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">Evaluasi</label>
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Asesmen (A)</label>
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Diagnosis/Asesmen..." />
+                </div>
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Evaluasi</label>
                   <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Evaluasi tindakan..." />
+                </div>
+                <div className="flex items-start gap-2 md:col-span-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Plan (P)</label>
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Rencana tindakan..." />
                 </div>
               </div>
 
               {/* TTV */}
               <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                 <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">Tanda-Tanda Vital (TTV)</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                   {[{ l: 'Suhu (°C)' }, { l: 'Tensi (mmHg)' }, { l: 'Berat (Kg)' }, { l: 'Tinggi (Cm)' }, { l: 'Respirasi (/mnt)' }, { l: 'Nadi (/mnt)' }, { l: 'SpO2 (%)' }, { l: 'GCS (E,V,M)' }].map(v => (
-                    <div key={v.l} className="flex flex-col gap-1">
-                      <label className="text-[11px] font-semibold text-slate-600">{v.l}</label>
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white" />
+                    <div key={v.l} className="flex items-center gap-2">
+                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">{v.l}</label>
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white" />
                     </div>
                   ))}
-                  <div className="flex flex-col gap-1 sm:col-span-2 md:col-span-2">
-                    <label className="text-[11px] font-semibold text-slate-600">Kesadaran</label>
-                    <select className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white">
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Kesadaran</label>
+                    <select className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white">
                       <option>-</option><option>Compos Mentis</option><option>Apatis</option><option>Somnolent</option><option>Sopor</option><option>Coma</option>
                     </select>
                   </div>
