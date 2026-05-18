@@ -269,7 +269,7 @@ function PemeriksaanContent() {
               {/* TTV */}
               <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                 <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">Tanda-Tanda Vital (TTV)</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {[{ l: 'Suhu (°C)' }, { l: 'Tensi (mmHg)' }, { l: 'Berat (Kg)' }, { l: 'Tinggi (Cm)' }, { l: 'Respirasi (/mnt)' }, { l: 'Nadi (/mnt)' }, { l: 'SpO2 (%)' }, { l: 'GCS (E,V,M)' }].map(v => (
                     <div key={v.l} className="flex items-center gap-2">
                       <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">{v.l}</label>
