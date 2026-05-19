@@ -455,10 +455,10 @@ function AsuhanGiziContent() {
   const FormField = ({ label, value, onChange, unit, placeholder, type = 'text', readOnly = false, className = "" }: {
     label: string; value: string; onChange?: (v: string) => void; unit?: string; placeholder?: string; type?: string; readOnly?: boolean; className?: string
   }) => (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label className="text-xs font-semibold text-slate-600 flex items-center justify-between">
+    <div className={`flex items-center gap-2 ${className}`}>
+      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 flex items-center gap-1">
         {label}
-        {unit && <span className="text-[10px] text-slate-400 font-normal uppercase">{unit}</span>}
+        {unit && <span className="text-[10px] text-slate-400 font-normal lowercase">({unit})</span>}
       </label>
       <input
         type={type}
@@ -466,20 +466,20 @@ function AsuhanGiziContent() {
         onChange={e => onChange?.(e.target.value)}
         placeholder={placeholder}
         readOnly={readOnly}
-        className={`w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors ${readOnly ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
+        className={`flex-1 min-w-0 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors ${readOnly ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
       />
     </div>
   );
 
   const FormTextarea = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold text-slate-600">{label}</label>
+    <div className="flex items-start gap-2">
+      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 pt-2">{label}</label>
       <textarea
         value={value}
         onChange={e => onChange(e.target.value)}
         rows={3}
         placeholder={placeholder}
-        className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]"
+        className="flex-1 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]"
       />
     </div>
   );
@@ -543,7 +543,7 @@ function AsuhanGiziContent() {
                 {/* Petugas dari user yang login */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
@@ -551,7 +551,7 @@ function AsuhanGiziContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Jabatan / Dept</label>
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Jabatan / Dept</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiJabatan} readOnly />
                       <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
@@ -677,7 +677,7 @@ function AsuhanGiziContent() {
               <div className="flex flex-col gap-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
@@ -690,40 +690,20 @@ function AsuhanGiziContent() {
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
                     Data Monitoring
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-slate-600">Tanggal & Waktu</label>
-                      <div className="flex gap-2">
-                        <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                          value={monitoringDate} onChange={e => setMonitoringDate(e.target.value)} />
-                        <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                          value={monitoringTime} onChange={e => setMonitoringTime(e.target.value)} />
-                      </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal & Waktu</label>
+                    <div className="flex gap-2 flex-1">
+                      <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        value={monitoringDate} onChange={e => setMonitoringDate(e.target.value)} />
+                      <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        value={monitoringTime} onChange={e => setMonitoringTime(e.target.value)} />
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-600">Monitoring</label>
-                    <textarea
-                      value={monitoringText}
-                      onChange={e => setMonitoringText(e.target.value)}
-                      rows={5}
-                      placeholder="Catatan monitoring asuhan gizi..."
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[100px]"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-600">Evaluasi</label>
-                    <textarea
-                      value={evaluasiText}
-                      onChange={e => setEvaluasiText(e.target.value)}
-                      rows={5}
-                      placeholder="Catatan evaluasi asuhan gizi..."
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[100px]"
-                    />
-                  </div>
+                  <FormTextarea label="Monitoring" value={monitoringText} onChange={setMonitoringText} placeholder="Catatan monitoring asuhan gizi..." />
+                  <FormTextarea label="Evaluasi" value={evaluasiText} onChange={setEvaluasiText} placeholder="Catatan evaluasi asuhan gizi..." />
                 </div>
               </div>
             </TopFormContainer>
@@ -778,7 +758,7 @@ function AsuhanGiziContent() {
               <div className="flex flex-col gap-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
@@ -789,12 +769,10 @@ function AsuhanGiziContent() {
 
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Gizi</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-slate-600">Tanggal</label>
-                      <input type="date" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                        value={skriningGiziDate} onChange={e => setSkriningGiziDate(e.target.value)} />
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={skriningGiziDate} onChange={e => setSkriningGiziDate(e.target.value)} />
                   </div>
                 </div>
 
@@ -856,7 +834,7 @@ function AsuhanGiziContent() {
               <div className="flex flex-col gap-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
@@ -867,46 +845,20 @@ function AsuhanGiziContent() {
 
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Catatan ADIME</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-slate-600">Tanggal</label>
-                      <input type="date" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                        value={adimeDate} onChange={e => setAdimeDate(e.target.value)} />
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={adimeDate} onChange={e => setAdimeDate(e.target.value)} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-600">Asesmen (A)</label>
-                    <textarea value={adimeAsesmen} onChange={e => setAdimeAsesmen(e.target.value)} rows={4}
-                      placeholder="Hasil asesmen gizi..." className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-600">Diagnosis (D)</label>
-                    <textarea value={adimeDiagnosis} onChange={e => setAdimeDiagnosis(e.target.value)} rows={4}
-                      placeholder="Diagnosis gizi..." className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-600">Intervensi (I)</label>
-                    <textarea value={adimeIntervensi} onChange={e => setAdimeIntervensi(e.target.value)} rows={4}
-                      placeholder="Intervensi gizi..." className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-600">Monitoring (M)</label>
-                    <textarea value={adimeMonitoring} onChange={e => setAdimeMonitoring(e.target.value)} rows={4}
-                      placeholder="Monitoring gizi..." className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-600">Evaluasi (E)</label>
-                    <textarea value={adimeEvaluasi} onChange={e => setAdimeEvaluasi(e.target.value)} rows={4}
-                      placeholder="Evaluasi gizi..." className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-600">Instruksi</label>
-                    <textarea value={adimeInstruksi} onChange={e => setAdimeInstruksi(e.target.value)} rows={4}
-                      placeholder="Instruksi medis/diet..." className="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]" />
-                  </div>
+                  <FormTextarea label="Asesmen (A)" value={adimeAsesmen} onChange={setAdimeAsesmen} placeholder="Hasil asesmen gizi..." />
+                  <FormTextarea label="Diagnosis (D)" value={adimeDiagnosis} onChange={setAdimeDiagnosis} placeholder="Diagnosis gizi..." />
+                  <FormTextarea label="Intervensi (I)" value={adimeIntervensi} onChange={setAdimeIntervensi} placeholder="Intervensi gizi..." />
+                  <FormTextarea label="Monitoring (M)" value={adimeMonitoring} onChange={setAdimeMonitoring} placeholder="Monitoring gizi..." />
+                  <FormTextarea label="Evaluasi (E)" value={adimeEvaluasi} onChange={setAdimeEvaluasi} placeholder="Evaluasi gizi..." />
+                  <FormTextarea label="Instruksi" value={adimeInstruksi} onChange={setAdimeInstruksi} placeholder="Instruksi medis/diet..." />
                 </div>
               </div>
             </TopFormContainer>
@@ -961,7 +913,7 @@ function AsuhanGiziContent() {
               <div className="flex flex-col gap-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
@@ -972,12 +924,10 @@ function AsuhanGiziContent() {
 
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Nutrisi</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-slate-600">Tanggal</label>
-                      <input type="date" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                        value={nutrisiDate} onChange={e => setNutrisiDate(e.target.value)} />
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={nutrisiDate} onChange={e => setNutrisiDate(e.target.value)} />
                   </div>
                 </div>
 
