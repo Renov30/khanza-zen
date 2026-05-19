@@ -28,7 +28,7 @@ const menuItems = [
   },
   {
     icon: <FaUtensils />,
-    label: "Asuhan Gizi",
+    label: "Modul Gizi",
     path: "/rawat-inap/asuhan-gizi",
   },
   { icon: <FaSyringe />, label: "Bundle PPI", path: "" },

@@ -247,9 +247,10 @@ function AsuhanGiziContent() {
 
   const tabs = [
     'Asuhan Gizi',
-    'Riwayat Diet',
     'Monitoring Gizi',
-    'Evaluasi Gizi',
+    'Skrining Gizi Lanjut',
+    'Catatan ADIME Gizi',
+    'Skrining Nutrisi',
   ];
 
   return (
