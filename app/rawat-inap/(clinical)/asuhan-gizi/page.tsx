@@ -80,13 +80,13 @@ const columns: TableColumn[] = [
   { header: 'LLA/U(SD)', key: 'lla_u_persen', width: '80px' },
   { header: 'Subjektif', key: 'subjektif', width: '180px', className: 'truncate' },
   { header: 'Fisik/Klinis', key: 'fisik_klinis', width: '180px', className: 'truncate' },
-  { header: 'Telur', key: 'telur', width: '50px', render: (row) => (row.telur ? 'Ya' : 'Tidak') },
-  { header: 'Susu Sapi', key: 'susu_sapi', width: '70px', render: (row) => (row.susu_sapi ? 'Ya' : 'Tidak') },
-  { header: 'Kacang', key: 'kacang', width: '60px', render: (row) => (row.kacang ? 'Ya' : 'Tidak') },
-  { header: 'Gluten', key: 'gluten', width: '60px', render: (row) => (row.gluten ? 'Ya' : 'Tidak') },
-  { header: 'Udang', key: 'udang', width: '55px', render: (row) => (row.udang ? 'Ya' : 'Tidak') },
-  { header: 'Ikan', key: 'ikan', width: '50px', render: (row) => (row.ikan ? 'Ya' : 'Tidak') },
-  { header: 'Hazelnut', key: 'hazelnut', width: '65px', render: (row) => (row.hazelnut ? 'Ya' : 'Tidak') },
+  { header: 'Telur', key: 'telur', width: '50px', render: (row) => (row.telur === true || row.telur === 1 ? 'Ya' : 'Tidak') },
+  { header: 'Susu Sapi', key: 'susu_sapi', width: '70px', render: (row) => (row.susu_sapi === true || row.susu_sapi === 1 ? 'Ya' : 'Tidak') },
+  { header: 'Kacang', key: 'kacang', width: '60px', render: (row) => (row.kacang === true || row.kacang === 1 ? 'Ya' : 'Tidak') },
+  { header: 'Gluten', key: 'gluten', width: '60px', render: (row) => (row.gluten === true || row.gluten === 1 ? 'Ya' : 'Tidak') },
+  { header: 'Udang', key: 'udang', width: '55px', render: (row) => (row.udang === true || row.udang === 1 ? 'Ya' : 'Tidak') },
+  { header: 'Ikan', key: 'ikan', width: '50px', render: (row) => (row.ikan === true || row.ikan === 1 ? 'Ya' : 'Tidak') },
+  { header: 'Hazelnut', key: 'hazelnut', width: '65px', render: (row) => (row.hazelnut === true || row.hazelnut === 1 ? 'Ya' : 'Tidak') },
   { header: 'Pola Makan', key: 'pola_makan', width: '180px', className: 'truncate' },
   { header: 'Petugas', key: 'nm_pegawai', width: '160px' },
   { header: 'Jabatan', key: 'jabatan', width: '100px' },
@@ -203,7 +203,11 @@ function AsuhanGiziContent() {
     );
   };
 
-  const [noRawat] = useState(noRawatParam);
+  const [noRawat, setNoRawat] = useState(noRawatParam);
+
+  useEffect(() => {
+    setNoRawat(noRawatParam);
+  }, [noRawatParam]);
   const [noRM, setNoRM] = useState('');
   const [namaPasien, setNamaPasien] = useState('');
   const [isLoadingPatient, setIsLoadingPatient] = useState(false);
@@ -319,7 +323,7 @@ function AsuhanGiziContent() {
       const result = await getPatientInfoByNoRawat(nrw);
       if (result.success && result.data) { setNoRM(result.data.no_rkm_medis); setNamaPasien(result.data.nm_pasien); }
       else { setNoRM(''); setNamaPasien(''); }
-    } catch { setNoRM(''); setNamaPasien(''); }
+    } catch (e) { console.error('fetchPatientInfo error:', e); setNoRM(''); setNamaPasien(''); }
     setIsLoadingPatient(false);
   }, []);
 
@@ -331,12 +335,12 @@ function AsuhanGiziContent() {
       if (result.success && result.data) {
         const mappedData = result.data.map((row: any, i: number) => ({
           ...row,
-          id: `${row.tgl_asuhan}-${i}`
+          id: `${row.no_rawat}-${row.tgl_asuhan}`
         }));
         setDataGizi(mappedData);
       }
       else setDataGizi([]);
-    } catch { setDataGizi([]); }
+    } catch (e) { console.error('fetchDataGizi error:', e); setDataGizi([]); }
     setIsLoadingData(false);
   }, []);
 
@@ -346,14 +350,14 @@ function AsuhanGiziContent() {
     try {
       const result = await getMonitoringGiziRanap(nrw, kw, ta, tb);
       if (result.success && result.data) {
-        const mappedData = result.data.map((row: any, i: number) => ({
+        const mappedData = result.data.map((row: any) => ({
           ...row,
-          id: `${row.tanggal}-${i}`
+          id: `${row.no_rawat}-${row.tanggal}`
         }));
         setDataMonitoring(mappedData);
       }
       else setDataMonitoring([]);
-    } catch { setDataMonitoring([]); }
+    } catch (e) { console.error('fetchDataMonitoring error:', e); setDataMonitoring([]); }
     setIsLoadingMonitoring(false);
   }, []);
 
@@ -363,14 +367,14 @@ function AsuhanGiziContent() {
     try {
       const result = await getSkriningGiziLanjutRanap(nrw, kw, ta, tb);
       if (result.success && result.data) {
-        const mappedData = result.data.map((row: any, i: number) => ({
+        const mappedData = result.data.map((row: any) => ({
           ...row,
-          id: `${row.tanggal}-${i}`
+          id: `${row.no_rawat}-${row.tanggal}`
         }));
         setDataSkriningGizi(mappedData);
       }
       else setDataSkriningGizi([]);
-    } catch { setDataSkriningGizi([]); }
+    } catch (e) { console.error('fetchDataSkriningGizi error:', e); setDataSkriningGizi([]); }
     setIsLoadingSkriningGizi(false);
   }, []);
 
@@ -380,14 +384,14 @@ function AsuhanGiziContent() {
     try {
       const result = await getCatatanADIMEGiziRanap(nrw, kw, ta, tb);
       if (result.success && result.data) {
-        const mappedData = result.data.map((row: any, i: number) => ({
+        const mappedData = result.data.map((row: any) => ({
           ...row,
-          id: `${row.tanggal}-${i}`
+          id: `${row.no_rawat}-${row.tanggal}`
         }));
         setDataADIME(mappedData);
       }
       else setDataADIME([]);
-    } catch { setDataADIME([]); }
+    } catch (e) { console.error('fetchDataADIME error:', e); setDataADIME([]); }
     setIsLoadingADIME(false);
   }, []);
 
@@ -397,14 +401,14 @@ function AsuhanGiziContent() {
     try {
       const result = await getSkriningNutrisiRanap(nrw, kw, ta, tb);
       if (result.success && result.data) {
-        const mappedData = result.data.map((row: any, i: number) => ({
+        const mappedData = result.data.map((row: any) => ({
           ...row,
-          id: `${row.tanggal}-${i}`
+          id: `${row.no_rawat}-${row.tanggal}`
         }));
         setDataSkriningNutrisi(mappedData);
       }
       else setDataSkriningNutrisi([]);
-    } catch { setDataSkriningNutrisi([]); }
+    } catch (e) { console.error('fetchDataSkriningNutrisi error:', e); setDataSkriningNutrisi([]); }
     setIsLoadingSkriningNutrisi(false);
   }, []);
 
@@ -416,7 +420,7 @@ function AsuhanGiziContent() {
         setPegawaiNama(result.data.nama);
         setPegawaiJabatan(result.data.jabatan);
       }
-    } catch { /* fallback tetap kosong */ }
+    } catch (e) { console.error('fetchPegawaiInfo error:', e); }
   }, []);
 
   useEffect(() => {
@@ -525,7 +529,7 @@ function AsuhanGiziContent() {
           const tabId = tab.toLowerCase().replace(/[^a-z0-9]/g, '');
           const isActive = activeTab === tabId;
           return (
-            <button key={tab} onClick={() => setActiveTab(tabId)}
+            <button key={tab} onClick={() => { setActiveTab(tabId); setIsTableExpanded(false); setSelectedRows([]); }}
               className={`px-4 py-2.5 text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 font-bold' : 'text-slate-500 hover:text-brand-600'}`}>
               {tab}
               {isActive && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-full" />}

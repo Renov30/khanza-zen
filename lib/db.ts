@@ -18,6 +18,7 @@ export async function getDbConnection() {
       queueLimit: 0,
       enableKeepAlive: true,
       keepAliveInitialDelay: 0,
+      dateStrings: true,
     });
     
     console.log(`[Database] Pool created for ${config.host}:${config.port}/${config.database}`);

@@ -134,7 +134,7 @@ export default function DataTableMulti({
                   </td>
                   {columns.map((col, idx) => (
                     <td key={idx} className={`py-2 px-3 border-r border-slate-100 ${col.className || ""}`}>
-                      {col.render ? col.render(row, i) : row[col.key]}
+                      {col.render ? col.render(row, i) : (row[col.key] instanceof Date ? row[col.key].toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' }) : row[col.key])}
                     </td>
                   ))}
                 </tr>
