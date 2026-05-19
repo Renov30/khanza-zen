@@ -544,25 +544,6 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Asuhan Gizi" persistenceKey="khanza_asuhan_gizi_form_open">
               <div className="flex flex-col gap-5">
-                {/* Petugas dari user yang login */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
-                    <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Jabatan / Dept</label>
-                    <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiJabatan} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Antropometri */}
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
@@ -626,6 +607,17 @@ function AsuhanGiziContent() {
                   <FormTextarea label="Instruksi Medis" value={instruksi} onChange={setInstruksi} placeholder="Instruksi medis..." />
                   <FormTextarea label="Monitoring & Evaluasi" value={monitoringEvaluasi} onChange={setMonitoringEvaluasi} placeholder="Monitoring dan evaluasi..." />
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <div className="flex gap-1 flex-1">
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </TopFormContainer>
 
@@ -679,17 +671,6 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Monitoring & Evaluasi Gizi" persistenceKey="khanza_monitoring_gizi_form_open">
               <div className="flex flex-col gap-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
-                    <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
                     Data Monitoring
@@ -708,6 +689,17 @@ function AsuhanGiziContent() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <FormTextarea label="Monitoring" value={monitoringText} onChange={setMonitoringText} placeholder="Catatan monitoring asuhan gizi..." />
                   <FormTextarea label="Evaluasi" value={evaluasiText} onChange={setEvaluasiText} placeholder="Catatan evaluasi asuhan gizi..." />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <div className="flex gap-1 flex-1">
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </TopFormContainer>
@@ -760,17 +752,6 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Skrining Gizi Lanjut" persistenceKey="khanza_skrining_gizi_form_open">
               <div className="flex flex-col gap-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
-                    <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Gizi</h3>
                   <div className="flex items-center gap-2">
@@ -784,6 +765,17 @@ function AsuhanGiziContent() {
                   <FormField label="BB" value={skriningGiziBB} onChange={setSkriningGiziBB} unit="Kg" placeholder="0" />
                   <FormField label="TB" value={skriningGiziTB} onChange={setSkriningGiziTB} unit="Cm" placeholder="0" />
                   <FormField label="Alergi" value={skriningGiziAlergi} onChange={setSkriningGiziAlergi} placeholder="Alergi makanan/obat..." />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <div className="flex gap-1 flex-1">
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </TopFormContainer>
@@ -836,17 +828,6 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Catatan ADIME Gizi" persistenceKey="khanza_adime_gizi_form_open">
               <div className="flex flex-col gap-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
-                    <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Catatan ADIME</h3>
                   <div className="flex items-center gap-2">
@@ -863,6 +844,17 @@ function AsuhanGiziContent() {
                   <FormTextarea label="Monitoring (M)" value={adimeMonitoring} onChange={setAdimeMonitoring} placeholder="Monitoring gizi..." />
                   <FormTextarea label="Evaluasi (E)" value={adimeEvaluasi} onChange={setAdimeEvaluasi} placeholder="Evaluasi gizi..." />
                   <FormTextarea label="Instruksi" value={adimeInstruksi} onChange={setAdimeInstruksi} placeholder="Instruksi medis/diet..." />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <div className="flex gap-1 flex-1">
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </TopFormContainer>
@@ -915,17 +907,6 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Skrining Nutrisi" persistenceKey="khanza_skrining_nutrisi_form_open">
               <div className="flex flex-col gap-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
-                    <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Nutrisi</h3>
                   <div className="flex items-center gap-2">
@@ -947,6 +928,17 @@ function AsuhanGiziContent() {
                     <FormField label="Suhu" value={nutrisiSuhu} onChange={setNutrisiSuhu} unit="°C" placeholder="0" />
                     <FormField label="SpO2" value={nutrisiSpO2} onChange={setNutrisiSpO2} unit="%" placeholder="0" />
                     <FormField label="Alergi" value={nutrisiAlergi} onChange={setNutrisiAlergi} placeholder="Alergi..." className="lg:col-span-2" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <div className="flex gap-1 flex-1">
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                    </div>
                   </div>
                 </div>
               </div>
