@@ -319,16 +319,6 @@ function AsuhanGiziContent() {
                   </div>
                 </div>
 
-                {/* Ringkasan Data Pasien */}
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <FormField label="No. Rawat" value={noRawat} readOnly />
-                    <FormField label="No. RM" value={noRM || '-'} readOnly />
-                    <FormField label="Nama Pasien" value={namaPasien || '-'} readOnly />
-                    <FormField label="Tanggal Asuhan" value={currentDate} type="date" onChange={(v) => setCurrentDate(v)} />
-                  </div>
-                </div>
-
                 {/* Antropometri */}
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
