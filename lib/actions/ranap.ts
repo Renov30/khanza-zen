@@ -237,6 +237,348 @@ export async function getAsuhanGiziRanap(
   }
 }
 
+/**
+ * Mengambil data monitoring asuhan gizi pasien rawat inap.
+ * Query dari RMDataMonitoringAsuhanGizi.java (tampil method).
+ * Tabel: monitoring_asuhan_gizi
+ */
+export async function getMonitoringGiziRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [];
+
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          reg_periksa.no_rawat LIKE ? OR
+          pasien.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          monitoring_asuhan_gizi.monitoring LIKE ? OR
+          monitoring_asuhan_gizi.evaluasi LIKE ? OR
+          monitoring_asuhan_gizi.nip LIKE ? OR
+          petugas.nama LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 7; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT 
+        reg_periksa.no_rawat,
+        pasien.no_rkm_medis,
+        pasien.nm_pasien,
+        reg_periksa.umurdaftar,
+        reg_periksa.sttsumur,
+        pasien.jk,
+        monitoring_asuhan_gizi.tanggal,
+        monitoring_asuhan_gizi.monitoring,
+        monitoring_asuhan_gizi.evaluasi,
+        monitoring_asuhan_gizi.nip,
+        petugas.nama AS nm_petugas
+      FROM monitoring_asuhan_gizi
+      INNER JOIN reg_periksa ON monitoring_asuhan_gizi.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      INNER JOIN petugas ON monitoring_asuhan_gizi.nip = petugas.nip
+      WHERE monitoring_asuhan_gizi.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND monitoring_asuhan_gizi.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      ORDER BY monitoring_asuhan_gizi.tanggal DESC
+    `;
+
+    const [rows]: any = await db.execute(query, [noRawat, ...params]);
+
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      tanggal:
+        row.tanggal instanceof Date
+          ? row.tanggal.toISOString().split("T")[0]
+          : row.tanggal,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching monitoring gizi:", error);
+    return {
+      success: false,
+      message: "Gagal mengambil data monitoring gizi",
+      error: error.message,
+      data: [],
+    };
+  }
+}
+
+/**
+ * Mengambil data skrining gizi lanjut pasien rawat inap.
+ * Tabel: skrining_gizi
+ */
+export async function getSkriningGiziLanjutRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [];
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          reg_periksa.no_rawat LIKE ? OR
+          pasien.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          skrining_gizi.alergi LIKE ? OR
+          skrining_gizi.parameter_total LIKE ? OR
+          skrining_gizi.nip LIKE ? OR
+          petugas.nama LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 7; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT 
+        reg_periksa.no_rawat,
+        pasien.no_rkm_medis,
+        pasien.nm_pasien,
+        reg_periksa.umurdaftar,
+        reg_periksa.sttsumur,
+        pasien.jk,
+        skrining_gizi.tanggal,
+        skrining_gizi.skrining_bb AS bb,
+        skrining_gizi.skrining_tb AS tb,
+        skrining_gizi.alergi,
+        skrining_gizi.parameter_imt,
+        skrining_gizi.skor_imt,
+        skrining_gizi.parameter_bb,
+        skrining_gizi.skor_bb,
+        skrining_gizi.parameter_penyakit,
+        skrining_gizi.skor_penyakit,
+        skrining_gizi.skor_total,
+        skrining_gizi.parameter_total AS kesimpulan,
+        skrining_gizi.nip,
+        petugas.nama AS nm_petugas
+      FROM skrining_gizi
+      INNER JOIN reg_periksa ON skrining_gizi.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      INNER JOIN petugas ON skrining_gizi.nip = petugas.nip
+      WHERE skrining_gizi.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND skrining_gizi.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      ORDER BY skrining_gizi.tanggal DESC
+    `;
+
+    const [rows]: any = await db.execute(query, [noRawat, ...params]);
+
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      tanggal:
+        row.tanggal instanceof Date
+          ? row.tanggal.toISOString().split("T")[0]
+          : row.tanggal,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching skrining gizi lanjut:", error);
+    return {
+      success: false,
+      message: "Gagal mengambil data skrining gizi lanjut",
+      error: error.message,
+      data: [],
+    };
+  }
+}
+
+/**
+ * Mengambil data catatan ADIME gizi pasien rawat inap.
+ * Tabel: catatan_adime_gizi
+ */
+export async function getCatatanADIMEGiziRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [];
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          reg_periksa.no_rawat LIKE ? OR
+          pasien.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          catatan_adime_gizi.asesmen LIKE ? OR
+          catatan_adime_gizi.diagnosis LIKE ? OR
+          catatan_adime_gizi.intervensi LIKE ? OR
+          catatan_adime_gizi.monitoring LIKE ? OR
+          catatan_adime_gizi.evaluasi LIKE ? OR
+          catatan_adime_gizi.instruksi LIKE ? OR
+          catatan_adime_gizi.nip LIKE ? OR
+          petugas.nama LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 11; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT 
+        reg_periksa.no_rawat,
+        pasien.no_rkm_medis,
+        pasien.nm_pasien,
+        reg_periksa.umurdaftar,
+        reg_periksa.sttsumur,
+        pasien.jk,
+        catatan_adime_gizi.tanggal,
+        catatan_adime_gizi.asesmen,
+        catatan_adime_gizi.diagnosis,
+        catatan_adime_gizi.intervensi,
+        catatan_adime_gizi.monitoring,
+        catatan_adime_gizi.evaluasi,
+        catatan_adime_gizi.instruksi,
+        catatan_adime_gizi.nip,
+        petugas.nama AS nm_petugas
+      FROM catatan_adime_gizi
+      INNER JOIN reg_periksa ON catatan_adime_gizi.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      INNER JOIN petugas ON catatan_adime_gizi.nip = petugas.nip
+      WHERE catatan_adime_gizi.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND catatan_adime_gizi.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      ORDER BY catatan_adime_gizi.tanggal DESC
+    `;
+
+    const [rows]: any = await db.execute(query, [noRawat, ...params]);
+
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      tanggal:
+        row.tanggal instanceof Date
+          ? row.tanggal.toISOString().split("T")[0]
+          : row.tanggal,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching catatan ADIME gizi:", error);
+    return {
+      success: false,
+      message: "Gagal mengambil data catatan ADIME gizi",
+      error: error.message,
+      data: [],
+    };
+  }
+}
+
+/**
+ * Mengambil data skrining nutrisi dewasa pasien rawat inap.
+ * Tabel: skrining_nutrisi_dewasa
+ */
+export async function getSkriningNutrisiRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [];
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          reg_periksa.no_rawat LIKE ? OR
+          pasien.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          skrining_nutrisi_dewasa.alergi LIKE ? OR
+          skrining_nutrisi_dewasa.nip LIKE ? OR
+          petugas.nama LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 6; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT 
+        reg_periksa.no_rawat,
+        pasien.no_rkm_medis,
+        pasien.nm_pasien,
+        pasien.tgl_lahir,
+        pasien.jk,
+        skrining_nutrisi_dewasa.tanggal,
+        skrining_nutrisi_dewasa.bb,
+        skrining_nutrisi_dewasa.lila,
+        skrining_nutrisi_dewasa.tbpb,
+        skrining_nutrisi_dewasa.td,
+        skrining_nutrisi_dewasa.hr,
+        skrining_nutrisi_dewasa.rr,
+        skrining_nutrisi_dewasa.suhu,
+        skrining_nutrisi_dewasa.spo2,
+        skrining_nutrisi_dewasa.alergi,
+        skrining_nutrisi_dewasa.sg1,
+        skrining_nutrisi_dewasa.nilai1,
+        skrining_nutrisi_dewasa.sg2,
+        skrining_nutrisi_dewasa.nilai2,
+        skrining_nutrisi_dewasa.sg3,
+        skrining_nutrisi_dewasa.total_hasil,
+        skrining_nutrisi_dewasa.nip,
+        petugas.nama AS nm_petugas
+      FROM skrining_nutrisi_dewasa
+      INNER JOIN reg_periksa ON skrining_nutrisi_dewasa.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      INNER JOIN petugas ON skrining_nutrisi_dewasa.nip = petugas.nip
+      WHERE skrining_nutrisi_dewasa.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND skrining_nutrisi_dewasa.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      ORDER BY skrining_nutrisi_dewasa.tanggal DESC
+    `;
+
+    const [rows]: any = await db.execute(query, [noRawat, ...params]);
+
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      tanggal:
+        row.tanggal instanceof Date
+          ? row.tanggal.toISOString().split("T")[0]
+          : row.tanggal,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching skrining nutrisi:", error);
+    return {
+      success: false,
+      message: "Gagal mengambil data skrining nutrisi",
+      error: error.message,
+      data: [],
+    };
+  }
+}
+
 export async function getDaftarRanap(
   keyword: string = "",
   status: string = "Belum Pulang",
