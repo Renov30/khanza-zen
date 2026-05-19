@@ -1,65 +1,60 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import {
-  FaUtensils, FaSearch, FaChevronDown, FaChevronUp, FaClipboardList
-} from 'react-icons/fa';
+import { FaUtensils, FaEdit, FaExpand, FaCompress } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
+import TopFormContainer from '@/components/TopFormContainer';
+import { getPatientInfoByNoRawat, getAsuhanGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
-// Demo data for table
-const demoData = [
-  {
-    id: '1',
-    noRawat: '2025/10/23/000065', noRM: '617244', nama: 'Tn. Sukarji', jk: 'L',
-    tglLahir: '1959-06-22', tglAsuhan: '2025-10-23', bb: 55, tb: 155, imt: 22.9,
-    lla: 0, tl: 0, ulna: 0, llaU: 0, bbIdeal: 0, bbU: 0, tbU: 0, bbTb: 0, llaUPersen: 0,
-    subjektif: 'A p51.1.b Leukosit : 13.5 10^3/...',
-    fisikKlinis: 'Status Gizi : normalMual dan nyeri ...',
-    telur: false, susuSapi: false, kacang: false, gluten: false,
-    udang: false, ikan: false, hazelnut: false,
-    polaMakan: '3x makan utama',
-    riwayatPersonal: '', diagnosaGizi: '', intervensiGizi: '',
-    instruksi: '', monitoringEvaluasi: '', petugas: 'ayu',
-    namaPetugas: 'Ukhuwwatun Hasanah Pristari Rahayu, S.Gz',
-  },
-];
+interface AsuhanGiziRow {
+  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  jk: string; tgl_lahir: string; tgl_asuhan: string;
+  bb: number; tb: number; imt: number; lla: number; tl: number;
+  ulna: number; lla_u: number; bb_ideal: number; bb_u: number;
+  tku: number; bb_tb: number; lla_u_persen: number;
+  subjektif: string; fisik_klinis: string;
+  telur: boolean; susu_sapi: boolean; kacang: boolean; gluten: boolean;
+  udang: boolean; ikan: boolean; hazelnut: boolean;
+  pola_makan: string; nip: string; nm_pegawai: string; jabatan: string;
+}
 
 const columns: TableColumn[] = [
-  { header: 'No.Rawat', key: 'noRawat', className: 'text-brand-600 font-bold' },
-  { header: 'No.RM', key: 'noRM' },
-  { header: 'Nama Pasien', key: 'nama' },
-  { header: 'J.K.', key: 'jk', className: 'text-center' },
-  { header: 'Tgl.Lahir', key: 'tglLahir' },
-  { header: 'Tgl.Asuhan', key: 'tglAsuhan' },
-  { header: 'BB(Kg)', key: 'bb', className: 'text-right' },
-  { header: 'TB(Cm)', key: 'tb', className: 'text-right' },
-  { header: 'IMT(Kg/m²)', key: 'imt', className: 'text-right' },
-  { header: 'LLA(Cm)', key: 'lla', className: 'text-right' },
-  { header: 'TL(Cm)', key: 'tl', className: 'text-right' },
-  { header: 'ULNA(Cm)', key: 'ulna', className: 'text-right' },
-  { header: 'LLA/U(%)', key: 'llaU', className: 'text-right' },
-  { header: 'BB Ideal(Kg)', key: 'bbIdeal', className: 'text-right' },
-  { header: 'BB/U(%)', key: 'bbU', className: 'text-right' },
-  { header: 'TB/U(%)', key: 'tbU', className: 'text-right' },
-  { header: 'BB/TB(%)', key: 'bbTb', className: 'text-right' },
-  { header: 'LLA/U(SD)', key: 'llaUPersen', className: 'text-right' },
-  { header: 'Subjektif', key: 'subjektif', className: 'max-w-[200px] truncate' },
-  { header: 'Fisik/Klinis', key: 'fisikKlinis', className: 'max-w-[200px] truncate' },
-  { header: 'Telur', key: 'telur', className: 'text-center', render: (row) => (row.telur ? 'Ya' : 'Tidak') },
-  { header: 'Susu Sapi', key: 'susuSapi', className: 'text-center', render: (row) => (row.susuSapi ? 'Ya' : 'Tidak') },
-  { header: 'Kacang', key: 'kacang', className: 'text-center', render: (row) => (row.kacang ? 'Ya' : 'Tidak') },
-  { header: 'Gluten', key: 'gluten', className: 'text-center', render: (row) => (row.gluten ? 'Ya' : 'Tidak') },
-  { header: 'Udang', key: 'udang', className: 'text-center', render: (row) => (row.udang ? 'Ya' : 'Tidak') },
-  { header: 'Ikan', key: 'ikan', className: 'text-center', render: (row) => (row.ikan ? 'Ya' : 'Tidak') },
-  { header: 'Hazelnut', key: 'hazelnut', className: 'text-center', render: (row) => (row.hazelnut ? 'Ya' : 'Tidak') },
-  { header: 'Pola Makan', key: 'polaMakan' },
+  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold hover:underline', width: '140px' },
+  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 font-semibold', width: '70px' },
+  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
+  { header: 'J.K.', key: 'jk', width: '40px' },
+  { header: 'Tgl.Lahir', key: 'tgl_lahir', width: '100px' },
+  { header: 'Tgl.Asuhan', key: 'tgl_asuhan', width: '100px' },
+  { header: 'BB(Kg)', key: 'bb', width: '70px' },
+  { header: 'TB(Cm)', key: 'tb', width: '70px' },
+  { header: 'IMT', key: 'imt', width: '70px' },
+  { header: 'LLA(Cm)', key: 'lla', width: '70px' },
+  { header: 'TL(Cm)', key: 'tl', width: '60px' },
+  { header: 'ULNA(Cm)', key: 'ulna', width: '70px' },
+  { header: 'LLA/U', key: 'lla_u', width: '60px' },
+  { header: 'BB Ideal', key: 'bb_ideal', width: '70px' },
+  { header: 'BB/U(SD)', key: 'bb_u', width: '80px' },
+  { header: 'TKU(SD)', key: 'tku', width: '70px' },
+  { header: 'BB/TB(SD)', key: 'bb_tb', width: '80px' },
+  { header: 'LLA/U(SD)', key: 'lla_u_persen', width: '80px' },
+  { header: 'Subjektif', key: 'subjektif', width: '180px', className: 'truncate' },
+  { header: 'Fisik/Klinis', key: 'fisik_klinis', width: '180px', className: 'truncate' },
+  { header: 'Telur', key: 'telur', width: '50px', render: (row) => (row.telur ? 'Ya' : 'Tidak') },
+  { header: 'Susu Sapi', key: 'susu_sapi', width: '70px', render: (row) => (row.susu_sapi ? 'Ya' : 'Tidak') },
+  { header: 'Kacang', key: 'kacang', width: '60px', render: (row) => (row.kacang ? 'Ya' : 'Tidak') },
+  { header: 'Gluten', key: 'gluten', width: '60px', render: (row) => (row.gluten ? 'Ya' : 'Tidak') },
+  { header: 'Udang', key: 'udang', width: '55px', render: (row) => (row.udang ? 'Ya' : 'Tidak') },
+  { header: 'Ikan', key: 'ikan', width: '50px', render: (row) => (row.ikan ? 'Ya' : 'Tidak') },
+  { header: 'Hazelnut', key: 'hazelnut', width: '65px', render: (row) => (row.hazelnut ? 'Ya' : 'Tidak') },
+  { header: 'Pola Makan', key: 'pola_makan', width: '180px', className: 'truncate' },
+  { header: 'Petugas', key: 'nm_pegawai', width: '160px' },
+  { header: 'Jabatan', key: 'jabatan', width: '100px' },
 ];
 
-// Allergy item component
 function AllergyItem({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <div className="flex items-center justify-between gap-2 py-1 border-b border-slate-100 last:border-0 sm:border-0 sm:py-0">
@@ -78,19 +73,43 @@ function AllergyItem({ label, value, onChange }: { label: string; value: boolean
   );
 }
 
-function AsuhannGiziContent() {
+function AsuhanGiziContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const noRawatParam = searchParams.get('noRawat') || '2025/10/23/000065';
+  const noRawatParam = searchParams.get('noRawat') || '';
 
   const [mounted, setMounted] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState('asuhangizi');
+  const [isTableExpanded, setIsTableExpanded] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  const toggleSelection = (id: string) => {
+    setSelectedRows(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const [noRawat] = useState(noRawatParam);
+  const [noRM, setNoRM] = useState('');
+  const [namaPasien, setNamaPasien] = useState('');
+  const [isLoadingPatient, setIsLoadingPatient] = useState(false);
+
+  const [dataGizi, setDataGizi] = useState<AsuhanGiziRow[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const today = new Date().toISOString().split('T')[0];
+  const [tglAwal, setTglAwal] = useState(today);
+  const [tglAkhir, setTglAkhir] = useState(today);
+
+  const [pegawaiNik, setPegawaiNik] = useState('');
+  const [pegawaiNama, setPegawaiNama] = useState('');
+  const [pegawaiJabatan, setPegawaiJabatan] = useState('');
 
   // Form state
-  const [bb, setBb] = useState('55');
-  const [tb, setTb] = useState('155');
-  const [imt, setImt] = useState('22.9');
+  const [bb, setBb] = useState('');
+  const [tb, setTb] = useState('');
+  const [imt, setImt] = useState('');
   const [lla, setLla] = useState('');
   const [tl, setTl] = useState('');
   const [ulna, setUlna] = useState('');
@@ -109,7 +128,6 @@ function AsuhannGiziContent() {
   const [instruksi, setInstruksi] = useState('');
   const [monitoringEvaluasi, setMonitoringEvaluasi] = useState('');
 
-  // Allergy state
   const [alergiTelur, setAlergiTelur] = useState(false);
   const [alergiSusuSapi, setAlergiSusuSapi] = useState(false);
   const [alergiKacang, setAlergiKacang] = useState(false);
@@ -118,10 +136,83 @@ function AsuhannGiziContent() {
   const [alergiIkan, setAlergiIkan] = useState(false);
   const [alergiHazelnut, setAlergiHazelnut] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  const [isClockRunning, setIsClockRunning] = useState(true);
+  const [currentDate, setCurrentDate] = useState(today);
+  const [currentTime, setCurrentTime] = useState(new Date().toTimeString().slice(0, 8));
+  const clockRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (isClockRunning) {
+      const tick = () => {
+        const now = new Date();
+        setCurrentDate(now.toISOString().split('T')[0]);
+        setCurrentTime(now.toTimeString().slice(0, 8));
+      };
+      tick();
+      clockRef.current = setInterval(tick, 1000);
+    } else if (clockRef.current) {
+      clearInterval(clockRef.current);
+      clockRef.current = null;
+    }
+    return () => { if (clockRef.current) clearInterval(clockRef.current); };
+  }, [isClockRunning]);
+
+  const fetchPatientInfo = useCallback(async (nrw: string) => {
+    if (!nrw.trim()) return;
+    setIsLoadingPatient(true);
+    try {
+      const result = await getPatientInfoByNoRawat(nrw);
+      if (result.success && result.data) { setNoRM(result.data.no_rkm_medis); setNamaPasien(result.data.nm_pasien); }
+      else { setNoRM(''); setNamaPasien(''); }
+    } catch { setNoRM(''); setNamaPasien(''); }
+    setIsLoadingPatient(false);
+  }, []);
+
+  const fetchDataGizi = useCallback(async (nrw: string, kw: string = '', ta: string = '', tb: string = '') => {
+    if (!nrw.trim()) return;
+    setIsLoadingData(true);
+    try {
+      const result = await getAsuhanGiziRanap(nrw, kw, ta, tb);
+      if (result.success && result.data) {
+        const mappedData = result.data.map((row: any, i: number) => ({
+          ...row,
+          id: `${row.tgl_asuhan}-${i}`
+        }));
+        setDataGizi(mappedData);
+      }
+      else setDataGizi([]);
+    } catch { setDataGizi([]); }
+    setIsLoadingData(false);
+  }, []);
+
+  const fetchPegawaiInfo = useCallback(async () => {
+    try {
+      const result = await getLoggedInPegawai();
+      if (result.success && result.data) {
+        setPegawaiNik(result.data.nik);
+        setPegawaiNama(result.data.nama);
+        setPegawaiJabatan(result.data.jabatan);
+      }
+    } catch { /* fallback tetap kosong */ }
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    fetchPegawaiInfo();
+    if (noRawatParam) {
+      fetchPatientInfo(noRawatParam);
+      fetchDataGizi(noRawatParam);
+    }
+  }, [noRawatParam, fetchPatientInfo, fetchDataGizi, fetchPegawaiInfo]);
+
+  useEffect(() => {
+    if (noRawat) fetchDataGizi(noRawat, searchKeyword, tglAwal, tglAkhir);
+  }, [tglAwal, tglAkhir]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!mounted) return null;
 
-  // Input helper component - Updated to UI_STANDARDS.md (Top-Aligned)
+  const handleBottomSearch = () => fetchDataGizi(noRawat, searchKeyword, tglAwal, tglAkhir);
+
   const FormField = ({ label, value, onChange, unit, placeholder, type = 'text', readOnly = false, className = "" }: {
     label: string; value: string; onChange?: (v: string) => void; unit?: string; placeholder?: string; type?: string; readOnly?: boolean; className?: string
   }) => (
@@ -154,166 +245,229 @@ function AsuhannGiziContent() {
     </div>
   );
 
-  const formContent = (
-    <div className="space-y-6">
-      {/* Ringkasan Data Pasien */}
-      <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <FormField label="No. Rawat" value={noRawatParam} readOnly />
-          <FormField label="No. RM" value="617244" readOnly />
-          <FormField label="Nama Pasien" value="Tn. Sukarji" readOnly />
-          <FormField label="Tgl. Lahir" value="1959-06-22" readOnly />
-          <FormField label="Jenis Kelamin" value="Laki-Laki" readOnly />
-          <FormField label="Diagnosa Awal" value="pneumonia / pasien umum" className="lg:col-span-2" readOnly />
-          <FormField label="Tanggal Asuhan" value="2026-04-30" type="date" />
-        </div>
-      </div>
-
-      {/* Section Antropometri */}
-      <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-        <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
-          Pengukuran Antropometri
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          <FormField label="BB" value={bb} onChange={setBb} unit="Kg" placeholder="0" />
-          <FormField label="TB" value={tb} onChange={setTb} unit="Cm" placeholder="0" />
-          <FormField label="IMT" value={imt} onChange={setImt} unit="Kg/m²" placeholder="0" />
-          <FormField label="LLA" value={lla} onChange={setLla} unit="Cm" placeholder="0" />
-          <FormField label="TL" value={tl} onChange={setTl} unit="Cm" placeholder="0" />
-          <FormField label="ULNA" value={ulna} onChange={setUlna} unit="Cm" placeholder="0" />
-          <FormField label="BB Ideal" value={bbIdeal} onChange={setBbIdeal} unit="Kg" placeholder="0" />
-          <FormField label="BB/U" value={bbU} onChange={setBbU} unit="SD" placeholder="0" />
-          <FormField label="TKU" value={tku} onChange={setTku} unit="SD" placeholder="0" />
-          <FormField label="BB/TB" value={bbTb} onChange={setBbTb} unit="SD" placeholder="0" />
-          <FormField label="LLA/U" value={llaUPersen} onChange={setLlaUPersen} unit="SD" placeholder="0" />
-        </div>
-      </div>
-
-      {/* Pemeriksaan Fisik & Biokimia */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <FormTextarea label="Pemeriksaan Biokimia" value={biokimia} onChange={setBiokimia} placeholder="Masukkan hasil lab/biokimia..." />
-        <FormTextarea label="Pemeriksaan Fisik / Klinis" value={fisikKlinis} onChange={setFisikKlinis} placeholder="Masukkan kondisi fisik/klinis pasien..." />
-      </div>
-
-      {/* Riwayat Gizi & Personal */}
-      <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-        <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
-          Riwayat Gizi & Diet
-        </h3>
-        <div className="space-y-4">
-          <div>
-            <span className="text-xs font-semibold text-slate-600 block mb-3">Alergi Makanan :</span>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-12 px-2">
-              {/* Kolom Kiri */}
-              <div className="space-y-1">
-                <AllergyItem label="Telur" value={alergiTelur} onChange={setAlergiTelur} />
-                <AllergyItem label="Susu Sapi & Produk Olahannya" value={alergiSusuSapi} onChange={setAlergiSusuSapi} />
-                <AllergyItem label="Kacang Kedelai / Tanah" value={alergiKacang} onChange={setAlergiKacang} />
-                <AllergyItem label="Gluten / Gandum" value={alergiGluten} onChange={setAlergiGluten} />
-              </div>
-              {/* Kolom Kanan */}
-              <div className="space-y-1">
-                <AllergyItem label="Udang" value={alergiUdang} onChange={setAlergiUdang} />
-                <AllergyItem label="Ikan" value={alergiIkan} onChange={setAlergiIkan} />
-                <AllergyItem label="Hazelnut / Almond" value={alergiHazelnut} onChange={setAlergiHazelnut} />
-                <div className="h-5 invisible md:block" aria-hidden="true" /> {/* Spacer penyeimbang */}
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-brand-100/30">
-            <FormField label="Pola Makan" value={polaMakan} onChange={setPolaMakan} placeholder="Contoh: 3x makan utama, porsi habis" />
-            <FormField label="Riwayat Personal" value={riwayatPersonal} onChange={setRiwayatPersonal} placeholder="Riwayat penyakit keluarga/personal..." />
-          </div>
-        </div>
-      </div>
-
-      {/* Diagnosis Klinis & Intervensi */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <FormTextarea label="Diagnosa Gizi (ADIME)" value={diagnosaGizi} onChange={setDiagnosaGizi} />
-        <FormTextarea label="Intervensi Gizi" value={intervensiGizi} onChange={setIntervensiGizi} />
-        <FormTextarea label="Instruksi Medis" value={instruksi} onChange={setInstruksi} />
-        <FormTextarea label="Monitoring & Evaluasi" value={monitoringEvaluasi} onChange={setMonitoringEvaluasi} />
-      </div>
-
-      {/* Section Petugas */}
-      <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 flex flex-wrap items-end gap-4">
-        <div className="flex-1 min-w-[250px]">
-          <FormField label="Petugas Pengisi Asuhan" value="Ukhuwwatun Hasanah Pristari Rahayu, S.Gz" readOnly />
-        </div>
-        <button className="h-[38px] px-4 bg-white border border-slate-300 rounded text-brand-600 hover:bg-brand-50 transition-colors flex items-center gap-2 text-xs font-bold shadow-sm">
-          <FaSearch className="text-[10px]" /> Cari Petugas
-        </button>
-      </div>
-    </div>
-  );
+  const tabs = [
+    'Asuhan Gizi',
+    'Riwayat Diet',
+    'Monitoring Gizi',
+    'Evaluasi Gizi',
+  ];
 
   return (
     <>
-
-      {/* Tombol Toggle - di atas tabel saat form tertutup */}
-      {!isFormOpen && (
-        <button
-          onClick={() => setIsFormOpen(true)}
-          className="bg-white border-b border-slate-200 px-4 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50 transition-colors flex items-center gap-2 shrink-0 w-full text-left"
-        >
-          <FaChevronDown className="text-[10px]" />
-          <span className="tracking-wide">Tampilkan Input Data</span>
-        </button>
-      )}
-
-      {/* Form Input yang Dapat Dilipat - membesar dari atas, menggantikan tabel */}
-      <AnimatePresence initial={false}>
-        {isFormOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.15, ease: 'easeInOut' }}
-            className="overflow-hidden border-b border-slate-200 flex flex-col flex-1"
-          >
-            <div className="p-3 bg-white overflow-y-auto custom-scrollbar flex-1">
-              {formContent}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Tombol Toggle - di bawah tabel saat form terbuka */}
-      {isFormOpen && (
-        <button
-          onClick={() => setIsFormOpen(false)}
-          className="bg-white border-b border-slate-200 px-4 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50 transition-colors flex items-center gap-2 shrink-0 w-full text-left"
-        >
-          <FaChevronUp className="text-[10px]" />
-          <span className="tracking-wide">Sembunyikan Input Data</span>
-        </button>
-      )}
-
-      {/* Tabel Data - menggunakan DataTableMulti */}
-      <div className={`flex-1 overflow-auto ${isFormOpen ? 'hidden' : 'block'}`}>
-        <DataTableMulti
-          title="Data Asuhan Gizi Pasien"
-          icon={<FaUtensils />}
-          columns={columns}
-          data={demoData}
-          idKey="id"
-          selectedIds={selectedIds}
-          onSelectionChange={setSelectedIds}
-        />
+      {/* Bar Info Pasien Atas */}
+      <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
+        <div className="flex items-center gap-1 w-full sm:w-auto">
+          <label className="font-semibold text-slate-600 min-w-[80px] sm:min-w-0">Pasien :</label>
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-35 sm:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+        </div>
+        <div className="flex items-center gap-1 w-full sm:w-auto">
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-20 sm:w-16 bg-slate-50 focus:outline-none focus:border-brand-500"
+            value={isLoadingPatient ? '...' : noRM} readOnly placeholder="No. RM" />
+        </div>
+        <div className="flex items-center gap-1 w-full md:w-auto">
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-75 sm:w-35 bg-slate-50 focus:outline-none focus:border-brand-500"
+            value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
+        </div>
+        <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
+          <label className="font-semibold text-slate-600">Tanggal :</label>
+          <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500"
+            value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+          <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs sm:w-25 focus:outline-none focus:border-brand-500 bg-white"
+            value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+          <input type="checkbox" className="accent-brand-500 w-4 h-4 cursor-pointer ml-2"
+            checked={isClockRunning} onChange={e => setIsClockRunning(e.target.checked)} title="Centang untuk jam real-time" />
+        </div>
       </div>
-      {/* Panel Aksi Bawah - selalu di bawah */}
+
+      {/* Tab */}
+      <div className="flex bg-white border-b border-slate-200 px-3 shrink-0 overflow-x-auto custom-scrollbar">
+        {tabs.map(tab => {
+          const tabId = tab.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const isActive = activeTab === tabId;
+          return (
+            <button key={tab} onClick={() => setActiveTab(tabId)}
+              className={`px-4 py-2.5 text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 font-bold' : 'text-slate-500 hover:text-brand-600'}`}>
+              {tab}
+              {isActive && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-full" />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Konten Tab */}
+      <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
+        {activeTab === 'asuhangizi' && (
+          <div className="flex flex-col min-h-full w-full">
+            <TopFormContainer title="Form Input Asuhan Gizi" persistenceKey="khanza_asuhan_gizi_form_open">
+              <div className="flex flex-col gap-5">
+                {/* Petugas dari user yang login */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
+                    <div className="flex gap-1 flex-1">
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Jabatan / Dept</label>
+                    <div className="flex gap-1 flex-1">
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiJabatan} readOnly />
+                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ringkasan Data Pasien */}
+                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <FormField label="No. Rawat" value={noRawat} readOnly />
+                    <FormField label="No. RM" value={noRM || '-'} readOnly />
+                    <FormField label="Nama Pasien" value={namaPasien || '-'} readOnly />
+                    <FormField label="Tanggal Asuhan" value={currentDate} type="date" onChange={(v) => setCurrentDate(v)} />
+                  </div>
+                </div>
+
+                {/* Antropometri */}
+                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
+                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
+                    Pengukuran Antropometri
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                    <FormField label="BB" value={bb} onChange={setBb} unit="Kg" placeholder="0" />
+                    <FormField label="TB" value={tb} onChange={setTb} unit="Cm" placeholder="0" />
+                    <FormField label="IMT" value={imt} onChange={setImt} unit="Kg/m²" placeholder="0" />
+                    <FormField label="LLA" value={lla} onChange={setLla} unit="Cm" placeholder="0" />
+                    <FormField label="TL" value={tl} onChange={setTl} unit="Cm" placeholder="0" />
+                    <FormField label="ULNA" value={ulna} onChange={setUlna} unit="Cm" placeholder="0" />
+                    <FormField label="BB Ideal" value={bbIdeal} onChange={setBbIdeal} unit="Kg" placeholder="0" />
+                    <FormField label="BB/U" value={bbU} onChange={setBbU} unit="SD" placeholder="0" />
+                    <FormField label="TKU" value={tku} onChange={setTku} unit="SD" placeholder="0" />
+                    <FormField label="BB/TB" value={bbTb} onChange={setBbTb} unit="SD" placeholder="0" />
+                    <FormField label="LLA/U" value={llaUPersen} onChange={setLlaUPersen} unit="SD" placeholder="0" />
+                  </div>
+                </div>
+
+                {/* Biokimia & Fisik */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <FormTextarea label="Pemeriksaan Biokimia" value={biokimia} onChange={setBiokimia} placeholder="Masukkan hasil lab/biokimia..." />
+                  <FormTextarea label="Pemeriksaan Fisik / Klinis" value={fisikKlinis} onChange={setFisikKlinis} placeholder="Masukkan kondisi fisik/klinis pasien..." />
+                </div>
+
+                {/* Riwayat Gizi */}
+                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
+                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
+                    Riwayat Gizi & Diet
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-xs font-semibold text-slate-600 block mb-3">Alergi Makanan :</span>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-12 px-2">
+                        <div className="space-y-1">
+                          <AllergyItem label="Telur" value={alergiTelur} onChange={setAlergiTelur} />
+                          <AllergyItem label="Susu Sapi & Produk Olahannya" value={alergiSusuSapi} onChange={setAlergiSusuSapi} />
+                          <AllergyItem label="Kacang Kedelai / Tanah" value={alergiKacang} onChange={setAlergiKacang} />
+                          <AllergyItem label="Gluten / Gandum" value={alergiGluten} onChange={setAlergiGluten} />
+                        </div>
+                        <div className="space-y-1">
+                          <AllergyItem label="Udang" value={alergiUdang} onChange={setAlergiUdang} />
+                          <AllergyItem label="Ikan" value={alergiIkan} onChange={setAlergiIkan} />
+                          <AllergyItem label="Hazelnut / Almond" value={alergiHazelnut} onChange={setAlergiHazelnut} />
+                          <div className="h-5 invisible md:block" aria-hidden="true" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-brand-100/30">
+                      <FormField label="Pola Makan" value={polaMakan} onChange={setPolaMakan} placeholder="Contoh: 3x makan utama, porsi habis" />
+                      <FormField label="Riwayat Personal" value={riwayatPersonal} onChange={setRiwayatPersonal} placeholder="Riwayat penyakit keluarga/personal..." />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Diagnosa & Intervensi */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <FormTextarea label="Diagnosa Gizi (ADIME)" value={diagnosaGizi} onChange={setDiagnosaGizi} placeholder="Diagnosa gizi..." />
+                  <FormTextarea label="Intervensi Gizi" value={intervensiGizi} onChange={setIntervensiGizi} placeholder="Intervensi gizi..." />
+                  <FormTextarea label="Instruksi Medis" value={instruksi} onChange={setInstruksi} placeholder="Instruksi medis..." />
+                  <FormTextarea label="Monitoring & Evaluasi" value={monitoringEvaluasi} onChange={setMonitoringEvaluasi} placeholder="Monitoring dan evaluasi..." />
+                </div>
+              </div>
+            </TopFormContainer>
+
+            {/* Tabel Inline */}
+            <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              <DataTableMulti
+                title="Data Asuhan Gizi Pasien"
+                icon={<FaUtensils />}
+                onRefresh={handleBottomSearch}
+                columns={columns}
+                data={dataGizi}
+                idKey="id"
+                selectedIds={selectedRows}
+                onSelectionChange={setSelectedRows}
+                isLoading={isLoadingData}
+                emptyMessage="Tidak ada data asuhan gizi yang ditemukan."
+              />
+            </div>
+
+            {/* Modal Tabel Diperluas */}
+            <AnimatePresence>
+              {isTableExpanded && (<>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
+                  className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsTableExpanded(false)} />
+                <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.15 }}
+                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 p-4 shadow-2xl rounded-xl border border-slate-300 flex flex-col">
+                  <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
+                    <h3 className="font-bold text-slate-700 text-[13px]">Tabel Data Asuhan Gizi</h3>
+                    <button onClick={() => setIsTableExpanded(false)}
+                      className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                      <FaCompress className="text-[10px]" /> Perkecil
+                    </button>
+                  </div>
+                  <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
+                    <DataTableMulti
+                      columns={columns}
+                      data={dataGizi}
+                      idKey="id"
+                      selectedIds={selectedRows}
+                      onSelectionChange={setSelectedRows}
+                      isLoading={isLoadingData}
+                    />
+                  </div>
+                </motion.div>
+              </>)}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {activeTab !== 'asuhangizi' && (
+          <div className="flex items-center justify-center h-full text-slate-400">
+            Menu {tabs.find(t => t.toLowerCase().replace(/[^a-z0-9]/g, '') === activeTab)?.toUpperCase() || activeTab.toUpperCase()} belum tersedia (Demo)
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Panel */}
       <BottomActionPanel
-        recordCount={1}
+        recordCount={dataGizi.length}
         onExit={() => router.push('/rawat-inap')}
+        searchValue={searchKeyword}
+        onSearchChange={setSearchKeyword}
+        onSearch={handleBottomSearch}
+        dateStart={tglAwal}
+        dateEnd={tglAkhir}
+        onDateStartChange={setTglAwal}
+        onDateEndChange={setTglAkhir}
       />
     </>
   );
 }
 
-export default function AsuhannGiziPage() {
+export default function AsuhanGiziPage() {
   return (
     <Suspense fallback={<div className="p-8 flex justify-center text-brand-500">Memuat data...</div>}>
-      <AsuhannGiziContent />
+      <AsuhanGiziContent />
     </Suspense>
   );
 }

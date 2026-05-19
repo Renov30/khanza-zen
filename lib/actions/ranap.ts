@@ -184,6 +184,59 @@ export async function getLoggedInPegawai() {
   }
 }
 
+/**
+ * Mengambil data asuhan gizi pasien rawat inap.
+ * Saat ini masih menggunakan demo data karena tabel asuhan_gizi
+ * belum tersedia di database.
+ */
+export async function getAsuhanGiziRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    // TODO: Implement query ke tabel asuhan_gizi setelah tabel tersedia
+    const demoData = [
+      {
+        id: "1",
+        no_rawat: noRawat,
+        no_rkm_medis: "617244",
+        nm_pasien: "Tn. Sukarji",
+        jk: "L",
+        tgl_lahir: "1959-06-22",
+        tgl_asuhan: "2025-10-23",
+        bb: 55, tb: 155, imt: 22.9,
+        lla: 0, tl: 0, ulna: 0, lla_u: 0,
+        bb_ideal: 0, bb_u: 0, tku: 0, bb_tb: 0, lla_u_persen: 0,
+        subjektif: "A p51.1.b Leukosit : 13.5 10^3/...",
+        fisik_klinis: "Status Gizi : normal. Mual dan nyeri...",
+        telur: false, susu_sapi: false, kacang: false, gluten: false,
+        udang: false, ikan: false, hazelnut: false,
+        pola_makan: "3x makan utama, porsi habis",
+        riwayat_personal: "",
+        diagnosa_gizi: "",
+        intervensi_gizi: "",
+        instruksi: "",
+        monitoring_evaluasi: "",
+        nip: "",
+        nm_pegawai: "Ukhuwwatun Hasanah Pristari Rahayu, S.Gz",
+        jabatan: "Ahli Gizi",
+      },
+    ];
+
+    return { success: true, data: demoData };
+  } catch (error: any) {
+    console.error("Error fetching asuhan gizi:", error);
+    return {
+      success: false,
+      message: "Gagal mengambil data asuhan gizi",
+      error: error.message,
+      data: [],
+    };
+  }
+}
+
 export async function getDaftarRanap(
   keyword: string = "",
   status: string = "Belum Pulang",
