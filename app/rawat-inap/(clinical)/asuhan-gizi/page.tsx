@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { FaUtensils, FaEdit, FaExpand, FaCompress } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
-import { getPatientInfoByNoRawat, getAsuhanGiziRanap, getMonitoringGiziRanap, getSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getSkriningNutrisiRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getAsuhanGiziRanap, getMonitoringGiziRanap, getSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
@@ -34,17 +34,6 @@ interface CatatanADIMERow {
   tanggal: string; asesmen: string; diagnosis: string;
   intervensi: string; monitoring: string; evaluasi: string;
   instruksi: string; nip: string; nm_petugas: string;
-}
-
-interface SkriningNutrisiRow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
-  tgl_lahir: string; jk: string; tanggal: string;
-  bb: string; lila: string; tbpb: string;
-  td: string; hr: string; rr: string; suhu: string; spo2: string;
-  alergi: string;
-  sg1: string; nilai1: string; sg2: string; nilai2: string;
-  sg3: string; total_hasil: string;
-  nip: string; nm_petugas: string;
 }
 
 interface AsuhanGiziRow {
@@ -144,31 +133,6 @@ const catatanADIMEColumns: TableColumn[] = [
   { header: 'Petugas', key: 'nm_petugas', width: '180px' },
 ];
 
-const skriningNutrisiColumns: TableColumn[] = [
-  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold hover:underline', width: '140px' },
-  { header: 'No.RM', key: 'no_rkm_medis', className: 'text-brand-600 font-semibold', width: '70px' },
-  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
-  { header: 'Tgl.Lahir', key: 'tgl_lahir', width: '100px' },
-  { header: 'JK', key: 'jk', width: '30px' },
-  { header: 'Tanggal', key: 'tanggal', width: '160px' },
-  { header: 'BB(Kg)', key: 'bb', width: '60px' },
-  { header: 'LILA(Cm)', key: 'lila', width: '70px' },
-  { header: 'TB/PB(Cm)', key: 'tbpb', width: '80px' },
-  { header: 'TD(mmHg)', key: 'td', width: '75px' },
-  { header: 'HR(/mnt)', key: 'hr', width: '65px' },
-  { header: 'RR(/mnt)', key: 'rr', width: '65px' },
-  { header: 'Suhu', key: 'suhu', width: '50px' },
-  { header: 'SpO2(%)', key: 'spo2', width: '65px' },
-  { header: 'Alergi', key: 'alergi', width: '120px', className: 'truncate' },
-  { header: 'SGizi 1', key: 'sg1', width: '80px', className: 'truncate' },
-  { header: 'Nilai 1', key: 'nilai1', width: '50px' },
-  { header: 'SGizi 2', key: 'sg2', width: '80px', className: 'truncate' },
-  { header: 'Nilai 2', key: 'nilai2', width: '50px' },
-  { header: 'Total Skor', key: 'total_hasil', width: '70px' },
-  { header: 'NIP', key: 'nip', width: '100px' },
-  { header: 'Petugas', key: 'nm_petugas', width: '180px' },
-];
-
 function AllergyItem({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <div className="flex items-center justify-between gap-2 py-1 border-b border-slate-100 last:border-0 sm:border-0 sm:py-0">
@@ -261,6 +225,19 @@ function AsuhanGiziContent() {
   const [skriningGiziTB, setSkriningGiziTB] = useState('');
   const [skriningGiziAlergi, setSkriningGiziAlergi] = useState('');
   const [skriningGiziDate, setSkriningGiziDate] = useState(today);
+  const [skriningGiziJam, setSkriningGiziJam] = useState(new Date().getHours().toString().padStart(2, '0'));
+  const [skriningGiziMenit, setSkriningGiziMenit] = useState(new Date().getMinutes().toString().padStart(2, '0'));
+  const [skriningGiziDetik, setSkriningGiziDetik] = useState(new Date().getSeconds().toString().padStart(2, '0'));
+  const [skriningGiziClockRunning, setSkriningGiziClockRunning] = useState(true);
+  const [skriningGiziIMT, setSkriningGiziIMT] = useState('');
+  const [skriningGiziSkor1, setSkriningGiziSkor1] = useState("IMT > 20/z score > 2");
+  const [skriningGiziSkor2, setSkriningGiziSkor2] = useState("BB Hilang < 5%");
+  const [skriningGiziSkor3, setSkriningGiziSkor3] = useState("Ada asupan nutrisi > 5 hari");
+  const [skriningGiziSkor1Val, setSkriningGiziSkor1Val] = useState("0");
+  const [skriningGiziSkor2Val, setSkriningGiziSkor2Val] = useState("0");
+  const [skriningGiziSkor3Val, setSkriningGiziSkor3Val] = useState("0");
+  const [skriningGiziTotal, setSkriningGiziTotal] = useState("0");
+  const [skriningGiziKesimpulan, setSkriningGiziKesimpulan] = useState("Beresiko rendah, ulangi 7 hari");
 
   // Catatan ADIME Gizi state
   const [dataADIME, setDataADIME] = useState<CatatanADIMERow[]>([]);
@@ -272,20 +249,6 @@ function AsuhanGiziContent() {
   const [adimeEvaluasi, setAdimeEvaluasi] = useState('');
   const [adimeInstruksi, setAdimeInstruksi] = useState('');
   const [adimeDate, setAdimeDate] = useState(today);
-
-  // Skrining Nutrisi state
-  const [dataSkriningNutrisi, setDataSkriningNutrisi] = useState<SkriningNutrisiRow[]>([]);
-  const [isLoadingSkriningNutrisi, setIsLoadingSkriningNutrisi] = useState(false);
-  const [nutrisiBB, setNutrisiBB] = useState('');
-  const [nutrisiLILA, setNutrisiLILA] = useState('');
-  const [nutrisiTBPB, setNutrisiTBPB] = useState('');
-  const [nutrisiTD, setNutrisiTD] = useState('');
-  const [nutrisiHR, setNutrisiHR] = useState('');
-  const [nutrisiRR, setNutrisiRR] = useState('');
-  const [nutrisiSuhu, setNutrisiSuhu] = useState('');
-  const [nutrisiSpO2, setNutrisiSpO2] = useState('');
-  const [nutrisiAlergi, setNutrisiAlergi] = useState('');
-  const [nutrisiDate, setNutrisiDate] = useState(today);
 
   const [alergiTelur, setAlergiTelur] = useState(false);
   const [alergiSusuSapi, setAlergiSusuSapi] = useState(false);
@@ -395,23 +358,6 @@ function AsuhanGiziContent() {
     setIsLoadingADIME(false);
   }, []);
 
-  const fetchDataSkriningNutrisi = useCallback(async (nrw: string, kw: string = '', ta: string = '', tb: string = '') => {
-    if (!nrw.trim()) return;
-    setIsLoadingSkriningNutrisi(true);
-    try {
-      const result = await getSkriningNutrisiRanap(nrw, kw, ta, tb);
-      if (result.success && result.data) {
-        const mappedData = result.data.map((row: any) => ({
-          ...row,
-          id: `${row.no_rawat}-${row.tanggal}`
-        }));
-        setDataSkriningNutrisi(mappedData);
-      }
-      else setDataSkriningNutrisi([]);
-    } catch (e) { console.error('fetchDataSkriningNutrisi error:', e); setDataSkriningNutrisi([]); }
-    setIsLoadingSkriningNutrisi(false);
-  }, []);
-
   const fetchPegawaiInfo = useCallback(async () => {
     try {
       const result = await getLoggedInPegawai();
@@ -432,9 +378,8 @@ function AsuhanGiziContent() {
       fetchDataMonitoring(noRawatParam);
       fetchDataSkriningGizi(noRawatParam);
       fetchDataADIME(noRawatParam);
-      fetchDataSkriningNutrisi(noRawatParam);
     }
-  }, [noRawatParam, fetchPatientInfo, fetchDataGizi, fetchDataMonitoring, fetchDataSkriningGizi, fetchDataADIME, fetchDataSkriningNutrisi, fetchPegawaiInfo]);
+  }, [noRawatParam, fetchPatientInfo, fetchDataGizi, fetchDataMonitoring, fetchDataSkriningGizi, fetchDataADIME, fetchPegawaiInfo]);
 
   useEffect(() => {
     if (noRawat) {
@@ -442,9 +387,71 @@ function AsuhanGiziContent() {
       fetchDataMonitoring(noRawat, searchKeyword, tglAwal, tglAkhir);
       fetchDataSkriningGizi(noRawat, searchKeyword, tglAwal, tglAkhir);
       fetchDataADIME(noRawat, searchKeyword, tglAwal, tglAkhir);
-      fetchDataSkriningNutrisi(noRawat, searchKeyword, tglAwal, tglAkhir);
     }
   }, [tglAwal, tglAkhir]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // === Skrining Gizi scoring helpers (ported from RMDataSkriningGiziLanjut.java) ===
+  const calcSkor1 = useCallback((combo: string) => {
+    if (combo === "IMT 18,5-20/-2 =< z score =< 2") return 1;
+    if (combo === "IMT < 18,5/z score < -2") return 2;
+    return 0;
+  }, []);
+  const calcSkor2 = useCallback((combo: string) => {
+    if (combo === "BB Hilang 5 - 10 %") return 1;
+    if (combo === "BB Hilang > 10 %") return 2;
+    return 0;
+  }, []);
+  const calcSkor3 = useCallback((combo: string) => {
+    if (combo === "Tidak ada asupan nutrisi > 5 hari") return 2;
+    return 0;
+  }, []);
+  const calcTotal = useCallback((s1: number, s2: number, s3: number) => s1 + s2 + s3, []);
+  const calcKesimpulan = useCallback((total: number) => {
+    if (total === 0) return "Beresiko rendah, ulangi 7 hari";
+    if (total === 1) return "Beresiko menengah, monitoring asupan selama 3 hari";
+    return "Beresiko tinggi, bekerja sama dengan tim dukungan gizi upayakan peningkatan asupan gizi dan memberikan makanan sesuai dengan daya terima";
+  }, []);
+  const calcIMT = useCallback((bb: string, tb: string) => {
+    const bbNum = parseFloat(bb);
+    const tbNum = parseFloat(tb);
+    if (bbNum > 0 && tbNum > 0) {
+      const bmi = bbNum / ((tbNum / 100) * (tbNum / 100));
+      return bmi.toFixed(1);
+    }
+    return '';
+  }, []);
+
+  // Skrining Gizi clock effect
+  useEffect(() => {
+    if (!skriningGiziClockRunning) return;
+    const tick = () => {
+      const now = new Date();
+      setSkriningGiziJam(now.getHours().toString().padStart(2, '0'));
+      setSkriningGiziMenit(now.getMinutes().toString().padStart(2, '0'));
+      setSkriningGiziDetik(now.getSeconds().toString().padStart(2, '0'));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [skriningGiziClockRunning]);
+
+  // Auto-calc IMT when BB or TB changes
+  useEffect(() => {
+    setSkriningGiziIMT(calcIMT(skriningGiziBB, skriningGiziTB));
+  }, [skriningGiziBB, skriningGiziTB, calcIMT]);
+
+  // Auto-calc scoring when combos change
+  useEffect(() => {
+    const s1 = calcSkor1(skriningGiziSkor1);
+    const s2 = calcSkor2(skriningGiziSkor2);
+    const s3 = calcSkor3(skriningGiziSkor3);
+    setSkriningGiziSkor1Val(s1.toString());
+    setSkriningGiziSkor2Val(s2.toString());
+    setSkriningGiziSkor3Val(s3.toString());
+    const total = calcTotal(s1, s2, s3);
+    setSkriningGiziTotal(total.toString());
+    setSkriningGiziKesimpulan(calcKesimpulan(total));
+  }, [skriningGiziSkor1, skriningGiziSkor2, skriningGiziSkor3, calcSkor1, calcSkor2, calcSkor3, calcTotal, calcKesimpulan]);
 
   if (!mounted) return null;
 
@@ -453,7 +460,6 @@ function AsuhanGiziContent() {
     fetchDataMonitoring(noRawat, searchKeyword, tglAwal, tglAkhir);
     fetchDataSkriningGizi(noRawat, searchKeyword, tglAwal, tglAkhir);
     fetchDataADIME(noRawat, searchKeyword, tglAwal, tglAkhir);
-    fetchDataSkriningNutrisi(noRawat, searchKeyword, tglAwal, tglAkhir);
   };
 
   const FormField = ({ label, value, onChange, unit, placeholder, type = 'text', readOnly = false, className = "" }: {
@@ -493,7 +499,6 @@ function AsuhanGiziContent() {
     'Monitoring Gizi',
     'Skrining Gizi Lanjut',
     'Catatan ADIME Gizi',
-    'Skrining Nutrisi',
   ];
 
   return (
@@ -752,22 +757,114 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Skrining Gizi Lanjut" persistenceKey="khanza_skrining_gizi_form_open">
               <div className="flex flex-col gap-5">
+                {/* Baris Tanggal + Jam + Petugas (seperti Java: baris y=40) */}
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Gizi</h3>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
+                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white"
                       value={skriningGiziDate} onChange={e => setSkriningGiziDate(e.target.value)} />
+                    <select value={skriningGiziJam} onChange={e => setSkriningGiziJam(e.target.value)} disabled={skriningGiziClockRunning}
+                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
+                      {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(h => <option key={h}>{h}</option>)}
+                    </select>
+                    <span className="text-slate-400 text-xs font-bold">:</span>
+                    <select value={skriningGiziMenit} onChange={e => setSkriningGiziMenit(e.target.value)} disabled={skriningGiziClockRunning}
+                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
+                      {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => <option key={m}>{m}</option>)}
+                    </select>
+                    <span className="text-slate-400 text-xs font-bold">:</span>
+                    <select value={skriningGiziDetik} onChange={e => setSkriningGiziDetik(e.target.value)} disabled={skriningGiziClockRunning}
+                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
+                      {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(d => <option key={d}>{d}</option>)}
+                    </select>
+                    <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer ml-1">
+                      <input type="checkbox" className="accent-brand-500 w-4 h-4" checked={skriningGiziClockRunning} onChange={e => setSkriningGiziClockRunning(e.target.checked)} />
+                    </label>
+                  </div>
+
+                  {/* Baris BB + TB + IMT + Alergi (seperti Java: baris y=70) */}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
+                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">BB</label>
+                    <input type="text" value={skriningGiziBB} onChange={e => setSkriningGiziBB(e.target.value)}
+                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
+                    <span className="text-[10px] text-slate-400 -ml-2 w-6">Kg</span>
+                    <label className="text-xs font-semibold text-slate-600 w-8 shrink-0">TB</label>
+                    <input type="text" value={skriningGiziTB} onChange={e => setSkriningGiziTB(e.target.value)}
+                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
+                    <span className="text-[10px] text-slate-400 -ml-2 w-6">Cm</span>
+                    <label className="text-xs font-semibold text-slate-600 w-8 shrink-0">IMT</label>
+                    <input type="text" value={skriningGiziIMT} readOnly
+                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 focus:outline-none focus:border-brand-500 w-20" />
+                    <span className="text-[10px] text-slate-400 -ml-2 w-14">Kg/Cm</span>
+                    <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">Alergi</label>
+                    <input type="text" value={skriningGiziAlergi} onChange={e => setSkriningGiziAlergi(e.target.value)}
+                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[120px]" placeholder="Alergi makanan/obat..." />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <FormField label="BB" value={skriningGiziBB} onChange={setSkriningGiziBB} unit="Kg" placeholder="0" />
-                  <FormField label="TB" value={skriningGiziTB} onChange={setSkriningGiziTB} unit="Cm" placeholder="0" />
-                  <FormField label="Alergi" value={skriningGiziAlergi} onChange={setSkriningGiziAlergi} placeholder="Alergi makanan/obat..." />
+                {/* Tiga baris skor (seperti Java: baris y=100,130,160) */}
+                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
+                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Penilaian Skrining</h3>
+                  <div className="flex flex-col gap-3">
+                    {/* Skor 1: IMT /z Score */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 1</label>
+                      <span className="text-xs text-slate-700 w-[300px] shrink-0">1. Skor IMT /z Score</span>
+                      <select value={skriningGiziSkor1} onChange={e => setSkriningGiziSkor1(e.target.value)}
+                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                        <option>IMT &gt; 20/z score &gt; 2</option>
+                        <option>IMT 18,5-20/-2 =&lt; z score =&lt; 2</option>
+                        <option>IMT &lt; 18,5/z score &lt; -2</option>
+                      </select>
+                      <label className="text-xs font-semibold text-slate-600">Skor :</label>
+                      <input type="text" value={skriningGiziSkor1Val} readOnly
+                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
+                    </div>
+
+                    {/* Skor 2: Kehilangan BB */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 2</label>
+                      <span className="text-xs text-slate-700 w-[300px] shrink-0">2. Skor kehilangan BB yang tidak direncanakan 3-6 bulan terakhir</span>
+                      <select value={skriningGiziSkor2} onChange={e => setSkriningGiziSkor2(e.target.value)}
+                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                        <option>BB Hilang &lt; 5%</option>
+                        <option>BB Hilang 5 - 10 %</option>
+                        <option>BB Hilang &gt; 10 %</option>
+                      </select>
+                      <label className="text-xs font-semibold text-slate-600">Skor :</label>
+                      <input type="text" value={skriningGiziSkor2Val} readOnly
+                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
+                    </div>
+
+                    {/* Skor 3: Efek penyakit akut */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 3</label>
+                      <span className="text-xs text-slate-700 w-[300px] shrink-0">3. Skor efek penyakit akut</span>
+                      <select value={skriningGiziSkor3} onChange={e => setSkriningGiziSkor3(e.target.value)}
+                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                        <option>Ada asupan nutrisi &gt; 5 hari</option>
+                        <option>Tidak ada asupan nutrisi &gt; 5 hari</option>
+                      </select>
+                      <label className="text-xs font-semibold text-slate-600">Skor :</label>
+                      <input type="text" value={skriningGiziSkor3Val} readOnly
+                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
+                    </div>
+
+                    {/* Total Skor + Kesimpulan (seperti Java: baris y=190) */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 border-t border-brand-100/50 mt-1">
+                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Total Skor</label>
+                      <input type="text" value={skriningGiziTotal} readOnly
+                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold text-brand-700" />
+                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Kesimpulan</label>
+                      <input type="text" value={skriningGiziKesimpulan} readOnly
+                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 text-slate-700 flex-1 min-w-[200px]" />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                {/* Petugas (Dilakukan Oleh) */}
+                <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
@@ -903,92 +1000,7 @@ function AsuhanGiziContent() {
           </div>
         )}
 
-        {activeTab === 'skriningnutrisi' && (
-          <div className="flex flex-col min-h-full w-full">
-            <TopFormContainer title="Form Input Skrining Nutrisi" persistenceKey="khanza_skrining_nutrisi_form_open">
-              <div className="flex flex-col gap-5">
-                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Nutrisi</h3>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                      value={nutrisiDate} onChange={e => setNutrisiDate(e.target.value)} />
-                  </div>
-                </div>
-
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <h3 className="text-[13px] font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2">Antropometri & TTV</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                    <FormField label="BB" value={nutrisiBB} onChange={setNutrisiBB} unit="Kg" placeholder="0" />
-                    <FormField label="LILA" value={nutrisiLILA} onChange={setNutrisiLILA} unit="Cm" placeholder="0" />
-                    <FormField label="TB/PB" value={nutrisiTBPB} onChange={setNutrisiTBPB} unit="Cm" placeholder="0" />
-                    <FormField label="TD" value={nutrisiTD} onChange={setNutrisiTD} unit="mmHg" placeholder="0" />
-                    <FormField label="HR" value={nutrisiHR} onChange={setNutrisiHR} unit="/mnt" placeholder="0" />
-                    <FormField label="RR" value={nutrisiRR} onChange={setNutrisiRR} unit="/mnt" placeholder="0" />
-                    <FormField label="Suhu" value={nutrisiSuhu} onChange={setNutrisiSuhu} unit="°C" placeholder="0" />
-                    <FormField label="SpO2" value={nutrisiSpO2} onChange={setNutrisiSpO2} unit="%" placeholder="0" />
-                    <FormField label="Alergi" value={nutrisiAlergi} onChange={setNutrisiAlergi} placeholder="Alergi..." className="lg:col-span-2" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
-                    <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TopFormContainer>
-
-            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <DataTableMulti
-                title="Data Skrining Nutrisi"
-                icon={<FaUtensils />}
-                onRefresh={handleBottomSearch}
-                columns={skriningNutrisiColumns}
-                data={dataSkriningNutrisi}
-                idKey="id"
-                selectedIds={selectedRows}
-                onSelectionChange={setSelectedRows}
-                isLoading={isLoadingSkriningNutrisi}
-                emptyMessage="Tidak ada data skrining nutrisi yang ditemukan."
-              />
-            </div>
-
-            <AnimatePresence>
-              {isTableExpanded && (<>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-                  className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsTableExpanded(false)} />
-                <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.15 }}
-                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 p-4 shadow-2xl rounded-xl border border-slate-300 flex flex-col">
-                  <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
-                    <h3 className="font-bold text-slate-700 text-[13px]">Tabel Data Skrining Nutrisi</h3>
-                    <button onClick={() => setIsTableExpanded(false)}
-                      className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
-                      <FaCompress className="text-[10px]" /> Perkecil
-                    </button>
-                  </div>
-                  <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
-                    <DataTableMulti
-                      columns={skriningNutrisiColumns}
-                      data={dataSkriningNutrisi}
-                      idKey="id"
-                      selectedIds={selectedRows}
-                      onSelectionChange={setSelectedRows}
-                      isLoading={isLoadingSkriningNutrisi}
-                    />
-                  </div>
-                </motion.div>
-              </>)}
-            </AnimatePresence>
-          </div>
-        )}
-
-        {activeTab !== 'asuhangizi' && activeTab !== 'monitoringgizi' && activeTab !== 'skrininggizilanjut' && activeTab !== 'catatanadimegizi' && activeTab !== 'skriningnutrisi' && (
+        {activeTab !== 'asuhangizi' && activeTab !== 'monitoringgizi' && activeTab !== 'skrininggizilanjut' && activeTab !== 'catatanadimegizi' && (
           <div className="flex items-center justify-center h-full text-slate-400">
             Menu belum tersedia
           </div>
@@ -1001,7 +1013,6 @@ function AsuhanGiziContent() {
           activeTab === 'monitoringgizi' ? dataMonitoring.length :
           activeTab === 'skrininggizilanjut' ? dataSkriningGizi.length :
           activeTab === 'catatanadimegizi' ? dataADIME.length :
-          activeTab === 'skriningnutrisi' ? dataSkriningNutrisi.length :
           dataGizi.length
         }
         onExit={() => router.push('/rawat-inap')}

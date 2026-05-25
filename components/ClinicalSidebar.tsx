@@ -32,6 +32,11 @@ const menuItems = [
     label: "Modul Gizi",
     path: "/rawat-inap/asuhan-gizi",
   },
+  {
+    icon: <FaClipboardList />,
+    label: "Skrining Nutrisi",
+    path: "/rawat-inap/skrining-nutrisi",
+  },
   { icon: <FaSyringe />, label: "Bundle PPI", path: "" },
   { icon: <FaClipboardList />, label: "Rekapan HAIs", path: "" },
 ];
