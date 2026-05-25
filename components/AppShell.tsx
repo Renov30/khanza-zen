@@ -132,7 +132,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
-        className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 text-white flex overflow-x-auto whitespace-nowrap px-2 py-1 shadow-sm z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 text-white flex overflow-x-auto whitespace-nowrap px-2 py-0.5 lg:py-1 shadow-md z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="flex items-center gap-1 w-max">
           <ToolbarMenuItem
@@ -493,9 +493,9 @@ function ToolbarMenuItem({
     <motion.button
       whileHover={{ backgroundColor: "rgba(255,255,255,0.15)" }}
       transition={{ duration: 0.1 }}
-      className="flex items-center gap-0.5 lg:gap-1 px-2 py-px rounded text-[9px] lg:text-[10px] font-medium transition-colors duration-150 hover:shadow-sm"
+      className="flex items-center gap-1 lg:gap-2 px-3 py-0.5 lg:py-1 rounded-lg text-[10px] lg:text-xs font-medium transition-colors duration-150 hover:shadow-sm"
     >
-      <span className="text-[10px] lg:text-xs drop-shadow-md">{icon}</span>
+      <span className="text-sm lg:text-base drop-shadow-md">{icon}</span>
       <span className="drop-shadow-sm">{label}</span>
     </motion.button>
   );
