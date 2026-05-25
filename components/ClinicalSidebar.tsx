@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   FaBed,
@@ -12,10 +12,17 @@ import {
   FaClipboardList,
   FaBars,
   FaSearch,
-  FaCog,
+  FaChevronDown,
 } from "react-icons/fa";
 
-const menuItems = [
+interface MenuItem {
+  icon: React.ReactNode;
+  label: string;
+  path?: string;
+  children?: MenuItem[];
+}
+
+const menuItems: MenuItem[] = [
   {
     icon: <FaBed />,
     label: "Pemeriksaan / CPPT",
@@ -30,12 +37,10 @@ const menuItems = [
   {
     icon: <FaUtensils />,
     label: "Modul Gizi",
-    path: "/rawat-inap/asuhan-gizi",
-  },
-  {
-    icon: <FaClipboardList />,
-    label: "Skrining Nutrisi",
-    path: "/rawat-inap/skrining-nutrisi",
+    children: [
+      { icon: <FaUtensils />, label: "Asesmen Gizi", path: "/rawat-inap/asuhan-gizi" },
+      { icon: <FaClipboardList />, label: "Skrining Nutrisi", path: "/rawat-inap/skrining-nutrisi" },
+    ],
   },
   { icon: <FaSyringe />, label: "Bundle PPI", path: "" },
   { icon: <FaClipboardList />, label: "Rekapan HAIs", path: "" },
@@ -61,6 +66,7 @@ export default function ClinicalSidebar({
     return true;
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   const toggleSidebar = () => {
     const newState = !isSidebarOpen;
@@ -73,14 +79,22 @@ export default function ClinicalSidebar({
     }
   };
 
-  const filteredMenu = searchTerm
-    ? menuItems.filter((item) =>
-      item.label.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    : menuItems;
+  const toggleExpand = (label: string) => {
+    setExpandedItems(prev => ({ ...prev, [label]: !prev[label] }));
+  };
 
-  const handleNavigate = (item: (typeof menuItems)[0]) => {
-    if (!item.path) return; // No path = not implemented yet
+  const matchesSearch = (item: MenuItem) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    if (item.label.toLowerCase().includes(term)) return true;
+    if (item.children) return item.children.some(c => c.label.toLowerCase().includes(term));
+    return false;
+  };
+
+  const filteredMenu = searchTerm ? menuItems.filter(matchesSearch) : menuItems;
+
+  const handleNavigate = (item: MenuItem) => {
+    if (!item.path) return;
     const params = new URLSearchParams();
     if (noRawat) params.set("noRawat", noRawat);
     if (item.path.includes("riwayat-pasien")) {
@@ -90,7 +104,7 @@ export default function ClinicalSidebar({
     router.push(`${item.path}?${params.toString()}`);
   };
 
-  const isActive = (path: string) => path && pathname.startsWith(path);
+  const isActive = (path?: string) => path && pathname.startsWith(path);
 
   return (
     <div className="flex flex-1 overflow-hidden">
@@ -126,26 +140,93 @@ export default function ClinicalSidebar({
 
         {/* Item Menu */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {filteredMenu.map((item, idx) => (
-            <div
-              key={idx}
-              onClick={() => handleNavigate(item)}
-              className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap ${isActive(item.path)
-                ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500"
-                : item.path
-                  ? "text-slate-700 hover:bg-brand-50"
-                  : "text-slate-400 cursor-default"
-                }`}
-              title={!isSidebarOpen ? item.label : undefined}
-            >
-              <span
-                className={`text-sm shrink-0 ${isActive(item.path) ? "text-brand-600" : item.path ? "text-brand-500" : "text-slate-300"}`}
+          {filteredMenu.map((item, idx) => {
+            const hasChildren = item.children && item.children.length > 0;
+            const isExpanded = expandedItems[item.label] || !!searchTerm;
+
+            if (hasChildren) {
+              const anyChildActive = item.children!.some(c => isActive(c.path));
+              return (
+                <div key={idx}>
+                  {/* Parent item (click to toggle) */}
+                  <div
+                    onClick={() => toggleExpand(item.label)}
+                    className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap ${anyChildActive
+                      ? "bg-brand-50 text-brand-700 font-bold"
+                      : "text-slate-700 hover:bg-brand-50"
+                      }`}
+                    title={!isSidebarOpen ? item.label : undefined}
+                  >
+                    <span className={`text-sm shrink-0 ${anyChildActive ? "text-brand-600" : "text-brand-500"}`}>
+                      {item.icon}
+                    </span>
+                    {isSidebarOpen && (
+                      <>
+                        <span className="flex-1">{item.label}</span>
+                        <motion.span
+                          animate={{ rotate: isExpanded ? 180 : 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="text-[10px] text-slate-400"
+                        >
+                          <FaChevronDown />
+                        </motion.span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Children */}
+                  <AnimatePresence initial={false}>
+                    {isExpanded && isSidebarOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="overflow-hidden"
+                      >
+                        {item.children!.map((child, ci) => (
+                          <div
+                            key={ci}
+                            onClick={() => handleNavigate(child)}
+                            className={`flex items-center gap-3 pl-9 pr-3 py-2.5 cursor-pointer text-xs transition-colors whitespace-nowrap ${isActive(child.path)
+                              ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500"
+                              : "text-slate-600 hover:bg-brand-50 hover:text-slate-700"
+                              }`}
+                          >
+                            <span className={`text-[10px] shrink-0 ${isActive(child.path) ? "text-brand-600" : "text-slate-400"}`}>
+                              {child.icon}
+                            </span>
+                            <span>{child.label}</span>
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={idx}
+                onClick={() => handleNavigate(item)}
+                className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap ${isActive(item.path)
+                  ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500"
+                  : item.path
+                    ? "text-slate-700 hover:bg-brand-50"
+                    : "text-slate-400 cursor-default"
+                  }`}
+                title={!isSidebarOpen ? item.label : undefined}
               >
-                {item.icon}
-              </span>
-              {isSidebarOpen && <span>{item.label}</span>}
-            </div>
-          ))}
+                <span
+                  className={`text-sm shrink-0 ${isActive(item.path) ? "text-brand-600" : item.path ? "text-brand-500" : "text-slate-300"}`}
+                >
+                  {item.icon}
+                </span>
+                {isSidebarOpen && <span>{item.label}</span>}
+              </div>
+            );
+          })}
         </div>
       </motion.div>
 
