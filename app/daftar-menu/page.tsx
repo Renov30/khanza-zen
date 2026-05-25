@@ -24,6 +24,7 @@ import {
   FaUserTie,
   FaPills,
   FaHospital,
+  FaCog,
 } from "react-icons/fa";
 
 // Constants for Mock Data
@@ -36,6 +37,7 @@ const CATEGORIES = [
   "[F] Transaksi Inventory Barang Dapur...",
   "[G] Aset, Inventaris Barang & Instalasi...",
   "[H] Manajemen Parkir Kendaraan Pasien...",
+  "[I] Pengaturan Aplikasi",
 ];
 
 const MOCK_MENU_ITEMS = [
@@ -188,6 +190,16 @@ const MOCK_MENU_ITEMS = [
     link: "/",
     color: "text-slate-800",
     category: 7,
+  },
+
+  // Category I - Pengaturan Aplikasi
+  {
+    id: 19,
+    label: "Pengaturan Aplikasi",
+    icon: FaCog,
+    link: "/setting",
+    color: "text-brand-500",
+    category: 8,
   },
 ];
 
