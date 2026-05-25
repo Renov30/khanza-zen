@@ -713,7 +713,7 @@ function SkriningNutrisiContent() {
           <label className="font-semibold text-slate-600">Tanggal :</label>
           <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500"
             value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-          <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs sm:w-25 focus:outline-none focus:border-brand-500 bg-white"
+          <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white"
             value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
           <input type="checkbox" className="accent-brand-500 w-4 h-4 cursor-pointer ml-2"
             checked={isClockRunning} onChange={e => setIsClockRunning(e.target.checked)} title="Centang untuk jam real-time" />
