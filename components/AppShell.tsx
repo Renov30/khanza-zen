@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { SettingProvider } from "@/components/SettingContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -310,7 +311,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Area Konten Utama */}
       <main className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30">
-        <div className="absolute inset-0 w-full h-full">{children}</div>
+        <div className="absolute inset-0 w-full h-full">
+          <SettingProvider>{children}</SettingProvider>
+        </div>
       </main>
 
       {/* Menu Konteks */}

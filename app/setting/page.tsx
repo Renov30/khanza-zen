@@ -6,21 +6,23 @@ import { motion } from "framer-motion";
 import { FaCog, FaSave, FaImage, FaTrash, FaTimes } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { getSettingRs, updateSetting } from "@/lib/actions/setting";
+import { useSetting } from "@/components/SettingContext";
 
 export default function SettingPage() {
+  const { instansi, refresh: refreshSettings } = useSetting();
   const [form, setForm] = useState({
-    namaInstansi: "",
-    alamatInstansi: "",
-    kabupaten: "",
-    propinsi: "",
-    kontak: "",
-    email: "",
-    kodePpk: "",
-    kodePpkInhealth: "",
-    kodePpkKemenkes: "",
-    aktifkan: "No",
+    namaInstansi: instansi?.namaInstansi || "",
+    alamatInstansi: instansi?.alamatInstansi || "",
+    kabupaten: instansi?.kabupaten || "",
+    propinsi: instansi?.propinsi || "",
+    kontak: instansi?.kontak || "",
+    email: instansi?.email || "",
+    kodePpk: instansi?.kodePpk || "",
+    kodePpkInhealth: instansi?.kodePpkInhealth || "",
+    kodePpkKemenkes: instansi?.kodePpkKemenkes || "",
+    aktifkan: instansi?.aktifkan || "No",
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!instansi);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
@@ -42,8 +44,14 @@ export default function SettingPage() {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (!instansi) {
+      fetchData();
+    } else {
+      setIsLoading(false);
+      setLogoPreview("/api/setting/logo");
+      setWallpaperPreview("/api/setting/wallpaper");
+    }
+  }, [instansi, fetchData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +69,7 @@ export default function SettingPage() {
     setIsSaving(false);
 
     if (res.success) {
+      refreshSettings();
       if (!logoFile) setLogoPreview("/api/setting/logo?" + Date.now());
       if (!wallpaperFile) setWallpaperPreview("/api/setting/wallpaper?" + Date.now());
       setLogoFile(null);

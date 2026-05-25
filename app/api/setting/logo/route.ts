@@ -13,7 +13,7 @@ export async function GET() {
       return new NextResponse(new Uint8Array(logoBuffer), {
         headers: {
           'Content-Type': 'image/png',
-          'Cache-Control': 'public, max-age=86400',
+          'Cache-Control': 'public, max-age=31536000, immutable',
         },
       });
     }
