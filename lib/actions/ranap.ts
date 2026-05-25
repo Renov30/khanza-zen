@@ -1037,3 +1037,642 @@ export async function getJamDiet() {
     return { success: false, message: "Gagal mengambil jam diet", error: error.message, data: [] };
   }
 }
+
+/**
+ * Mengambil riwayat kunjungan pasien (Tab 0).
+ * Meniru tampilKunjungan() dari RMRiwayatPerawatanRanap.java.
+ * Filter mode: "5terakhir", "semua", "tanggal", "norawat"
+ */
+export async function getRiwayatKunjungan(
+  noRM: string,
+  mode: string = "5terakhir",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+  noRawat: string = "",
+) {
+  try {
+    const params: any[] = [noRM];
+    let filterClause = "";
+
+    if (mode === "5terakhir") {
+      filterClause = "ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC LIMIT 5";
+    } else if (mode === "semua") {
+      filterClause = "ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC";
+    } else if (mode === "tanggal") {
+      filterClause = "AND reg_periksa.tgl_registrasi BETWEEN ? AND ? ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC";
+      params.push(tglAwal, tglAkhir);
+    } else if (mode === "norawat") {
+      filterClause = "AND reg_periksa.no_rawat = ? ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC";
+      params.push(noRawat);
+    }
+
+    const query = `
+      SELECT reg_periksa.no_rawat, reg_periksa.tgl_registrasi, reg_periksa.jam_reg,
+             reg_periksa.kd_dokter, dokter.nm_dokter, reg_periksa.umurdaftar, reg_periksa.sttsumur,
+             poliklinik.nm_poli, penjab.png_jawab
+      FROM reg_periksa
+      INNER JOIN dokter ON reg_periksa.kd_dokter = dokter.kd_dokter
+      INNER JOIN poliklinik ON reg_periksa.kd_poli = poliklinik.kd_poli
+      INNER JOIN penjab ON reg_periksa.kd_pj = penjab.kd_pj
+      WHERE reg_periksa.stts <> 'Batal' AND reg_periksa.no_rkm_medis = ?
+      ${filterClause}
+    `;
+
+    const [rows]: any = await db.execute(query, params);
+
+    // For each visit, get internal referrals, DPJP, and kamar inap
+    const enriched = [];
+    for (const row of rows) {
+      const noR = row.no_rawat;
+
+      // Internal referral
+      const [refRows]: any = await db.execute(`
+        SELECT dokter.nm_dokter, poliklinik.nm_poli
+        FROM rujukan_internal_poli
+        INNER JOIN dokter ON rujukan_internal_poli.kd_dokter = dokter.kd_dokter
+        INNER JOIN poliklinik ON rujukan_internal_poli.kd_poli = poliklinik.kd_poli
+        WHERE rujukan_internal_poli.no_rawat = ?
+      `, [noR]);
+
+      // DPJP Ranap
+      const [dpjpRows]: any = await db.execute(`
+        SELECT dokter.nm_dokter FROM dpjp_ranap
+        INNER JOIN dokter ON dpjp_ranap.kd_dokter = dokter.kd_dokter
+        WHERE dpjp_ranap.no_rawat = ?
+      `, [noR]);
+
+      // Kamar inap
+      const [kamarRows]: any = await db.execute(`
+        SELECT kamar_inap.tgl_masuk, kamar_inap.jam_masuk, bangsal.nm_bangsal
+        FROM kamar_inap
+        INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
+        INNER JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
+        WHERE kamar_inap.no_rawat = ?
+      `, [noR]);
+
+      enriched.push({
+        no_rawat: row.no_rawat,
+        tgl_registrasi: row.tgl_registrasi instanceof Date ? row.tgl_registrasi.toISOString().split('T')[0] : row.tgl_registrasi,
+        jam_reg: row.jam_reg,
+        kd_dokter: row.kd_dokter,
+        nm_dokter: row.nm_dokter,
+        umur: `${row.umurdaftar} ${row.sttsumur}`,
+        nm_poli: row.nm_poli,
+        png_jawab: row.png_jawab,
+        referrals: refRows.map((r: any) => ({ nm_dokter: r.nm_dokter, nm_poli: r.nm_poli })),
+        dpjp: dpjpRows.map((r: any) => r.nm_dokter).join(', '),
+        kamar_inap: kamarRows.map((r: any) => ({
+          tgl_masuk: r.tgl_masuk instanceof Date ? r.tgl_masuk.toISOString().split('T')[0] : r.tgl_masuk,
+          jam_masuk: r.jam_masuk,
+          nm_bangsal: r.nm_bangsal,
+        })),
+      });
+    }
+
+    return { success: true, data: enriched };
+  } catch (error: any) {
+    console.error("Error fetching riwayat kunjungan:", error);
+    return { success: false, message: "Gagal mengambil riwayat kunjungan", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil riwayat SOAPIE rawat inap (Tab 1).
+ * Meniru tampilSoapi() dari RMRiwayatPerawatanRanap.java.
+ * Filter mode: "5terakhir", "semua", "tanggal", "norawat"
+ */
+export async function getRiwayatSoapie(
+  noRM: string,
+  mode: string = "5terakhir",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+  noRawat: string = "",
+) {
+  try {
+    const params: any[] = [noRM];
+    let filterClause = "";
+
+    if (mode === "5terakhir") {
+      filterClause = "ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC LIMIT 5";
+    } else if (mode === "semua") {
+      filterClause = "ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC";
+    } else if (mode === "tanggal") {
+      filterClause = "AND reg_periksa.tgl_registrasi BETWEEN ? AND ? ORDER BY reg_periksa.tgl_registrasi DESC";
+      params.push(tglAwal, tglAkhir);
+    } else if (mode === "norawat") {
+      filterClause = "AND reg_periksa.no_rawat = ?";
+      params.push(noRawat);
+    }
+
+    const visitQuery = `
+      SELECT reg_periksa.no_rawat, reg_periksa.tgl_registrasi, reg_periksa.status_lanjut
+      FROM reg_periksa
+      WHERE reg_periksa.stts <> 'Batal' AND reg_periksa.no_rkm_medis = ?
+      ${filterClause}
+    `;
+
+    const [visitRows]: any = await db.execute(visitQuery, params);
+    const result = [];
+
+    for (const visit of visitRows) {
+      const noR = visit.no_rawat;
+
+      // Ranap SOAP data (with audit trail and verification)
+      const [soapRows]: any = await db.execute(`
+        SELECT pemeriksaan_ranap.tgl_perawatan, pemeriksaan_ranap.jam_rawat,
+               pemeriksaan_ranap.suhu_tubuh, pemeriksaan_ranap.tensi,
+               pemeriksaan_ranap.nadi, pemeriksaan_ranap.respirasi,
+               pemeriksaan_ranap.tinggi, pemeriksaan_ranap.berat,
+               pemeriksaan_ranap.spo2, pemeriksaan_ranap.gcs,
+               pemeriksaan_ranap.kesadaran, pemeriksaan_ranap.keluhan,
+               pemeriksaan_ranap.pemeriksaan, pemeriksaan_ranap.alergi,
+               pemeriksaan_ranap.penilaian, pemeriksaan_ranap.rtl,
+               pemeriksaan_ranap.instruksi, pemeriksaan_ranap.evaluasi,
+               pemeriksaan_ranap.nip, pegawai.nama AS nm_pegawai, pegawai.jbtn,
+               verifikasi_soap_ranap.verifikasi,
+               DATE_FORMAT(verifikasi_soap_ranap.tgl_verifikasi, '%Y-%m-%d %H:%i') AS tgl_verifikasi
+        FROM pemeriksaan_ranap
+        INNER JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik
+        LEFT JOIN verifikasi_soap_ranap
+          ON pemeriksaan_ranap.no_rawat = verifikasi_soap_ranap.no_rawat
+          AND pemeriksaan_ranap.tgl_perawatan = verifikasi_soap_ranap.tgl_perawatan
+          AND pemeriksaan_ranap.jam_rawat = verifikasi_soap_ranap.jam_rawat
+        LEFT JOIN pemeriksaan_ranap_audit_trail
+          ON pemeriksaan_ranap.no_rawat = pemeriksaan_ranap_audit_trail.no_rawat
+          AND pemeriksaan_ranap.tgl_perawatan = pemeriksaan_ranap_audit_trail.tgl_perawatan
+          AND pemeriksaan_ranap.jam_rawat = pemeriksaan_ranap_audit_trail.jam_rawat
+        WHERE pemeriksaan_ranap.no_rawat = ?
+          AND (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
+        ORDER BY pemeriksaan_ranap.tgl_perawatan, pemeriksaan_ranap.jam_rawat
+      `, [noR]);
+
+      // Build SOAP entries
+      const entries = soapRows.map((row: any) => ({
+        status: "Ranap",
+        tglJam: `${row.tgl_perawatan instanceof Date ? row.tgl_perawatan.toISOString().split('T')[0] : row.tgl_perawatan} ${row.jam_rawat}`,
+        petugas: row.nip,
+        profesi: `${row.nm_pegawai} - ${row.jbtn}`,
+        subjektif: row.keluhan,
+        objektif: `Tensi: ${row.tensi}, Nadi: ${row.nadi}, Respirasi: ${row.respirasi}, Suhu: ${row.suhu_tubuh}, SpO2: ${row.spo2}, GCS: ${row.gcs}, Kesadaran: ${row.kesadaran}, Tinggi: ${row.tinggi}, Berat: ${row.berat}`,
+        pemeriksaan: row.pemeriksaan,
+        alergi: row.alergi,
+        asesmen: row.penilaian,
+        plan: row.rtl,
+        instruksi: row.instruksi,
+        evaluasi: row.evaluasi,
+        verifikasi: row.verifikasi,
+        tgl_verifikasi: row.tgl_verifikasi,
+      }));
+
+      result.push({
+        tglReg: visit.tgl_registrasi instanceof Date ? visit.tgl_registrasi.toISOString().split('T')[0] : visit.tgl_registrasi,
+        no_rawat: noR,
+        entries,
+      });
+    }
+
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("Error fetching riwayat SOAPIE:", error);
+    return { success: false, message: "Gagal mengambil riwayat SOAPIE", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil daftar kunjungan untuk tab Riwayat Perawatan.
+ */
+export async function getRiwayatPerawatanPasien(
+  noRM: string,
+  mode: string = "5terakhir",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+  noRawat: string = "",
+) {
+  try {
+    const params: any[] = [noRM];
+    let filterClause = "";
+
+    if (mode === "5terakhir") {
+      filterClause = "ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC LIMIT 5";
+    } else if (mode === "semua") {
+      filterClause = "ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC";
+    } else if (mode === "tanggal") {
+      filterClause = "AND reg_periksa.tgl_registrasi BETWEEN ? AND ? ORDER BY reg_periksa.tgl_registrasi DESC";
+      params.push(tglAwal, tglAkhir);
+    } else if (mode === "norawat") {
+      filterClause = "AND reg_periksa.no_rawat = ?";
+      params.push(noRawat);
+    }
+
+    const query = `
+      SELECT reg_periksa.no_reg, reg_periksa.no_rawat, reg_periksa.tgl_registrasi, reg_periksa.jam_reg,
+             reg_periksa.kd_dokter, dokter.nm_dokter, poliklinik.nm_poli,
+             reg_periksa.p_jawab, reg_periksa.almt_pj, reg_periksa.hubunganpj,
+             reg_periksa.biaya_reg, reg_periksa.status_lanjut, penjab.png_jawab,
+             reg_periksa.umurdaftar, reg_periksa.sttsumur
+      FROM reg_periksa
+      INNER JOIN dokter ON reg_periksa.kd_dokter = dokter.kd_dokter
+      INNER JOIN poliklinik ON reg_periksa.kd_poli = poliklinik.kd_poli
+      INNER JOIN penjab ON reg_periksa.kd_pj = penjab.kd_pj
+      WHERE reg_periksa.stts <> 'Batal' AND reg_periksa.no_rkm_medis = ?
+      ${filterClause}
+    `;
+
+    const [rows]: any = await db.execute(query, params);
+    const result = [];
+
+    for (const row of rows) {
+      const noR = row.no_rawat;
+
+      // DPJP
+      const [dpjpRows]: any = await db.execute(`
+        SELECT dokter.nm_dokter FROM dpjp_ranap
+        INNER JOIN dokter ON dpjp_ranap.kd_dokter = dokter.kd_dokter
+        WHERE dpjp_ranap.no_rawat = ?
+      `, [noR]);
+
+      // Internal referral
+      const [refRows]: any = await db.execute(`
+        SELECT poliklinik.nm_poli, dokter.nm_dokter
+        FROM rujukan_internal_poli
+        INNER JOIN poliklinik ON rujukan_internal_poli.kd_poli = poliklinik.kd_poli
+        INNER JOIN dokter ON rujukan_internal_poli.kd_dokter = dokter.kd_dokter
+        WHERE rujukan_internal_poli.no_rawat = ?
+      `, [noR]);
+
+      result.push({
+        ...row,
+        tgl_registrasi: row.tgl_registrasi instanceof Date ? row.tgl_registrasi.toISOString().split('T')[0] : row.tgl_registrasi,
+        dpjp: dpjpRows.map((r: any) => r.nm_dokter).join(', '),
+        referrals: refRows,
+      });
+    }
+
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("Error fetching riwayat perawatan pasien:", error);
+    return { success: false, message: "Gagal mengambil data pasien", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data diagnosa/ICD-10 pasien.
+ */
+export async function getDiagnosaPasien(noRawat: string) {
+  try {
+    const query = `
+      SELECT diagnosa_pasien.kd_penyakit, penyakit.nm_penyakit,
+             diagnosa_pasien.status, GROUP_CONCAT(dokter.nm_dokter SEPARATOR ', ') AS nm_dokter
+      FROM diagnosa_pasien
+      INNER JOIN penyakit ON diagnosa_pasien.kd_penyakit = penyakit.kd_penyakit
+      LEFT JOIN dokter ON diagnosa_pasien.kd_dokter = dokter.kd_dokter
+      WHERE diagnosa_pasien.no_rawat = ?
+      GROUP BY diagnosa_pasien.kd_penyakit, diagnosa_pasien.status
+      ORDER BY diagnosa_pasien.status
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil diagnosa", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data prosedur/ICD-9 pasien.
+ */
+export async function getProsedurPasien(noRawat: string) {
+  try {
+    const query = `
+      SELECT prosedur_pasien.kd_icd9, icd9.nm_icd9_1
+      FROM prosedur_pasien
+      INNER JOIN icd9 ON prosedur_pasien.kd_icd9 = icd9.kd_icd9
+      WHERE prosedur_pasien.no_rawat = ?
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil prosedur", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data triase IGD pasien.
+ */
+export async function getTriaseIGD(noRawat: string) {
+  try {
+    const query = `
+      SELECT data_triase_igdprimer.kd_triase_igdprimer, data_triase_igdprimer.pemeriksaan,
+             data_triase_igdprimer.hasil, master_triase_macam_kasus.macam_kasus,
+             master_triase_pemeriksaan.nama_pemeriksaan, data_triase_igdprimer.nip,
+             pegawai.nama AS nm_pegawai
+      FROM data_triase_igdprimer
+      LEFT JOIN master_triase_macam_kasus ON data_triase_igdprimer.kd_macam_kasus = master_triase_macam_kasus.kd_macam_kasus
+      LEFT JOIN master_triase_pemeriksaan ON data_triase_igdprimer.kd_pemeriksaan = master_triase_pemeriksaan.kd_pemeriksaan
+      LEFT JOIN pegawai ON data_triase_igdprimer.nip = pegawai.nik
+      WHERE data_triase_igdprimer.no_rawat = ?
+      ORDER BY data_triase_igdprimer.jam_masuk
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil triase IGD", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data pemeriksaan ranap (SOAP) untuk display.
+ */
+export async function getPemeriksaanRanapRiwayat(noRawat: string) {
+  try {
+    const query = `
+      SELECT pemeriksaan_ranap.tgl_perawatan, pemeriksaan_ranap.jam_rawat,
+             pemeriksaan_ranap.keluhan, pemeriksaan_ranap.pemeriksaan,
+             pemeriksaan_ranap.alergi, pemeriksaan_ranap.penilaian,
+             pemeriksaan_ranap.rtl, pemeriksaan_ranap.instruksi, pemeriksaan_ranap.evaluasi,
+             pemeriksaan_ranap.nip, pegawai.nama AS nm_pegawai, pegawai.jbtn
+      FROM pemeriksaan_ranap
+      INNER JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik
+      LEFT JOIN pemeriksaan_ranap_audit_trail
+        ON pemeriksaan_ranap.no_rawat = pemeriksaan_ranap_audit_trail.no_rawat
+        AND pemeriksaan_ranap.tgl_perawatan = pemeriksaan_ranap_audit_trail.tgl_perawatan
+        AND pemeriksaan_ranap.jam_rawat = pemeriksaan_ranap_audit_trail.jam_rawat
+      WHERE pemeriksaan_ranap.no_rawat = ?
+        AND (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
+      ORDER BY pemeriksaan_ranap.tgl_perawatan DESC, pemeriksaan_ranap.jam_rawat DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+
+    const formatted = rows.map((row: any) => ({
+      ...row,
+      tgl_perawatan: row.tgl_perawatan instanceof Date ? row.tgl_perawatan.toISOString().split('T')[0] : row.tgl_perawatan,
+    }));
+
+    return { success: true, data: formatted };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil pemeriksaan ranap", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data tindakan ranap dokter.
+ */
+export async function getTindakanRanapDokter(noRawat: string) {
+  try {
+    const query = `
+      SELECT rawat_inap_dr.tgl_perawatan, rawat_inap_dr.jam_rawat,
+             jns_perawatan_inap.nm_perawatan, rawat_inap_dr.biaya_rawat,
+             dokter.nm_dokter
+      FROM rawat_inap_dr
+      INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
+      INNER JOIN dokter ON rawat_inap_dr.kd_dokter = dokter.kd_dokter
+      WHERE rawat_inap_dr.no_rawat = ?
+      ORDER BY rawat_inap_dr.tgl_perawatan DESC, rawat_inap_dr.jam_rawat DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+
+    const formatted = rows.map((row: any) => ({
+      ...row,
+      tgl_perawatan: row.tgl_perawatan instanceof Date ? row.tgl_perawatan.toISOString().split('T')[0] : row.tgl_perawatan,
+    }));
+
+    return { success: true, data: formatted };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil tindakan dokter", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data tindakan ranap paramedis.
+ */
+export async function getTindakanRanapParamedis(noRawat: string) {
+  try {
+    const query = `
+      SELECT rawat_inap_pr.tgl_perawatan, rawat_inap_pr.jam_rawat,
+             jns_perawatan_inap.nm_perawatan, rawat_inap_pr.biaya_rawat,
+             petugas.nm_petugas
+      FROM rawat_inap_pr
+      INNER JOIN jns_perawatan_inap ON rawat_inap_pr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
+      INNER JOIN petugas ON rawat_inap_pr.kd_petugas = petugas.kd_petugas
+      WHERE rawat_inap_pr.no_rawat = ?
+      ORDER BY rawat_inap_pr.tgl_perawatan DESC, rawat_inap_pr.jam_rawat DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+
+    const formatted = rows.map((row: any) => ({
+      ...row,
+      tgl_perawatan: row.tgl_perawatan instanceof Date ? row.tgl_perawatan.toISOString().split('T')[0] : row.tgl_perawatan,
+    }));
+
+    return { success: true, data: formatted };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil tindakan paramedis", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data penggunaan kamar inap.
+ */
+export async function getPenggunaanKamar(noRawat: string) {
+  try {
+    const query = `
+      SELECT kamar_inap.tgl_masuk, kamar_inap.jam_masuk,
+             kamar_inap.tgl_keluar, kamar_inap.jam_keluar,
+             CONCAT(kamar.kd_kamar, ' - ', bangsal.nm_bangsal) AS kamar,
+             kamar_inap.lama, kamar_inap.ttl_biaya
+      FROM kamar_inap
+      INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
+      INNER JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
+      WHERE kamar_inap.no_rawat = ?
+      ORDER BY kamar_inap.tgl_masuk, kamar_inap.jam_masuk
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+
+    const formatted = rows.map((row: any) => ({
+      ...row,
+      tgl_masuk: row.tgl_masuk instanceof Date ? row.tgl_masuk.toISOString().split('T')[0] : row.tgl_masuk,
+      tgl_keluar: row.tgl_keluar instanceof Date ? row.tgl_keluar.toISOString().split('T')[0] : row.tgl_keluar,
+    }));
+
+    return { success: true, data: formatted };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil penggunaan kamar", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data resume pasien ranap.
+ */
+export async function getResumeRanap(noRawat: string) {
+  try {
+    const query = `
+      SELECT resume_pasien_ranap.tgl_resume, resume_pasien_ranap.diagnosa_utama,
+             resume_pasien_ranap.diagnosa_sekunder, resume_pasien_ranap.prosedur_utama,
+             resume_pasien_ranap.prosedur_sekunder, resume_pasien_ranap.tgl_keluar,
+             resume_pasien_ranap.jam_keluar, resume_pasien_ranap.status_keluar,
+             dokter.nm_dokter
+      FROM resume_pasien_ranap
+      INNER JOIN dokter ON resume_pasien_ranap.kd_dokter = dokter.kd_dokter
+      WHERE resume_pasien_ranap.no_rawat = ?
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+
+    const formatted = rows.map((row: any) => ({
+      ...row,
+      tgl_resume: row.tgl_resume instanceof Date ? row.tgl_resume.toISOString().split('T')[0] : row.tgl_resume,
+      tgl_keluar: row.tgl_keluar instanceof Date ? row.tgl_keluar.toISOString().split('T')[0] : row.tgl_keluar,
+    }));
+
+    return { success: true, data: formatted };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil resume ranap", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data operasi/VK pasien.
+ */
+export async function getOperasiPasien(noRawat: string) {
+  try {
+    const query = `
+      SELECT operasi.tgl_operasi, operasi.jam_mulai, operasi.jam_selesai,
+             paket_operasi.nm_perawatan, operasi.status_operasi,
+             operasi.dokter_anak, operasi.dokter_utama,
+             operasi.dokter_mata, operasi.dokter_bedah
+      FROM operasi
+      INNER JOIN paket_operasi ON operasi.kd_paket = paket_operasi.kd_paket
+      WHERE operasi.no_rawat = ?
+      ORDER BY operasi.tgl_operasi DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil data operasi", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data pemeriksaan radiologi pasien.
+ */
+export async function getRadiologiPasien(noRawat: string) {
+  try {
+    const query = `
+      SELECT periksa_radiologi.tgl_periksa, periksa_radiologi.jam_periksa,
+             jns_perawatan_radiologi.nm_perawatan, periksa_radiologi.biaya,
+             dokter.nm_dokter, petugas.nm_petugas
+      FROM periksa_radiologi
+      INNER JOIN jns_perawatan_radiologi ON periksa_radiologi.kd_jenis_prw = jns_perawatan_radiologi.kd_jenis_prw
+      LEFT JOIN dokter ON periksa_radiologi.kd_dokter = dokter.kd_dokter
+      LEFT JOIN petugas ON periksa_radiologi.kd_petugas = petugas.kd_petugas
+      WHERE periksa_radiologi.no_rawat = ?
+      ORDER BY periksa_radiologi.tgl_periksa DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil data radiologi", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil data pemeriksaan laboratorium pasien.
+ */
+export async function getLaboratPasien(noRawat: string) {
+  try {
+    const query = `
+      SELECT periksa_lab.tgl_periksa, periksa_lab.jam_periksa,
+             jns_perawatan_lab.nm_perawatan, periksa_lab.biaya,
+             dokter.nm_dokter, petugas.nm_petugas
+      FROM periksa_lab
+      INNER JOIN jns_perawatan_lab ON periksa_lab.kd_jenis_prw = jns_perawatan_lab.kd_jenis_prw
+      LEFT JOIN dokter ON periksa_lab.kd_dokter = dokter.kd_dokter
+      LEFT JOIN petugas ON periksa_lab.kd_petugas = petugas.kd_petugas
+      WHERE periksa_lab.no_rawat = ?
+      ORDER BY periksa_lab.tgl_periksa DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil data laboratorium", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil info lengkap pasien berdasarkan No.RM.
+ * Meniru isPasien() dari RMRiwayatPerawatanRanap.java.
+ */
+export async function getPasienInfo(noRM: string) {
+  try {
+    const query = `
+      SELECT pasien.no_rkm_medis, pasien.nm_pasien, pasien.jk,
+             pasien.tmp_lahir, pasien.tgl_lahir, pasien.agama,
+             bahasa_pasien.nama_bahasa, cacat_fisik.nama_cacat,
+             pasien.gol_darah, pasien.nm_ibu, pasien.no_ktp,
+             pasien.no_tlp, pasien.stts_nikah, pasien.pnd,
+             CONCAT(pasien.alamat, ', ', kelurahan.nm_kel, ', ', kecamatan.nm_kec, ', ', kabupaten.nm_kab) AS alamat,
+             pasien.pekerjaan
+      FROM pasien
+      INNER JOIN bahasa_pasien ON bahasa_pasien.id = pasien.bahasa_pasien
+      INNER JOIN cacat_fisik ON cacat_fisik.id = pasien.cacat_fisik
+      INNER JOIN kelurahan ON pasien.kd_kel = kelurahan.kd_kel
+      INNER JOIN kecamatan ON pasien.kd_kec = kecamatan.kd_kec
+      INNER JOIN kabupaten ON pasien.kd_kab = kabupaten.kd_kab
+      WHERE pasien.no_rkm_medis = ?
+    `;
+    const [rows]: any = await db.execute(query, [noRM]);
+    if (rows.length > 0) {
+      const r = rows[0];
+      return {
+        success: true,
+        data: {
+          no_rkm_medis: r.no_rkm_medis,
+          nm_pasien: r.nm_pasien,
+          jk: r.jk,
+          tmp_lahir: r.tmp_lahir,
+          tgl_lahir: r.tgl_lahir instanceof Date ? r.tgl_lahir.toISOString().split('T')[0] : r.tgl_lahir,
+          agama: r.agama,
+          bahasa: r.nama_bahasa,
+          cacat_fisik: r.nama_cacat,
+          gol_darah: r.gol_darah,
+          nm_ibu: r.nm_ibu,
+          no_ktp: r.no_ktp,
+          no_tlp: r.no_tlp,
+          stts_nikah: r.stts_nikah,
+          pendidikan: r.pnd,
+          alamat: r.alamat,
+          pekerjaan: r.pekerjaan,
+        },
+      };
+    }
+    return { success: false, message: "Pasien tidak ditemukan", data: null };
+  } catch (error: any) {
+    console.error("Error fetching pasien info:", error);
+    return { success: false, message: "Gagal mengambil data pasien", error: error.message, data: null };
+  }
+}
+
+/**
+ * Mengambil data pemberian obat/BHP/Alkes pasien.
+ */
+export async function getPemberianObat(noRawat: string) {
+  try {
+    const query = `
+      SELECT detail_pemberian_obat.tgl_perawatan, detail_pemberian_obat.jam,
+             databarang.nama_brng, detail_pemberian_obat.jumlah,
+             detail_pemberian_obat.harga_satuan, (detail_pemberian_obat.jumlah * detail_pemberian_obat.harga_satuan) AS subtotal
+      FROM detail_pemberian_obat
+      INNER JOIN databarang ON detail_pemberian_obat.kd_obat = databarang.kd_brng
+      WHERE detail_pemberian_obat.no_rawat = ?
+      ORDER BY detail_pemberian_obat.tgl_perawatan DESC, detail_pemberian_obat.jam DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+
+    const formatted = rows.map((row: any) => ({
+      ...row,
+      tgl_perawatan: row.tgl_perawatan instanceof Date ? row.tgl_perawatan.toISOString().split('T')[0] : row.tgl_perawatan,
+    }));
+
+    return { success: true, data: formatted };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil data obat", error: error.message, data: [] };
+  }
+}

@@ -238,9 +238,6 @@ export default function DaftarMenuPage() {
           >
             {/* Header Sidebar & Pencarian */}
             <div className="p-4 border-b border-slate-100 bg-brand-50/50">
-              <h3 className="font-bold text-brand-800 text-sm mb-3">
-                Navigasi Menu
-              </h3>
               <div className="relative">
                 <input
                   type="text"
