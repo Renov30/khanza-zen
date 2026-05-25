@@ -222,14 +222,14 @@ export default function SettingPage() {
             {/* Tombol Aksi — standar UI_STANDARDS 5.1, 5.4 */}
             <div className="flex justify-end gap-2">
               <Link href="/daftar-menu">
-                <Button type="button" variant="outline"
-                  className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 hover:text-red-600 shadow-sm transition-all font-bold">
+                <Button type="button" variant="outline" size="sm"
+                  className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 hover:text-red-600 shadow-sm transition-all font-bold text-[11px]">
                   <FaTimes />
                   Keluar
                 </Button>
               </Link>
-              <Button type="submit" disabled={isSaving}
-                className="bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-sm">
+              <Button type="submit" size="sm" disabled={isSaving}
+                className="bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-sm text-[11px]">
                 {isSaving ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
