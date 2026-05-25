@@ -945,9 +945,8 @@ export async function getDietPasienRanap(
 
     const [rows]: any = await db.execute(query, params);
 
-    const formattedRows = rows.map((row: any, idx: number) => ({
+    const formattedRows = rows.map((row: any) => ({
       ...row,
-      id: `${row.no_rawat}-${row.tanggal}-${row.waktu}-${row.kd_diet}-${idx}`,
       tanggal:
         row.tanggal instanceof Date
           ? row.tanggal.toISOString().split("T")[0]

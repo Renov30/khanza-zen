@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaBed, FaExpand, FaCompress, FaEdit } from 'react-icons/fa';
+import { FaBed, FaCompress, FaEdit } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import { getPatientInfoByNoRawat, getSkriningNutrisiRanap, getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap, getSkriningGiziLanjutRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
@@ -11,7 +11,7 @@ import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
 interface SkriningNutrisiRow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   tgl_lahir: string; jk: string; tanggal: string;
   bb: string; lila: string; tbpb: string;
   td: string; hr: string; rr: string; suhu: string; spo2: string;
@@ -22,7 +22,7 @@ interface SkriningNutrisiRow {
 }
 
 interface SkriningNutrisiAnakRow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   tgl_lahir: string; jk: string; tanggal: string;
   bb: string; tbpb: string;
   td: string; hr: string; rr: string; suhu: string; spo2: string;
@@ -35,7 +35,7 @@ interface SkriningNutrisiAnakRow {
 }
 
 interface SkriningNutrisiLansiaRow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   tgl_lahir: string; jk: string; tanggal: string;
   bb: string; tbpb: string; td: string; hr: string; rr: string; suhu: string; spo2: string;
   alergi: string;
@@ -47,7 +47,7 @@ interface SkriningNutrisiLansiaRow {
 }
 
 interface SkriningGiziLanjutRow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   umurdaftar: string; sttsumur: string; jk: string;
   tanggal: string; bb: string; tb: string; alergi: string;
   parameter_imt: string; skor_imt: string;
@@ -190,12 +190,6 @@ function SkriningNutrisiContent() {
   const [currentTime, setCurrentTime] = useState(new Date().toTimeString().slice(0, 8));
   const [isClockRunning, setIsClockRunning] = useState(true);
 
-  const toggleSelection = (id: string) => {
-    setSelectedRows(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
-  };
-
   const [noRawat] = useState(noRawatParam);
   const [noRM, setNoRM] = useState('');
   const [namaPasien, setNamaPasien] = useState('');
@@ -206,7 +200,7 @@ function SkriningNutrisiContent() {
   const [dataAnak, setDataAnak] = useState<SkriningNutrisiAnakRow[]>([]);
   const [dataLansia, setDataLansia] = useState<SkriningNutrisiLansiaRow[]>([]);
   const [dataGiziLanjut, setDataGiziLanjut] = useState<SkriningGiziLanjutRow[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   const [searchKeyword, setSearchKeyword] = useState('');
   const today = new Date().toISOString().split('T')[0];
@@ -281,7 +275,7 @@ function SkriningNutrisiContent() {
 
   const fetchAllData = useCallback(async (nrw: string, kw: string = '', ta: string = '', tb: string = '') => {
     if (!nrw.trim()) return;
-    setIsLoading(true);
+    setIsLoadingData(true);
     try {
       const [r1, r2, r3, r4] = await Promise.all([
         getSkriningNutrisiRanap(nrw, kw, ta, tb),
@@ -294,7 +288,7 @@ function SkriningNutrisiContent() {
       if (r3.success) setDataLansia(r3.data.map((r: any) => ({ ...r, id: `${r.no_rawat}-${r.tanggal}-lansia` })));
       if (r4.success) setDataGiziLanjut(r4.data.map((r: any) => ({ ...r, id: `${r.no_rawat}-${r.tanggal}-gizi` })));
     } catch (e) { console.error('fetch error:', e); }
-    setIsLoading(false);
+    setIsLoadingData(false);
   }, []);
 
   const fetchPegawaiInfo = useCallback(async () => {
@@ -307,31 +301,37 @@ function SkriningNutrisiContent() {
     } catch {}
   }, []);
 
+  // Real-time clock
+  const clockRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (isClockRunning) {
+      const tick = () => {
+        const now = new Date();
+        setCurrentDate(now.toISOString().split('T')[0]);
+        setCurrentTime(now.toTimeString().slice(0, 8));
+      };
+      tick();
+      clockRef.current = setInterval(tick, 1000);
+    } else if (clockRef.current) {
+      clearInterval(clockRef.current);
+      clockRef.current = null;
+    }
+    return () => { if (clockRef.current) clearInterval(clockRef.current); };
+  }, [isClockRunning]);
+
   useEffect(() => {
     setMounted(true);
     fetchPegawaiInfo();
     if (noRawatParam) {
       fetchPatientInfo(noRawatParam);
-      fetchAllData(noRawatParam);
     }
   }, [noRawatParam, fetchPatientInfo, fetchAllData, fetchPegawaiInfo]);
 
+  // Auto-refetch when patient, keyword, or date filters change
   useEffect(() => {
     if (noRawat) fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
-  }, [tglAwal, tglAkhir]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Clock effect for patient info bar
-  useEffect(() => {
-    if (!isClockRunning) return;
-    const tick = () => {
-      const now = new Date();
-      setCurrentDate(now.toISOString().split('T')[0]);
-      setCurrentTime(now.toTimeString().slice(0, 8));
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [isClockRunning]);
+  }, [noRawat, searchKeyword, tglAwal, tglAkhir]);
 
   // === Auto-score: Dewasa ===
   useEffect(() => {
@@ -398,17 +398,10 @@ function SkriningNutrisiContent() {
 
   if (!mounted) return null;
 
-  const handleBottomSearch = () => fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
+  const currentData = activeTab === 'dewasa' ? dataDewasa : activeTab === 'anak' ? dataAnak : activeTab === 'lansia' ? dataLansia : dataGiziLanjut;
+  const currentColumns = activeTab === 'dewasa' ? dewasaColumns : activeTab === 'anak' ? anakColumns : activeTab === 'lansia' ? lansiaColumns : giziLanjutColumns;
 
-  const getCurrentData = () => {
-    switch (activeTab) {
-      case 'dewasa': return { data: dataDewasa, columns: dewasaColumns };
-      case 'anak': return { data: dataAnak, columns: anakColumns };
-      case 'lansia': return { data: dataLansia, columns: lansiaColumns };
-      case 'gizilanjut': return { data: dataGiziLanjut, columns: giziLanjutColumns };
-    }
-  };
-  const current = getCurrentData();
+  const handleBottomSearch = () => fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
 
   const FormField = ({ label, value, onChange, unit, placeholder, className = "" }: {
     label: string; value: string; onChange?: (v: string) => void; unit?: string; placeholder?: string; className?: string
@@ -750,12 +743,12 @@ function SkriningNutrisiContent() {
               title={`Data ${tabs.find(t => t.id === activeTab)?.label || 'Skrining Nutrisi'}`}
               icon={<FaBed />}
               onRefresh={handleBottomSearch}
-              columns={current.columns}
-              data={current.data}
+              columns={currentColumns}
+              data={currentData}
               idKey="id"
               selectedIds={selectedRows}
               onSelectionChange={setSelectedRows}
-              isLoading={isLoading}
+              isLoading={isLoadingData}
               emptyMessage={`Tidak ada data ${tabs.find(t => t.id === activeTab)?.label || 'skrining nutrisi'} yang ditemukan.`}
             />
           </div>
@@ -775,12 +768,12 @@ function SkriningNutrisiContent() {
                 </div>
                 <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
                   <DataTableMulti
-                    columns={current.columns}
-                    data={current.data}
+                    columns={currentColumns}
+                    data={currentData}
                     idKey="id"
                     selectedIds={selectedRows}
                     onSelectionChange={setSelectedRows}
-                    isLoading={isLoading}
+                    isLoading={isLoadingData}
                   />
                 </div>
               </motion.div>
@@ -790,7 +783,7 @@ function SkriningNutrisiContent() {
       </div>
 
       <BottomActionPanel
-        recordCount={current.data.length}
+        recordCount={currentData.length}
         onExit={() => router.push('/rawat-inap')}
         searchValue={searchKeyword}
         onSearchChange={setSearchKeyword}

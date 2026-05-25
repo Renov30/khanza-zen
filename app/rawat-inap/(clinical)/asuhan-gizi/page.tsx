@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaUtensils, FaEdit, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaUtensils, FaEdit, FaCompress } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import { getPatientInfoByNoRawat, getAsuhanGiziRanap, getMonitoringGiziRanap, getSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
@@ -11,14 +11,14 @@ import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
 interface MonitoringGiziRow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   umurdaftar: string; sttsumur: string; jk: string;
   tanggal: string; monitoring: string; evaluasi: string;
   nip: string; nm_petugas: string;
 }
 
 interface SkriningGiziLanjutRow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   umurdaftar: string; sttsumur: string; jk: string;
   tanggal: string; bb: string; tb: string; alergi: string;
   parameter_imt: string; skor_imt: string;
@@ -29,7 +29,7 @@ interface SkriningGiziLanjutRow {
 }
 
 interface CatatanADIMERow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   umurdaftar: string; sttsumur: string; jk: string;
   tanggal: string; asesmen: string; diagnosis: string;
   intervensi: string; monitoring: string; evaluasi: string;
@@ -37,7 +37,7 @@ interface CatatanADIMERow {
 }
 
 interface AsuhanGiziRow {
-  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   jk: string; tgl_lahir: string; tgl_asuhan: string;
   bb: number; tb: number; imt: number; lla: number; tl: number;
   ulna: number; lla_u: number; bb_ideal: number; bb_u: number;
@@ -161,17 +161,7 @@ function AsuhanGiziContent() {
   const [isTableExpanded, setIsTableExpanded] = useState(false);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const toggleSelection = (id: string) => {
-    setSelectedRows(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
-  };
-
-  const [noRawat, setNoRawat] = useState(noRawatParam);
-
-  useEffect(() => {
-    setNoRawat(noRawatParam);
-  }, [noRawatParam]);
+  const [noRawat] = useState(noRawatParam);
   const [noRM, setNoRM] = useState('');
   const [namaPasien, setNamaPasien] = useState('');
   const [isLoadingPatient, setIsLoadingPatient] = useState(false);
@@ -366,12 +356,8 @@ function AsuhanGiziContent() {
     fetchPegawaiInfo();
     if (noRawatParam) {
       fetchPatientInfo(noRawatParam);
-      fetchDataGizi(noRawatParam);
-      fetchDataMonitoring(noRawatParam);
-      fetchDataSkriningGizi(noRawatParam);
-      fetchDataADIME(noRawatParam);
     }
-  }, [noRawatParam, fetchPatientInfo, fetchDataGizi, fetchDataMonitoring, fetchDataSkriningGizi, fetchDataADIME, fetchPegawaiInfo]);
+  }, [noRawatParam, fetchPatientInfo, fetchPegawaiInfo]);
 
   useEffect(() => {
     if (noRawat) {
@@ -380,7 +366,7 @@ function AsuhanGiziContent() {
       fetchDataSkriningGizi(noRawat, searchKeyword, tglAwal, tglAkhir);
       fetchDataADIME(noRawat, searchKeyword, tglAwal, tglAkhir);
     }
-  }, [tglAwal, tglAkhir]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [noRawat, searchKeyword, tglAwal, tglAkhir]);
 
   // === Skrining Gizi scoring helpers (ported from RMDataSkriningGiziLanjut.java) ===
   const calcSkor1 = useCallback((combo: string) => {
