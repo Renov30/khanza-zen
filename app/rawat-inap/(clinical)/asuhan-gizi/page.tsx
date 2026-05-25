@@ -654,9 +654,6 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Monitoring & Evaluasi Gizi" persistenceKey="khanza_monitoring_gizi_form_open">
               <div className="flex flex-col gap-5">
-                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Monitoring</h3>
-                </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <FormTextarea label="Monitoring" value={monitoringText} onChange={setMonitoringText} placeholder="Catatan monitoring asuhan gizi..." />
                   <FormTextarea label="Evaluasi" value={evaluasiText} onChange={setEvaluasiText} placeholder="Catatan evaluasi asuhan gizi..." />
@@ -867,9 +864,6 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Catatan ADIME Gizi" persistenceKey="khanza_adime_gizi_form_open">
               <div className="flex flex-col gap-5">
-                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Catatan ADIME</h3>
-                </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <FormTextarea label="Asesmen (A)" value={adimeAsesmen} onChange={setAdimeAsesmen} placeholder="Hasil asesmen gizi..." />
                   <FormTextarea label="Diagnosis (D)" value={adimeDiagnosis} onChange={setAdimeDiagnosis} placeholder="Diagnosis gizi..." />

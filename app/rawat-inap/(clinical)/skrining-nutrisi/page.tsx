@@ -222,7 +222,6 @@ function SkriningNutrisiContent() {
   const [dHR, setDHR] = useState(''); const [dRR, setDRR] = useState('');
   const [dSuhu, setDSuhu] = useState(''); const [dSpO2, setDSpO2] = useState('');
   const [dAlergi, setDAlergi] = useState('');
-  const [dDate, setDDate] = useState(today);
   const [dSG1, setDSG1] = useState(''); const [dNilai1, setDNilai1] = useState('');
   const [dSG2, setDSG2] = useState(''); const [dNilai2, setDNilai2] = useState('');
   const [dTotal, setDTotal] = useState('');
@@ -231,8 +230,7 @@ function SkriningNutrisiContent() {
   const [aBB, setABB] = useState(''); const [aTBPB, setATBPB] = useState('');
   const [aTD, setATD] = useState(''); const [aHR, setAHR] = useState('');
   const [aRR, setARR] = useState(''); const [aSuhu, setASuhu] = useState('');
-  const [aSpO2, setASpO2] = useState(''); const [aAlergi, setAAlergi] = useState('');
-  const [aDate, setADate] = useState(today);
+  const [aSpO2, setASpO2] = useState('');   const [aAlergi, setAAlergi] = useState('');
   const [aSG1, setASG1] = useState('Tidak'); const [aN1, setAN1] = useState('0');
   const [aSG2, setASG2] = useState('Tidak'); const [aN2, setAN2] = useState('0');
   const [aSG3, setASG3] = useState('Tidak'); const [aN3, setAN3] = useState('0');
@@ -246,8 +244,7 @@ function SkriningNutrisiContent() {
   const [lBB, setLBB] = useState(''); const [lTBPB, setLTBPB] = useState('');
   const [lTD, setLTD] = useState(''); const [lHR, setLHR] = useState('');
   const [lRR, setLRR] = useState(''); const [lSuhu, setLSuhu] = useState('');
-  const [lSpO2, setLSpO2] = useState(''); const [lAlergi, setLAlergi] = useState('');
-  const [lDate, setLDate] = useState(today);
+  const [lSpO2, setLSpO2] = useState('');   const [lAlergi, setLAlergi] = useState('');
   const [lSG1, setLSG1] = useState('Asupan Makan Tidak Berkurang'); const [lN1, setLN1] = useState('0');
   const [lSG2, setLSG2] = useState('Tidak Ada Penurunan Berat Badan'); const [lN2, setLN2] = useState('0');
   const [lSG3, setLSG3] = useState('Dapat Bepergian Keluar Rumah'); const [lN3, setLN3] = useState('0');
@@ -260,11 +257,6 @@ function SkriningNutrisiContent() {
   // === Form state: Gizi Lanjut ===
   const [gBB, setGBB] = useState(''); const [gTB, setGTB] = useState('');
   const [gAlergi, setGAlergi] = useState('');
-  const [gDate, setGDate] = useState(today);
-  const [gJam, setGJam] = useState(new Date().getHours().toString().padStart(2, '0'));
-  const [gMenit, setGMenit] = useState(new Date().getMinutes().toString().padStart(2, '0'));
-  const [gDetik, setGDetik] = useState(new Date().getSeconds().toString().padStart(2, '0'));
-  const [gClock, setGClock] = useState(true);
   const [gIMT, setGIMT] = useState('');
   const [gSkor1, setGSkor1] = useState('IMT > 20/z score > 2');
   const [gSkor2, setGSkor2] = useState('BB Hilang < 5%');
@@ -328,7 +320,7 @@ function SkriningNutrisiContent() {
     if (noRawat) fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
   }, [tglAwal, tglAkhir]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Clock effect
+  // Clock effect for patient info bar
   useEffect(() => {
     if (!isClockRunning) return;
     const tick = () => {
@@ -393,11 +385,6 @@ function SkriningNutrisiContent() {
   }, []);
   useEffect(() => { setGIMT(calcIMT(gBB, gTB)); }, [gBB, gTB, calcIMT]);
   useEffect(() => {
-    if (!gClock) return;
-    const tick = () => { const n = new Date(); setGJam(n.getHours().toString().padStart(2, '0')); setGMenit(n.getMinutes().toString().padStart(2, '0')); setGDetik(n.getSeconds().toString().padStart(2, '0')); };
-    tick(); const id = setInterval(tick, 1000); return () => clearInterval(id);
-  }, [gClock]);
-  useEffect(() => {
     const s1 = gSkor1 === 'IMT 18,5-20/-2 =< z score =< 2' ? 1 : gSkor1 === 'IMT < 18,5/z score < -2' ? 2 : 0;
     const s2 = gSkor2 === 'BB Hilang 5 - 10 %' ? 1 : gSkor2 === 'BB Hilang > 10 %' ? 2 : 0;
     const s3 = gSkor3 === 'Tidak ada asupan nutrisi > 5 hari' ? 2 : 0;
@@ -456,13 +443,6 @@ function SkriningNutrisiContent() {
       case 'dewasa': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Dewasa (MST)" persistenceKey="khanza_skrining_nutrisi_form_open">
           <div className="flex flex-col gap-5">
-            <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-              <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Nutrisi</h3>
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
-                <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white" value={dDate} onChange={e => setDDate(e.target.value)} />
-              </div>
-            </div>
             <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
               <h3 className="text-[13px] font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
@@ -514,13 +494,6 @@ function SkriningNutrisiContent() {
       case 'anak': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Anak (StrongKids)" persistenceKey="khanza_skrining_nutrisi_anak_form_open">
           <div className="flex flex-col gap-5">
-            <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-              <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Nutrisi Anak</h3>
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
-                <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white" value={aDate} onChange={e => setADate(e.target.value)} />
-              </div>
-            </div>
             <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
               <h3 className="text-[13px] font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -585,13 +558,6 @@ function SkriningNutrisiContent() {
       case 'lansia': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Lansia (MNA)" persistenceKey="khanza_skrining_nutrisi_lansia_form_open">
           <div className="flex flex-col gap-5">
-            <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-              <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Nutrisi Lansia</h3>
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
-                <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white" value={lDate} onChange={e => setLDate(e.target.value)} />
-              </div>
-            </div>
             <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
               <h3 className="text-[13px] font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -651,24 +617,6 @@ function SkriningNutrisiContent() {
           <div className="flex flex-col gap-5">
             <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
               <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Gizi</h3>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
-                <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Tanggal</label>
-                <input type="date" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white" value={gDate} onChange={e => setGDate(e.target.value)} />
-                <select value={gJam} onChange={e => setGJam(e.target.value)} disabled={gClock}
-                  className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
-                  {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(h => <option key={h}>{h}</option>)}
-                </select>
-                <span className="text-slate-400 text-xs font-bold">:</span>
-                <select value={gMenit} onChange={e => setGMenit(e.target.value)} disabled={gClock}
-                  className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
-                  {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => <option key={m}>{m}</option>)}
-                </select>
-                <span className="text-slate-400 text-xs font-bold">:</span>
-                <select value={gDetik} onChange={e => setGDetik(e.target.value)} disabled={gClock}
-                  className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
-                  {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(d => <option key={d}>{d}</option>)}
-                </select>
-              </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">BB</label>
                 <input type="text" value={gBB} onChange={e => setGBB(e.target.value)}
