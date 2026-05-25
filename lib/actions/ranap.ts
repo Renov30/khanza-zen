@@ -884,3 +884,157 @@ export async function getDaftarRanap(
     };
   }
 }
+
+/**
+ * Mengambil data diet pasien rawat inap.
+ * Tabel: detail_beri_diet
+ */
+export async function getDietPasienRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [noRawat];
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          detail_beri_diet.no_rawat LIKE ? OR
+          pasien.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          diet.nama_diet LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 4; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT
+        detail_beri_diet.no_rawat,
+        pasien.no_rkm_medis,
+        pasien.nm_pasien,
+        pasien.tgl_lahir,
+        pasien.jk,
+        CONCAT(detail_beri_diet.kd_kamar, ', ', bangsal.nm_bangsal) AS kamar,
+        detail_beri_diet.tanggal,
+        detail_beri_diet.waktu,
+        jam_diet_pasien.jam,
+        diet.nama_diet,
+        detail_beri_diet.keterangan,
+        detail_beri_diet.kd_kamar,
+        detail_beri_diet.kd_diet
+      FROM detail_beri_diet
+      INNER JOIN reg_periksa ON detail_beri_diet.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      INNER JOIN diet ON detail_beri_diet.kd_diet = diet.kd_diet
+      INNER JOIN kamar ON detail_beri_diet.kd_kamar = kamar.kd_kamar
+      INNER JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
+      INNER JOIN jam_diet_pasien ON detail_beri_diet.waktu = jam_diet_pasien.waktu
+      WHERE detail_beri_diet.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND detail_beri_diet.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      ORDER BY detail_beri_diet.tanggal DESC, detail_beri_diet.waktu DESC
+    `;
+
+    const [rows]: any = await db.execute(query, params);
+
+    const formattedRows = rows.map((row: any, idx: number) => ({
+      ...row,
+      id: `${row.no_rawat}-${row.tanggal}-${row.waktu}-${row.kd_diet}-${idx}`,
+      tanggal:
+        row.tanggal instanceof Date
+          ? row.tanggal.toISOString().split("T")[0]
+          : row.tanggal,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching diet pasien:", error);
+    return { success: false, message: "Gagal mengambil data diet pasien", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil rekap diet pasien rawat inap.
+ */
+export async function getRekapDietPasienRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [noRawat];
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      const searchKey = `%${keyword.trim()}%`;
+      params.push(searchKey);
+      searchClause = `AND diet.nama_diet LIKE ?`;
+    }
+
+    const query = `
+      SELECT
+        diet.nama_diet,
+        COUNT(*) AS jumlah
+      FROM detail_beri_diet
+      INNER JOIN diet ON detail_beri_diet.kd_diet = diet.kd_diet
+      WHERE detail_beri_diet.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND detail_beri_diet.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      GROUP BY diet.nama_diet
+      ORDER BY diet.nama_diet
+    `;
+
+    const [rows]: any = await db.execute(query, params);
+    const formattedRows = rows.map((row: any, idx: number) => ({
+      ...row,
+      id: `rekap-${idx}`,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching rekap diet pasien:", error);
+    return { success: false, message: "Gagal mengambil rekap diet", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil daftar diet untuk lookup.
+ * Tabel: diet
+ */
+export async function getDaftarDiet() {
+  try {
+    const query = `SELECT kd_diet, nama_diet FROM diet ORDER BY nama_diet`;
+    const [rows]: any = await db.execute(query);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    console.error("Error fetching daftar diet:", error);
+    return { success: false, message: "Gagal mengambil daftar diet", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil daftar jam diet.
+ * Tabel: jam_diet_pasien
+ */
+export async function getJamDiet() {
+  try {
+    const query = `SELECT waktu, jam FROM jam_diet_pasien ORDER BY jam`;
+    const [rows]: any = await db.execute(query);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    console.error("Error fetching jam diet:", error);
+    return { success: false, message: "Gagal mengambil jam diet", error: error.message, data: [] };
+  }
+}

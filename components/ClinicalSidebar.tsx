@@ -40,6 +40,7 @@ const menuItems: MenuItem[] = [
     children: [
       { icon: <FaUtensils />, label: "Asesmen Gizi", path: "/rawat-inap/asuhan-gizi" },
       { icon: <FaClipboardList />, label: "Skrining Nutrisi", path: "/rawat-inap/skrining-nutrisi" },
+      { icon: <FaUtensils />, label: "Diet Pasien", path: "/rawat-inap/diet-pasien" },
     ],
   },
   { icon: <FaSyringe />, label: "Bundle PPI", path: "" },
