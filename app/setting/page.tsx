@@ -79,7 +79,7 @@ export default function SettingPage() {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden bg-white">
       {/* Page Header — standar UI_STANDARDS 8 */}
       <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
         <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">

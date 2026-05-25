@@ -34,7 +34,6 @@ const menuItems = [
   },
   { icon: <FaSyringe />, label: "Bundle PPI", path: "" },
   { icon: <FaClipboardList />, label: "Rekapan HAIs", path: "" },
-  { icon: <FaCog />, label: "Pengaturan", path: "/setting" },
 ];
 
 export default function ClinicalSidebar({
