@@ -28,6 +28,9 @@ import {
   FaUser,
   FaLock,
   FaThLarge,
+  FaBell,
+  FaQuestionCircle,
+  FaCommentDots,
 } from "react-icons/fa";
 import { loginAction, logoutAction } from "@/lib/actions/auth";
 
@@ -136,16 +139,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             label="Program"
           />
           <TopMenuItem
-            icon={<FaUserTie className="text-sky-300" />}
-            label="Presensi Pegawai"
-          />
-          <TopMenuItem
             icon={<FaInfoCircle className="text-orange-400" />}
             label="Informasi"
           />
           <TopMenuItem
             icon={<FaDesktop className="text-green-300" />}
-            label="Anjungan & Antrian"
+            label="Antrian"
+          />
+          <TopMenuItem
+            icon={<FaBell className="text-pink-300" />}
+            label="Notifikasi"
+          />
+          <TopMenuItem
+            icon={<FaQuestionCircle className="text-sky-300" />}
+            label="Helpdesk"
+          />
+          <TopMenuItem
+            icon={<FaCommentDots className="text-teal-300" />}
+            label="Tanya AI"
           />
           <TopMenuItem
             icon={<FaBook className="text-blue-200" />}

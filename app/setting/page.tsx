@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { FaCog, FaSave, FaImage, FaTrash } from "react-icons/fa";
+import { FaCog, FaSave, FaImage, FaTrash, FaTimes } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { getSettingRs, updateSetting } from "@/lib/actions/setting";
 
@@ -218,8 +219,15 @@ export default function SettingPage() {
               </div>
             </div>
 
-            {/* Tombol Aksi — standar UI_STANDARDS 5.1 */}
-            <div className="flex justify-end">
+            {/* Tombol Aksi — standar UI_STANDARDS 5.1, 5.4 */}
+            <div className="flex justify-end gap-2">
+              <Link href="/daftar-menu">
+                <Button type="button" variant="outline"
+                  className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 hover:text-red-600 shadow-sm transition-all font-bold">
+                  <FaTimes />
+                  Keluar
+                </Button>
+              </Link>
               <Button type="submit" disabled={isSaving}
                 className="bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-sm">
                 {isSaving ? (
