@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
@@ -68,6 +68,21 @@ export default function ClinicalSidebar({
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [popoverParent, setPopoverParent] = useState<string | null>(null);
+  const [popoverTop, setPopoverTop] = useState(0);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node) &&
+          sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
+        setPopoverParent(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggleSidebar = () => {
     const newState = !isSidebarOpen;
@@ -81,7 +96,15 @@ export default function ClinicalSidebar({
   };
 
   const toggleExpand = (label: string) => {
-    setExpandedItems(prev => ({ ...prev, [label]: !prev[label] }));
+    const next = !expandedItems[label];
+    setExpandedItems(prev => ({ ...prev, [label]: next }));
+    if (!isSidebarOpen) {
+      if (next) {
+        const el = sidebarRef.current?.querySelector(`[data-parent="${label}"]`);
+        if (el) setPopoverTop(el.getBoundingClientRect().top);
+      }
+      setPopoverParent(next ? label : null);
+    }
   };
 
   const matchesSearch = (item: MenuItem) => {
@@ -111,6 +134,7 @@ export default function ClinicalSidebar({
     <div className="flex flex-1 overflow-hidden">
       {/* Clinical Sidebar Bersama */}
       <motion.div
+        ref={sidebarRef}
         initial={false}
         animate={{ width: isSidebarOpen ? 224 : 48 }}
         transition={{ duration: 0.15, ease: "linear" }}
@@ -151,6 +175,7 @@ export default function ClinicalSidebar({
                 <div key={idx}>
                   {/* Parent item (click to toggle) */}
                   <div
+                    data-parent={item.label}
                     onClick={() => toggleExpand(item.label)}
                     className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap ${anyChildActive
                       ? "bg-brand-50 text-brand-700 font-bold"
@@ -229,6 +254,35 @@ export default function ClinicalSidebar({
             );
           })}
         </div>
+
+        {/* Popover untuk collapsed mode */}
+        {!isSidebarOpen && popoverParent && (
+          <div
+            ref={popoverRef}
+            className="fixed left-12 z-50 bg-white border border-slate-200 shadow-xl rounded-lg py-1 min-w-[200px]"
+            style={{ top: popoverTop }}
+          >
+            {(() => {
+              const parent = menuItems.find(m => m.label === popoverParent);
+              if (!parent?.children) return null;
+              return parent.children.map((child, ci) => (
+                <div
+                  key={ci}
+                  onClick={() => { handleNavigate(child); setPopoverParent(null); }}
+                  className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer text-xs transition-colors ${isActive(child.path)
+                    ? "bg-brand-50 text-brand-700 font-bold"
+                    : "text-slate-600 hover:bg-brand-50"
+                    }`}
+                >
+                  <span className={`text-sm shrink-0 ${isActive(child.path) ? "text-brand-600" : "text-slate-500"}`}>
+                    {child.icon}
+                  </span>
+                  <span>{child.label}</span>
+                </div>
+              ));
+            })()}
+          </div>
+        )}
       </motion.div>
 
       {/* Konten Utama */}
