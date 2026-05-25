@@ -127,46 +127,46 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       className="flex flex-col h-screen w-full overflow-hidden bg-slate-50 font-sans relative"
       onContextMenu={handleContextMenu}
     >
-      {/* Primary Top Bar (Gradien Hijau Tua) */}
+      {/* Toolbar */}
       <motion.nav
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
-        className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 text-white flex overflow-x-auto whitespace-nowrap px-2 py-0.5 lg:py-1 shadow-md z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 text-white flex overflow-x-auto whitespace-nowrap px-2 py-1 shadow-sm z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="flex items-center gap-1 w-max">
-          <TopMenuItem
+          <ToolbarMenuItem
             icon={<FaKey className="text-yellow-400" />}
             label="Program"
           />
-          <TopMenuItem
+          <ToolbarMenuItem
             icon={<FaInfoCircle className="text-orange-400" />}
             label="Informasi"
           />
-          <TopMenuItem
+          <ToolbarMenuItem
             icon={<FaDesktop className="text-green-300" />}
             label="Antrian"
           />
-          <TopMenuItem
+          <ToolbarMenuItem
             icon={<FaBell className="text-pink-300" />}
             label="Notifikasi"
           />
-          <TopMenuItem
+          <ToolbarMenuItem
             icon={<FaQuestionCircle className="text-sky-300" />}
             label="Helpdesk"
           />
-          <TopMenuItem
+          <ToolbarMenuItem
             icon={<FaCommentDots className="text-teal-300" />}
             label="Tanya AI"
           />
-          <TopMenuItem
+          <ToolbarMenuItem
             icon={<FaBook className="text-blue-200" />}
             label="Tentang Program"
           />
         </div>
       </motion.nav>
 
-      {/* Secondary Toolbar (Gaya Glassmorphic Terang) */}
+      {/* Shortcutbar */}
       <motion.nav
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -176,7 +176,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Container Menu Geser */}
         <div className="flex-1 flex items-center gap-1 overflow-x-auto py-1 lg:py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <Link href="/daftar-menu">
-            <SecondaryMenuItem
+            <ShortcutMenuItem
               icon={
                 <FaThLarge className="text-slate-500 hover:transition-colors" />
               }
@@ -186,7 +186,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <div className="w-px h-8 lg:h-10 bg-brand-100 mx-2 self-center shrink-0"></div>
           <Link href="/">
-            <SecondaryMenuItem
+            <ShortcutMenuItem
               icon={
                 <FaHome className="text-slate-500 hover:transition-colors" />
               }
@@ -195,7 +195,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           </Link>
           <Link href="/registrasi">
-            <SecondaryMenuItem
+            <ShortcutMenuItem
               icon={
                 <FaIdCard className="text-slate-500 hover:transition-colors" />
               }
@@ -203,32 +203,32 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               active={pathname === "/registrasi"}
             />
           </Link>
-          <SecondaryMenuItem
+          <ShortcutMenuItem
             icon={
               <FaAmbulance className="text-slate-500 hover:transition-colors" />
             }
             label="IGD/UGD"
           />
-          <SecondaryMenuItem
+          <ShortcutMenuItem
             icon={
               <FaFlask className="text-slate-500 hover:transition-colors" />
             }
             label="Laborat"
           />
-          <SecondaryMenuItem
+          <ShortcutMenuItem
             icon={
               <FaRadiation className="text-slate-500 hover:transition-colors" />
             }
             label="Radiologi"
           />
-          <SecondaryMenuItem
+          <ShortcutMenuItem
             icon={
               <FaPills className="text-slate-500 hover:transition-colors" />
             }
             label="Farmasi"
           />
           <Link href="/rawat-inap">
-            <SecondaryMenuItem
+            <ShortcutMenuItem
               icon={
                 <FaBed className="text-slate-500 hover:transition-colors" />
               }
@@ -236,7 +236,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               active={pathname === "/rawat-inap"}
             />
           </Link>
-          <SecondaryMenuItem
+          <ShortcutMenuItem
             icon={
               <FaWheelchair className="text-slate-500 hover:transition-colors" />
             }
@@ -247,7 +247,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Container Profil User Tetap (Tanpa Clipping Overflow) */}
         <div className="flex items-center pl-4 bg-white/20">
           {!isLoggedIn ? (
-            <SecondaryMenuItem
+            <ShortcutMenuItem
               icon={
                 <FaSignInAlt className="text-slate-500 group-hover:text-brand-600 transition-colors" />
               }
@@ -482,7 +482,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
 // Subcomponents
 
-function TopMenuItem({
+function ToolbarMenuItem({
   icon,
   label,
 }: {
@@ -493,15 +493,15 @@ function TopMenuItem({
     <motion.button
       whileHover={{ backgroundColor: "rgba(255,255,255,0.15)" }}
       transition={{ duration: 0.1 }}
-      className="flex items-center gap-1 lg:gap-2 px-3 py-0.5 lg:py-1 rounded-lg text-[10px] lg:text-xs font-medium transition-colors duration-150 hover:shadow-sm"
+      className="flex items-center gap-0.5 lg:gap-1 px-2 py-px rounded text-[9px] lg:text-[10px] font-medium transition-colors duration-150 hover:shadow-sm"
     >
-      <span className="text-sm lg:text-base drop-shadow-md">{icon}</span>
+      <span className="text-[10px] lg:text-xs drop-shadow-md">{icon}</span>
       <span className="drop-shadow-sm">{label}</span>
     </motion.button>
   );
 }
 
-function SecondaryMenuItem({
+function ShortcutMenuItem({
   icon,
   label,
   isRed,
