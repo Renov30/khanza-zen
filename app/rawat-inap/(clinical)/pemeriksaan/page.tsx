@@ -152,14 +152,13 @@ function PemeriksaanContent() {
     fetchPegawaiInfo();
     if (noRawatParam) {
       fetchPatientInfo(noRawatParam);
-      fetchPemeriksaan(noRawatParam);
     }
   }, [noRawatParam, fetchPatientInfo, fetchPemeriksaan, fetchPegawaiInfo]);
 
-  // Auto-refetch when date filters change (same pattern as daftar pasien rawat inap)
+  // Auto-refetch when patient, keyword, or date filters change
   useEffect(() => {
     if (noRawat) fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir);
-  }, [tglAwal, tglAkhir]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [noRawat, searchKeyword, tglAwal, tglAkhir]);
 
   if (!mounted) return null;
 
