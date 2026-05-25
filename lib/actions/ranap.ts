@@ -579,6 +579,196 @@ export async function getSkriningNutrisiRanap(
   }
 }
 
+/**
+ * Mengambil data skrining nutrisi anak pasien rawat inap.
+ * Tabel: skrining_nutrisi_anak (StrongKids)
+ */
+export async function getSkriningNutrisiAnakRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [];
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          reg_periksa.no_rawat LIKE ? OR
+          pasien.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          skrining_nutrisi_anak.alergi LIKE ? OR
+          skrining_nutrisi_anak.nip LIKE ? OR
+          petugas.nama LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 6; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT 
+        reg_periksa.no_rawat,
+        pasien.no_rkm_medis,
+        pasien.nm_pasien,
+        pasien.tgl_lahir,
+        pasien.jk,
+        skrining_nutrisi_anak.tanggal,
+        skrining_nutrisi_anak.bb,
+        skrining_nutrisi_anak.tbpb,
+        skrining_nutrisi_anak.td,
+        skrining_nutrisi_anak.hr,
+        skrining_nutrisi_anak.rr,
+        skrining_nutrisi_anak.suhu,
+        skrining_nutrisi_anak.spo2,
+        skrining_nutrisi_anak.alergi,
+        skrining_nutrisi_anak.sg1,
+        skrining_nutrisi_anak.nilai1,
+        skrining_nutrisi_anak.sg2,
+        skrining_nutrisi_anak.nilai2,
+        skrining_nutrisi_anak.sg3,
+        skrining_nutrisi_anak.nilai3,
+        skrining_nutrisi_anak.sg4,
+        skrining_nutrisi_anak.nilai4,
+        skrining_nutrisi_anak.total_hasil,
+        skrining_nutrisi_anak.skor_nutrisi,
+        skrining_nutrisi_anak.diketahui_dietisien,
+        skrining_nutrisi_anak.keterangan_diketahui_dietisien,
+        skrining_nutrisi_anak.nip,
+        petugas.nama AS nm_petugas
+      FROM skrining_nutrisi_anak
+      INNER JOIN reg_periksa ON skrining_nutrisi_anak.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      INNER JOIN petugas ON skrining_nutrisi_anak.nip = petugas.nip
+      WHERE skrining_nutrisi_anak.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND skrining_nutrisi_anak.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      ORDER BY skrining_nutrisi_anak.tanggal DESC
+    `;
+
+    const [rows]: any = await db.execute(query, [noRawat, ...params]);
+
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      tanggal:
+        row.tanggal instanceof Date
+          ? row.tanggal.toISOString().split("T")[0]
+          : row.tanggal,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching skrining nutrisi anak:", error);
+    return {
+      success: false,
+      message: "Gagal mengambil data skrining nutrisi anak",
+      error: error.message,
+      data: [],
+    };
+  }
+}
+
+/**
+ * Mengambil data skrining nutrisi lansia pasien rawat inap.
+ * Tabel: skrining_nutrisi_lansia (MNA)
+ */
+export async function getSkriningNutrisiLansiaRanap(
+  noRawat: string,
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [];
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          reg_periksa.no_rawat LIKE ? OR
+          pasien.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          skrining_nutrisi_lansia.alergi LIKE ? OR
+          skrining_nutrisi_lansia.nip LIKE ? OR
+          petugas.nama LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 6; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT 
+        reg_periksa.no_rawat,
+        pasien.no_rkm_medis,
+        pasien.nm_pasien,
+        pasien.tgl_lahir,
+        pasien.jk,
+        skrining_nutrisi_lansia.tanggal,
+        skrining_nutrisi_lansia.bb,
+        skrining_nutrisi_lansia.tbpb,
+        skrining_nutrisi_lansia.td,
+        skrining_nutrisi_lansia.hr,
+        skrining_nutrisi_lansia.rr,
+        skrining_nutrisi_lansia.suhu,
+        skrining_nutrisi_lansia.spo2,
+        skrining_nutrisi_lansia.alergi,
+        skrining_nutrisi_lansia.sg1,
+        skrining_nutrisi_lansia.nilai1,
+        skrining_nutrisi_lansia.sg2,
+        skrining_nutrisi_lansia.nilai2,
+        skrining_nutrisi_lansia.sg3,
+        skrining_nutrisi_lansia.nilai3,
+        skrining_nutrisi_lansia.sg4,
+        skrining_nutrisi_lansia.nilai4,
+        skrining_nutrisi_lansia.sg5,
+        skrining_nutrisi_lansia.nilai5,
+        skrining_nutrisi_lansia.sg6,
+        skrining_nutrisi_lansia.nilai6,
+        skrining_nutrisi_lansia.total_hasil,
+        skrining_nutrisi_lansia.skor_nutrisi,
+        skrining_nutrisi_lansia.nip,
+        petugas.nama AS nm_petugas
+      FROM skrining_nutrisi_lansia
+      INNER JOIN reg_periksa ON skrining_nutrisi_lansia.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      INNER JOIN petugas ON skrining_nutrisi_lansia.nip = petugas.nip
+      WHERE skrining_nutrisi_lansia.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND skrining_nutrisi_lansia.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      ORDER BY skrining_nutrisi_lansia.tanggal DESC
+    `;
+
+    const [rows]: any = await db.execute(query, [noRawat, ...params]);
+
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      tanggal:
+        row.tanggal instanceof Date
+          ? row.tanggal.toISOString().split("T")[0]
+          : row.tanggal,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching skrining nutrisi lansia:", error);
+    return {
+      success: false,
+      message: "Gagal mengambil data skrining nutrisi lansia",
+      error: error.message,
+      data: [],
+    };
+  }
+}
+
 export async function getDaftarRanap(
   keyword: string = "",
   status: string = "Belum Pulang",

@@ -193,7 +193,7 @@ export default function ClinicalSidebar({
                               : "text-slate-600 hover:bg-brand-50 hover:text-slate-700"
                               }`}
                           >
-                            <span className={`text-[10px] shrink-0 ${isActive(child.path) ? "text-brand-600" : "text-slate-400"}`}>
+                            <span className={`text-sm shrink-0 ${isActive(child.path) ? "text-brand-600" : "text-slate-500"}`}>
                               {child.icon}
                             </span>
                             <span>{child.label}</span>
