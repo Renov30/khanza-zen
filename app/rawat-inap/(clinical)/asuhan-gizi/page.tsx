@@ -215,8 +215,6 @@ function AsuhanGiziContent() {
   const [isLoadingMonitoring, setIsLoadingMonitoring] = useState(false);
   const [monitoringText, setMonitoringText] = useState('');
   const [evaluasiText, setEvaluasiText] = useState('');
-  const [monitoringDate, setMonitoringDate] = useState(today);
-  const [monitoringTime, setMonitoringTime] = useState(new Date().toTimeString().slice(0, 8));
 
   // Skrining Gizi Lanjut state
   const [dataSkriningGizi, setDataSkriningGizi] = useState<SkriningGiziLanjutRow[]>([]);
@@ -224,11 +222,6 @@ function AsuhanGiziContent() {
   const [skriningGiziBB, setSkriningGiziBB] = useState('');
   const [skriningGiziTB, setSkriningGiziTB] = useState('');
   const [skriningGiziAlergi, setSkriningGiziAlergi] = useState('');
-  const [skriningGiziDate, setSkriningGiziDate] = useState(today);
-  const [skriningGiziJam, setSkriningGiziJam] = useState(new Date().getHours().toString().padStart(2, '0'));
-  const [skriningGiziMenit, setSkriningGiziMenit] = useState(new Date().getMinutes().toString().padStart(2, '0'));
-  const [skriningGiziDetik, setSkriningGiziDetik] = useState(new Date().getSeconds().toString().padStart(2, '0'));
-  const [skriningGiziClockRunning, setSkriningGiziClockRunning] = useState(true);
   const [skriningGiziIMT, setSkriningGiziIMT] = useState('');
   const [skriningGiziSkor1, setSkriningGiziSkor1] = useState("IMT > 20/z score > 2");
   const [skriningGiziSkor2, setSkriningGiziSkor2] = useState("BB Hilang < 5%");
@@ -248,7 +241,6 @@ function AsuhanGiziContent() {
   const [adimeMonitoring, setAdimeMonitoring] = useState('');
   const [adimeEvaluasi, setAdimeEvaluasi] = useState('');
   const [adimeInstruksi, setAdimeInstruksi] = useState('');
-  const [adimeDate, setAdimeDate] = useState(today);
 
   const [alergiTelur, setAlergiTelur] = useState(false);
   const [alergiSusuSapi, setAlergiSusuSapi] = useState(false);
@@ -420,20 +412,6 @@ function AsuhanGiziContent() {
     }
     return '';
   }, []);
-
-  // Skrining Gizi clock effect
-  useEffect(() => {
-    if (!skriningGiziClockRunning) return;
-    const tick = () => {
-      const now = new Date();
-      setSkriningGiziJam(now.getHours().toString().padStart(2, '0'));
-      setSkriningGiziMenit(now.getMinutes().toString().padStart(2, '0'));
-      setSkriningGiziDetik(now.getSeconds().toString().padStart(2, '0'));
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [skriningGiziClockRunning]);
 
   // Auto-calc IMT when BB or TB changes
   useEffect(() => {
@@ -677,20 +655,8 @@ function AsuhanGiziContent() {
             <TopFormContainer title="Form Input Monitoring & Evaluasi Gizi" persistenceKey="khanza_monitoring_gizi_form_open">
               <div className="flex flex-col gap-5">
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
-                    Data Monitoring
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal & Waktu</label>
-                    <div className="flex gap-2 flex-1">
-                      <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                        value={monitoringDate} onChange={e => setMonitoringDate(e.target.value)} />
-                      <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                        value={monitoringTime} onChange={e => setMonitoringTime(e.target.value)} />
-                    </div>
-                  </div>
+                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Monitoring</h3>
                 </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <FormTextarea label="Monitoring" value={monitoringText} onChange={setMonitoringText} placeholder="Catatan monitoring asuhan gizi..." />
                   <FormTextarea label="Evaluasi" value={evaluasiText} onChange={setEvaluasiText} placeholder="Catatan evaluasi asuhan gizi..." />
@@ -757,33 +723,9 @@ function AsuhanGiziContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Skrining Gizi Lanjut" persistenceKey="khanza_skrining_gizi_form_open">
               <div className="flex flex-col gap-5">
-                {/* Baris Tanggal + Jam + Petugas (seperti Java: baris y=40) */}
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Gizi</h3>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                      value={skriningGiziDate} onChange={e => setSkriningGiziDate(e.target.value)} />
-                    <select value={skriningGiziJam} onChange={e => setSkriningGiziJam(e.target.value)} disabled={skriningGiziClockRunning}
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
-                      {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(h => <option key={h}>{h}</option>)}
-                    </select>
-                    <span className="text-slate-400 text-xs font-bold">:</span>
-                    <select value={skriningGiziMenit} onChange={e => setSkriningGiziMenit(e.target.value)} disabled={skriningGiziClockRunning}
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
-                      {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => <option key={m}>{m}</option>)}
-                    </select>
-                    <span className="text-slate-400 text-xs font-bold">:</span>
-                    <select value={skriningGiziDetik} onChange={e => setSkriningGiziDetik(e.target.value)} disabled={skriningGiziClockRunning}
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-16">
-                      {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(d => <option key={d}>{d}</option>)}
-                    </select>
-                    <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer ml-1">
-                      <input type="checkbox" className="accent-brand-500 w-4 h-4" checked={skriningGiziClockRunning} onChange={e => setSkriningGiziClockRunning(e.target.checked)} />
-                    </label>
-                  </div>
-
-                  {/* Baris BB + TB + IMT + Alergi (seperti Java: baris y=70) */}
+                  {/* Baris BB + TB + IMT + Alergi */}
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
                     <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">BB</label>
                     <input type="text" value={skriningGiziBB} onChange={e => setSkriningGiziBB(e.target.value)}
@@ -864,7 +806,7 @@ function AsuhanGiziContent() {
                 </div>
 
                 {/* Petugas (Dilakukan Oleh) */}
-                <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
@@ -927,13 +869,7 @@ function AsuhanGiziContent() {
               <div className="flex flex-col gap-5">
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Catatan ADIME</h3>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
-                      value={adimeDate} onChange={e => setAdimeDate(e.target.value)} />
-                  </div>
                 </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <FormTextarea label="Asesmen (A)" value={adimeAsesmen} onChange={setAdimeAsesmen} placeholder="Hasil asesmen gizi..." />
                   <FormTextarea label="Diagnosis (D)" value={adimeDiagnosis} onChange={setAdimeDiagnosis} placeholder="Diagnosis gizi..." />
