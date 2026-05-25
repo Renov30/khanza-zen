@@ -166,7 +166,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/daftar-menu">
             <SecondaryMenuItem
               icon={
-                <FaHome className="text-slate-500 hover:text-brand-600 transition-colors" />
+                <FaHome className="text-slate-500 hover:transition-colors" />
               }
               label="Menu"
               active={pathname === "/daftar-menu"}
@@ -176,7 +176,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/registrasi">
             <SecondaryMenuItem
               icon={
-                <FaIdCard className="text-slate-500 hover:text-brand-600 transition-colors" />
+                <FaIdCard className="text-slate-500 hover:transition-colors" />
               }
               label="Registrasi"
               active={pathname === "/registrasi"}
@@ -184,32 +184,32 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <SecondaryMenuItem
             icon={
-              <FaAmbulance className="text-slate-500 hover:text-red-500 transition-colors" />
+              <FaAmbulance className="text-slate-500 hover:transition-colors" />
             }
             label="IGD/UGD"
           />
           <SecondaryMenuItem
             icon={
-              <FaFlask className="text-slate-500 hover:text-purple-500 transition-colors" />
+              <FaFlask className="text-slate-500 hover:transition-colors" />
             }
             label="Laborat"
           />
           <SecondaryMenuItem
             icon={
-              <FaRadiation className="text-slate-500 hover:text-yellow-500 transition-colors" />
+              <FaRadiation className="text-slate-500 hover:transition-colors" />
             }
             label="Radiologi"
           />
           <SecondaryMenuItem
             icon={
-              <FaPills className="text-slate-500 hover:text-pink-500 transition-colors" />
+              <FaPills className="text-slate-500 hover:transition-colors" />
             }
             label="Farmasi"
           />
           <Link href="/rawat-inap">
             <SecondaryMenuItem
               icon={
-                <FaBed className="text-slate-500 hover:text-blue-500 transition-colors" />
+                <FaBed className="text-slate-500 hover:transition-colors" />
               }
               label="Rawat Inap"
               active={pathname === "/rawat-inap"}
@@ -217,7 +217,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <SecondaryMenuItem
             icon={
-              <FaWheelchair className="text-slate-500 hover:text-teal-500 transition-colors" />
+              <FaWheelchair className="text-slate-500 hover:transition-colors" />
             }
             label="Rawat Jalan"
           />

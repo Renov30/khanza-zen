@@ -3,12 +3,25 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaLaptopMedical, FaCubes } from "react-icons/fa";
+import { getSettingRs } from "@/lib/actions/setting";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
+  const [namaInstansi, setNamaInstansi] = useState("");
+  const [alamatInstansi, setAlamatInstansi] = useState("");
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    getSettingRs().then((res) => {
+      if (res.success && res.data) {
+        setNamaInstansi(res.data.namaInstansi);
+        const alamat = [res.data.alamatInstansi, res.data.kabupaten, res.data.propinsi]
+          .filter(Boolean)
+          .join(", ");
+        setAlamatInstansi(alamat);
+      }
+    });
   }, []);
 
   if (!mounted) return null;
@@ -24,7 +37,7 @@ export default function Home() {
         style={{ backgroundImage: "url('/img/background.png')" }}
       />
 
-            {/* Hamparan Konten */}
+      {/* Hamparan Konten */}
       <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent z-0"></div>
 
       {/* Area Logo Kiri Bawah */}
@@ -37,18 +50,26 @@ export default function Home() {
 
         <div className="flex flex-row items-center gap-3 drop-shadow-lg bg-white/40 backdrop-blur-sm px-4 sm:px-5 py-3 rounded-xl border border-white/70">
           <img
-            src="/img/logo-rs.svg"
+            src="/api/setting/logo"
             alt="Logo RS"
-            className="h-12 sm:h-16 w-auto shrink-0"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            className="h-10 sm:h-14 w-10 sm:w-14 shrink-0 object-cover"
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              if (!logoError) {
+                img.src = "/img/logo-rs.svg";
+                setLogoError(true);
+              } else {
+                img.style.display = "none";
+              }
+            }}
           />
           <div className="flex flex-col">
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-800 tracking-tight italic flex items-center gap-2">
-              <span className="text-brand-700">RS</span> SUKACITA BANTUL
+            <h1 className="text-base sm:text-lg font-extrabold text-slate-800 tracking-tight italic flex items-center gap-2">
+              <span className="text-brand-700">RS</span> {namaInstansi || "SUKACITA BANTUL"}
             </h1>
-            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1 flex items-center gap-1">
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-600 mt-0.5 flex items-center gap-1">
               <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-brand-500 inline-block animate-pulse"></span>
-              GUWOSARI, Pajangan, Bantul
+              {alamatInstansi || "GUWOSARI, Pajangan, Bantul"}
             </p>
           </div>
         </div>
