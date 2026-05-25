@@ -622,7 +622,7 @@ function AsuhanGiziContent() {
             </TopFormContainer>
 
             {/* Tabel Inline */}
-            <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Asuhan Gizi Pasien"
                 icon={<FaUtensils />}
@@ -704,7 +704,7 @@ function AsuhanGiziContent() {
               </div>
             </TopFormContainer>
 
-            <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Monitoring & Evaluasi Asuhan Gizi"
                 icon={<FaUtensils />}
@@ -780,7 +780,7 @@ function AsuhanGiziContent() {
               </div>
             </TopFormContainer>
 
-            <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Skrining Gizi Lanjut"
                 icon={<FaUtensils />}
@@ -859,7 +859,7 @@ function AsuhanGiziContent() {
               </div>
             </TopFormContainer>
 
-            <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Catatan ADIME Gizi"
                 icon={<FaUtensils />}
@@ -944,7 +944,7 @@ function AsuhanGiziContent() {
               </div>
             </TopFormContainer>
 
-            <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Skrining Nutrisi"
                 icon={<FaUtensils />}

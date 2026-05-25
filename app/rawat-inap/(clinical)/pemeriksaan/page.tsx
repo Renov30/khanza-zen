@@ -288,7 +288,7 @@ function PemeriksaanContent() {
           </TopFormContainer>
 
             {/* Tabel Inline menggunakan komponen DataTableMulti */}
-            <div className={`flex flex-col transition-all duration-150 h-[500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Riwayat Pemeriksaan / CPPT"
                 icon={<FaBed />}
