@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { logCppt } from "@/lib/file-log";
 
 /**
  * Mengambil info pasien (no_rkm_medis, nm_pasien) berdasarkan no_rawat.
@@ -98,13 +99,21 @@ export async function getPemeriksaanRanap(
       FROM pasien 
       INNER JOIN reg_periksa ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis 
       INNER JOIN pemeriksaan_ranap ON pemeriksaan_ranap.no_rawat = reg_periksa.no_rawat 
-      LEFT JOIN pemeriksaan_ranap_audit_trail 
-        ON pemeriksaan_ranap.no_rawat = pemeriksaan_ranap_audit_trail.no_rawat 
-        AND pemeriksaan_ranap.tgl_perawatan = pemeriksaan_ranap_audit_trail.tgl_perawatan 
-        AND pemeriksaan_ranap.jam_rawat = pemeriksaan_ranap_audit_trail.jam_rawat 
-      INNER JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik 
+      LEFT JOIN (
+        SELECT no_rawat, tgl_perawatan, jam_rawat, status
+        FROM pemeriksaan_ranap_audit_trail
+        WHERE status = 'aktif'
+        GROUP BY no_rawat, tgl_perawatan, jam_rawat
+      ) audit ON pemeriksaan_ranap.no_rawat = audit.no_rawat 
+        AND pemeriksaan_ranap.tgl_perawatan = audit.tgl_perawatan 
+        AND pemeriksaan_ranap.jam_rawat = audit.jam_rawat 
+      LEFT JOIN pemeriksaan_ranap_audit_trail audit_exists 
+        ON pemeriksaan_ranap.no_rawat = audit_exists.no_rawat 
+        AND pemeriksaan_ranap.tgl_perawatan = audit_exists.tgl_perawatan 
+        AND pemeriksaan_ranap.jam_rawat = audit_exists.jam_rawat 
+      LEFT JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik 
       WHERE 
-        (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
+        (audit.status = 'aktif' OR audit_exists.id_log IS NULL)
         AND pemeriksaan_ranap.no_rawat = ?
         ${tglAwal && tglAkhir ? "AND pemeriksaan_ranap.tgl_perawatan BETWEEN ? AND ?" : ""}
         ${searchClause}
@@ -1388,16 +1397,25 @@ export async function getPemeriksaanRanapRiwayat(noRawat: string) {
       SELECT pemeriksaan_ranap.tgl_perawatan, pemeriksaan_ranap.jam_rawat,
              pemeriksaan_ranap.keluhan, pemeriksaan_ranap.pemeriksaan,
              pemeriksaan_ranap.alergi, pemeriksaan_ranap.penilaian,
-             pemeriksaan_ranap.rtl, pemeriksaan_ranap.instruksi, pemeriksaan_ranap.evaluasi,
+             pemeriksaan_ranap.rtl, pemeriksaan_ranap.instruksi, 
+pemeriksaan_ranap.evaluasi,
              pemeriksaan_ranap.nip, pegawai.nama AS nm_pegawai, pegawai.jbtn
       FROM pemeriksaan_ranap
-      INNER JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik
-      LEFT JOIN pemeriksaan_ranap_audit_trail
-        ON pemeriksaan_ranap.no_rawat = pemeriksaan_ranap_audit_trail.no_rawat
-        AND pemeriksaan_ranap.tgl_perawatan = pemeriksaan_ranap_audit_trail.tgl_perawatan
-        AND pemeriksaan_ranap.jam_rawat = pemeriksaan_ranap_audit_trail.jam_rawat
+      LEFT JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik
+      LEFT JOIN (
+        SELECT no_rawat, tgl_perawatan, jam_rawat, status
+        FROM pemeriksaan_ranap_audit_trail
+        WHERE status = 'aktif'
+        GROUP BY no_rawat, tgl_perawatan, jam_rawat
+      ) audit ON pemeriksaan_ranap.no_rawat = audit.no_rawat
+        AND pemeriksaan_ranap.tgl_perawatan = audit.tgl_perawatan
+        AND pemeriksaan_ranap.jam_rawat = audit.jam_rawat
+      LEFT JOIN pemeriksaan_ranap_audit_trail audit_exists
+        ON pemeriksaan_ranap.no_rawat = audit_exists.no_rawat
+        AND pemeriksaan_ranap.tgl_perawatan = audit_exists.tgl_perawatan
+        AND pemeriksaan_ranap.jam_rawat = audit_exists.jam_rawat
       WHERE pemeriksaan_ranap.no_rawat = ?
-        AND (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
+        AND (audit.status = 'aktif' OR audit_exists.id_log IS NULL)
       ORDER BY pemeriksaan_ranap.tgl_perawatan DESC, pemeriksaan_ranap.jam_rawat DESC
     `;
     const [rows]: any = await db.execute(query, [noRawat]);
@@ -1719,9 +1737,11 @@ export async function simpanPemeriksaanRanap(data: {
       curTime, session.id, null, null, null, null, null, null, "aktif",
     ]);
 
+    logCppt('SIMPAN', session.id, data.no_rawat, 'BERHASIL', 'Data pemeriksaan berhasil disimpan');
     return { success: true, message: "Data pemeriksaan berhasil disimpan" };
   } catch (error: any) {
     console.error("Error saving pemeriksaan ranap:", error);
+    logCppt('SIMPAN', 'system', data?.no_rawat || '', 'GAGAL', 'Gagal menyimpan data pemeriksaan', error.message);
     return { success: false, message: "Gagal menyimpan data pemeriksaan", error: error.message };
   }
 }
@@ -1803,6 +1823,7 @@ export async function editPemeriksaanRanap(
           ["aktif", oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat],
         );
         console.error("Error inserting new pemeriksaan row on edit:", insertErr);
+        logCppt('EDIT', pelaku, newData.no_rawat, 'GAGAL', `Rollback setelah gagal INSERT data baru (PK berubah). Alasan: ${alasan}`, insertErr.message);
         return { success: false, message: "Gagal menyimpan data baru", error: insertErr.message };
       }
 
@@ -1829,9 +1850,11 @@ export async function editPemeriksaanRanap(
       ]);
     }
 
+    logCppt('EDIT', pelaku, newData.no_rawat, 'BERHASIL', `Data lama ${oldData.tgl_perawatan} ${oldData.jam_rawat} → ${newData.tgl_perawatan} ${newData.jam_rawat}. Alasan: ${alasan}`);
     return { success: true, message: "Data pemeriksaan berhasil diubah" };
   } catch (error: any) {
     console.error("Error editing pemeriksaan ranap:", error);
+    logCppt('EDIT', 'system', newData?.no_rawat || oldData?.no_rawat || '', 'GAGAL', 'Gagal mengubah data pemeriksaan', error.message);
     return { success: false, message: "Gagal mengubah data pemeriksaan", error: error.message };
   }
 }
@@ -1904,7 +1927,7 @@ export async function getPemeriksaanRanapAuditTrail(
       INNER JOIN reg_periksa ON pemeriksaan_ranap_audit_trail.no_rawat = reg_periksa.no_rawat
       INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
       ${whereClause}
-      ORDER BY pemeriksaan_ranap_audit_trail.tgl_perawatan DESC, pemeriksaan_ranap_audit_trail.jam_rawat DESC
+      ORDER BY pemeriksaan_ranap_audit_trail.created_at DESC
     `;
 
     const [rows]: any = await db.execute(query, params);
@@ -1973,9 +1996,11 @@ export async function hapusPemeriksaanRanap(
       WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?
     `, [curTime, pelaku, alasan, "dibatalkan", noRawat, tglPerawatan, jamRawat]);
 
+    logCppt('HAPUS', pelaku, noRawat, 'BERHASIL', `Data ${tglPerawatan} ${jamRawat} dihapus. Alasan: ${alasan}`);
     return { success: true, message: "Data pemeriksaan berhasil dihapus" };
   } catch (error: any) {
     console.error("Error deleting pemeriksaan ranap:", error);
+    logCppt('HAPUS', 'system', noRawat, 'GAGAL', 'Gagal menghapus data pemeriksaan', error.message);
     return { success: false, message: "Gagal menghapus data pemeriksaan", error: error.message };
   }
 }

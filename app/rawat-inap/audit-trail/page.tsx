@@ -60,9 +60,8 @@ function AuditTrailContent() {
   const [data, setData] = useState<AuditRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const today = new Date().toISOString().split('T')[0];
-  const [tglAwal, setTglAwal] = useState(tglAwalParam || today);
-  const [tglAkhir, setTglAkhir] = useState(tglAkhirParam || today);
+  const [tglAwal, setTglAwal] = useState(tglAwalParam);
+  const [tglAkhir, setTglAkhir] = useState(tglAkhirParam);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Detail modal

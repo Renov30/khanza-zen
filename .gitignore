@@ -26,6 +26,9 @@
 # settings
 /setting
 
+# logs
+/logs
+
 # misc
 .DS_Store
 *.pem
