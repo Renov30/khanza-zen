@@ -1874,12 +1874,16 @@ export async function getPemeriksaanRanapAuditTrail(
   keyword: string = "",
   tglAwal: string = "",
   tglAkhir: string = "",
+  page: number = 1,
+  pageSize: number = 50,
 ) {
   try {
     const params: any[] = [];
+    const countParams: any[] = [];
 
     if (tglAwal && tglAkhir) {
       params.push(tglAwal, tglAkhir);
+      countParams.push(tglAwal, tglAkhir);
     }
 
     let whereClause = tglAwal && tglAkhir
@@ -1889,6 +1893,7 @@ export async function getPemeriksaanRanapAuditTrail(
     if (noRawat.trim()) {
       whereClause += " AND pemeriksaan_ranap_audit_trail.no_rawat = ?";
       params.push(noRawat.trim());
+      countParams.push(noRawat.trim());
     }
 
     if (keyword.trim()) {
@@ -1904,8 +1909,24 @@ export async function getPemeriksaanRanapAuditTrail(
         )
       `;
       const searchKey = `%${keyword.trim()}%`;
-      for (let i = 0; i < 7; i++) params.push(searchKey);
+      for (let i = 0; i < 7; i++) {
+        params.push(searchKey);
+        countParams.push(searchKey);
+      }
     }
+
+    // Hitung total
+    const [countRows]: any = await db.execute(`
+      SELECT COUNT(*) AS total
+      FROM pemeriksaan_ranap_audit_trail
+      INNER JOIN reg_periksa ON pemeriksaan_ranap_audit_trail.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      ${whereClause}
+    `, countParams);
+    const total = Number(countRows[0]?.total) || 0;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const currentPage = Math.min(page, totalPages);
+    const offset = (currentPage - 1) * pageSize;
 
     const query = `
       SELECT 
@@ -1928,7 +1949,9 @@ export async function getPemeriksaanRanapAuditTrail(
       INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
       ${whereClause}
       ORDER BY pemeriksaan_ranap_audit_trail.created_at DESC
+      LIMIT ? OFFSET ?
     `;
+    params.push(pageSize, offset);
 
     const [rows]: any = await db.execute(query, params);
 
@@ -1940,7 +1963,7 @@ export async function getPemeriksaanRanapAuditTrail(
       deleted_at: row.deleted_at instanceof Date ? row.deleted_at.toISOString().slice(0, 19).replace("T", " ") : row.deleted_at,
     }));
 
-    return { success: true, data: formattedRows };
+    return { success: true, data: formattedRows, total, page: currentPage, totalPages };
   } catch (error: any) {
     console.error("Error fetching audit trail:", error);
     return { success: false, message: "Gagal mengambil data audit trail", error: error.message, data: [] };

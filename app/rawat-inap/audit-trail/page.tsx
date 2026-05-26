@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaHistory, FaTimes, FaSearch, FaSync, FaExpand } from 'react-icons/fa';
+import { FaHistory, FaTimes, FaSearch, FaSync, FaExpand, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { getPemeriksaanRanapAuditTrail, getDetailPemeriksaanRanap } from '@/lib/actions/ranap';
 import { TableColumn } from '@/components/TableTypes';
 import DataTableMulti from '@/components/DataTableMulti';
@@ -60,8 +60,13 @@ function AuditTrailContent() {
   const [data, setData] = useState<AuditRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [tglAwal, setTglAwal] = useState(tglAwalParam);
-  const [tglAkhir, setTglAkhir] = useState(tglAkhirParam);
+  const today = new Date().toISOString().split('T')[0];
+  const [tglAwal, setTglAwal] = useState(tglAwalParam || today);
+  const [tglAkhir, setTglAkhir] = useState(tglAkhirParam || today);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 50;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Detail modal
@@ -69,18 +74,24 @@ function AuditTrailContent() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  const fetchData = useCallback(async (kw: string = '', ta: string = '', tb: string = '') => {
+  const fetchData = useCallback(async (kw: string = '', ta: string = '', tb: string = '', pg: number = 1) => {
     setIsLoading(true);
     try {
-      const result = await getPemeriksaanRanapAuditTrail(noRawatParam, kw, ta, tb);
+      const result = await getPemeriksaanRanapAuditTrail(noRawatParam, kw, ta, tb, pg, pageSize);
       if (result.success && result.data) {
         const mapped = result.data.map((row: any, i: number) => ({
           ...row,
-          id: `${row.tgl_perawatan}-${row.jam_rawat}-${i}`,
+          id: `${row.tgl_perawatan}-${row.jam_rawat}-${((result.page || 1) - 1) * pageSize + i}`,
         }));
         setData(mapped);
+        setTotal(result.total || 0);
+        setTotalPages(result.totalPages || 1);
+        setPage(result.page || 1);
       } else {
         setData([]);
+        setTotal(0);
+        setTotalPages(1);
+        setPage(1);
       }
     } catch {
       setData([]);
@@ -90,10 +101,11 @@ function AuditTrailContent() {
 
   useEffect(() => {
     setMounted(true);
-    fetchData(searchKeyword, tglAwal, tglAkhir);
+    fetchData(searchKeyword, tglAwal, tglAkhir, 1);
   }, []);
 
-  const handleSearch = () => fetchData(searchKeyword, tglAwal, tglAkhir);
+  const handleSearch = () => fetchData(searchKeyword, tglAwal, tglAkhir, 1);
+  const goToPage = (p: number) => fetchData(searchKeyword, tglAwal, tglAkhir, p);
 
   const handleRowClick = async (row: any) => {
     setIsLoadingDetail(true);
@@ -148,7 +160,7 @@ function AuditTrailContent() {
             className="px-2 py-1 bg-brand-500 hover:bg-brand-600 text-white rounded text-xs font-semibold flex items-center gap-1 transition-colors">
             <FaSearch /> Cari
           </button>
-          <button onClick={() => fetchData(searchKeyword, tglAwal, tglAkhir)}
+          <button onClick={() => fetchData(searchKeyword, tglAwal, tglAkhir, 1)}
             className="px-2 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded text-slate-600 text-xs font-semibold flex items-center gap-1 transition-colors">
             <FaSync className={isLoading ? 'animate-spin' : ''} /> Refresh
           </button>
@@ -168,6 +180,32 @@ function AuditTrailContent() {
             emptyMessage="Tidak ada data audit trail yang ditemukan."
             onRowClick={handleRowClick}
           />
+        </div>
+
+        {/* Pagination */}
+        <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
+          <span>Total: {total} data (hal. {page} dari {totalPages})</span>
+          <div className="flex items-center gap-1">
+            <button onClick={() => goToPage(page - 1)} disabled={page <= 1}
+              className="px-2 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <FaChevronLeft />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+              .map((p, idx, arr) => (
+                <React.Fragment key={p}>
+                  {idx > 0 && arr[idx - 1] !== p - 1 && <span className="px-1 text-slate-400">...</span>}
+                  <button onClick={() => goToPage(p)}
+                    className={`px-2.5 py-1 border rounded transition-colors ${p === page ? 'bg-brand-500 text-white border-brand-500 font-bold' : 'border-slate-300 bg-white hover:bg-slate-50'}`}>
+                    {p}
+                  </button>
+                </React.Fragment>
+              ))}
+            <button onClick={() => goToPage(page + 1)} disabled={page >= totalPages}
+              className="px-2 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <FaChevronRight />
+            </button>
+          </div>
         </div>
 
         {/* Legend Status */}
