@@ -170,8 +170,8 @@ function DietPasienContent() {
             value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
           <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white"
             value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-          <input type="checkbox" className="accent-brand-500 w-4 h-4 cursor-pointer ml-2"
-            checked={isClockRunning} onChange={e => setIsClockRunning(e.target.checked)} title="Centang untuk jam real-time" />
+          <input type="checkbox" className="accent-brand-500 w-4 h-4 ml-2 opacity-60"
+            checked={isClockRunning} disabled title="Jam selalu real-time" />
         </div>
       </div>
 
