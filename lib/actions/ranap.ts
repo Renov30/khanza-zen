@@ -107,13 +107,14 @@ export async function getPemeriksaanRanap(
       ) audit ON pemeriksaan_ranap.no_rawat = audit.no_rawat 
         AND pemeriksaan_ranap.tgl_perawatan = audit.tgl_perawatan 
         AND pemeriksaan_ranap.jam_rawat = audit.jam_rawat 
-      LEFT JOIN pemeriksaan_ranap_audit_trail audit_exists 
-        ON pemeriksaan_ranap.no_rawat = audit_exists.no_rawat 
-        AND pemeriksaan_ranap.tgl_perawatan = audit_exists.tgl_perawatan 
-        AND pemeriksaan_ranap.jam_rawat = audit_exists.jam_rawat 
       LEFT JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik 
       WHERE 
-        (audit.status = 'aktif' OR audit_exists.id_log IS NULL)
+        (audit.status = 'aktif' OR NOT EXISTS (
+          SELECT 1 FROM pemeriksaan_ranap_audit_trail at2
+          WHERE at2.no_rawat = pemeriksaan_ranap.no_rawat
+            AND at2.tgl_perawatan = pemeriksaan_ranap.tgl_perawatan
+            AND at2.jam_rawat = pemeriksaan_ranap.jam_rawat
+        ))
         AND pemeriksaan_ranap.no_rawat = ?
         ${tglAwal && tglAkhir ? "AND pemeriksaan_ranap.tgl_perawatan BETWEEN ? AND ?" : ""}
         ${searchClause}
@@ -1410,12 +1411,13 @@ pemeriksaan_ranap.evaluasi,
       ) audit ON pemeriksaan_ranap.no_rawat = audit.no_rawat
         AND pemeriksaan_ranap.tgl_perawatan = audit.tgl_perawatan
         AND pemeriksaan_ranap.jam_rawat = audit.jam_rawat
-      LEFT JOIN pemeriksaan_ranap_audit_trail audit_exists
-        ON pemeriksaan_ranap.no_rawat = audit_exists.no_rawat
-        AND pemeriksaan_ranap.tgl_perawatan = audit_exists.tgl_perawatan
-        AND pemeriksaan_ranap.jam_rawat = audit_exists.jam_rawat
       WHERE pemeriksaan_ranap.no_rawat = ?
-        AND (audit.status = 'aktif' OR audit_exists.id_log IS NULL)
+        AND (audit.status = 'aktif' OR NOT EXISTS (
+          SELECT 1 FROM pemeriksaan_ranap_audit_trail at2
+          WHERE at2.no_rawat = pemeriksaan_ranap.no_rawat
+            AND at2.tgl_perawatan = pemeriksaan_ranap.tgl_perawatan
+            AND at2.jam_rawat = pemeriksaan_ranap.jam_rawat
+        ))
       ORDER BY pemeriksaan_ranap.tgl_perawatan DESC, pemeriksaan_ranap.jam_rawat DESC
     `;
     const [rows]: any = await db.execute(query, [noRawat]);
@@ -1749,7 +1751,8 @@ export async function simpanPemeriksaanRanap(data: {
 /**
  * Mengedit/mengganti data pemeriksaan/CPPT (Ganti).
  * 1. Mark data lama sbg 'direvisi' di audit_trail (insert jika blm ada, update jika sudah)
- * 2. INSERT baris baru ke pemeriksaan_ranap
+ * 2a. Jika PK berubah → INSERT baris baru ke pemeriksaan_ranap (data lama tetap sbg histori)
+ * 2b. Jika PK sama → UPDATE baris yang ada (hindari duplicate PK)
  * 3. INSERT audit_trail baru dgn status='aktif'
  * Jika langkah 2 gagal → rollback status audit_trail lama ke 'aktif'.
  * Meniru case 3 (Ganti) dari DlgRawatInap.java (lines 6700-6776).
@@ -1772,7 +1775,21 @@ export async function editPemeriksaanRanap(
       return { success: false, message: "Sesi tidak ditemukan" };
     }
 
-    const pelaku = session.id;
+    // Ownership check — hanya author (NIP) atau Admin Utama yang boleh edit
+    const [oldRows]: any = await db.execute(
+      "SELECT nip FROM pemeriksaan_ranap WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=? LIMIT 1",
+      [oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat],
+    );
+    if (oldRows.length === 0) {
+      return { success: false, message: "Data lama tidak ditemukan" };
+    }
+    const isAdmin = session.role === 'admin';
+    const isOwner = session.id === oldRows[0].nip;
+    if (!isAdmin && !isOwner) {
+      return { success: false, message: "Anda tidak berhak mengedit data pemeriksaan ini. Hanya pembuat data atau Admin Utama yang dapat mengedit." };
+    }
+
+    const pelaku = isAdmin ? "admin" : session.id;
     const curTime = new Date().toISOString().slice(0, 19).replace("T", " ");
 
     // Cek apakah audit trail sudah ada untuk data lama
@@ -1798,57 +1815,36 @@ export async function editPemeriksaanRanap(
       `, [curTime, pelaku, alasan, "direvisi", oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat]);
     }
 
-    const pkChanged =
-      oldData.no_rawat !== newData.no_rawat ||
-      oldData.tgl_perawatan !== newData.tgl_perawatan ||
-      oldData.jam_rawat !== newData.jam_rawat;
-
-    if (pkChanged) {
-      // PK berubah → INSERT baris baru, lalu INSERT audit trail baru
-      try {
-        await db.execute(`
-          INSERT INTO pemeriksaan_ranap (no_rawat, tgl_perawatan, jam_rawat, suhu_tubuh, tensi, nadi, respirasi, tinggi, berat, spo2, gcs, kesadaran, keluhan, pemeriksaan, alergi, penilaian, rtl, instruksi, evaluasi, nip)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-          newData.no_rawat, newData.tgl_perawatan, newData.jam_rawat,
-          newData.suhu_tubuh, newData.tensi, newData.nadi, newData.respirasi,
-          newData.tinggi, newData.berat, newData.spo2, newData.gcs, newData.kesadaran,
-          newData.keluhan, newData.pemeriksaan, newData.alergi,
-          newData.penilaian, newData.rtl, newData.instruksi, newData.evaluasi, newData.nip,
-        ]);
-      } catch (insertErr: any) {
-        // Rollback: restore audit trail lama ke 'aktif'
-        await db.execute(
-          "UPDATE pemeriksaan_ranap_audit_trail SET status=? WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?",
-          ["aktif", oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat],
-        );
-        console.error("Error inserting new pemeriksaan row on edit:", insertErr);
-        logCppt('EDIT', pelaku, newData.no_rawat, 'GAGAL', `Rollback setelah gagal INSERT data baru (PK berubah). Alasan: ${alasan}`, insertErr.message);
-        return { success: false, message: "Gagal menyimpan data baru", error: insertErr.message };
-      }
-
+    // INSERT baris baru — data lama di pemeriksaan_ranap TIDAK diubah (sama persis Java)
+    try {
       await db.execute(`
-        INSERT INTO pemeriksaan_ranap_audit_trail (id_log, no_rawat, tgl_perawatan, jam_rawat, created_at, created_by, updated_at, updated_by, ket_edit, deleted_at, deleted_by, ket_hapus, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO pemeriksaan_ranap (no_rawat, tgl_perawatan, jam_rawat, suhu_tubuh, tensi, nadi, respirasi, tinggi, berat, spo2, gcs, kesadaran, keluhan, pemeriksaan, alergi, penilaian, rtl, instruksi, evaluasi, nip)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
-        null, newData.no_rawat, newData.tgl_perawatan, newData.jam_rawat,
-        curTime, pelaku, null, null, null, null, null, null, "aktif",
-      ]);
-    } else {
-      // PK sama → UPDATE baris yang ada
-      await db.execute(`
-        UPDATE pemeriksaan_ranap SET
-          suhu_tubuh=?, tensi=?, nadi=?, respirasi=?, tinggi=?, berat=?, spo2=?, gcs=?, kesadaran=?,
-          keluhan=?, pemeriksaan=?, alergi=?, penilaian=?, rtl=?, instruksi=?, evaluasi=?, nip=?
-        WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?
-      `, [
+        newData.no_rawat, newData.tgl_perawatan, newData.jam_rawat,
         newData.suhu_tubuh, newData.tensi, newData.nadi, newData.respirasi,
         newData.tinggi, newData.berat, newData.spo2, newData.gcs, newData.kesadaran,
         newData.keluhan, newData.pemeriksaan, newData.alergi,
         newData.penilaian, newData.rtl, newData.instruksi, newData.evaluasi, newData.nip,
-        newData.no_rawat, newData.tgl_perawatan, newData.jam_rawat,
       ]);
+    } catch (insertErr: any) {
+      // Rollback: restore audit trail lama ke 'aktif'
+      await db.execute(
+        "UPDATE pemeriksaan_ranap_audit_trail SET status=? WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?",
+        ["aktif", oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat],
+      );
+      logCppt('EDIT', pelaku, newData.no_rawat, 'GAGAL', `Rollback: INSERT gagal (mungkin PK duplikat). Alasan: ${alasan}`, insertErr.message);
+      return { success: false, message: `Gagal menyimpan data baru. ${insertErr.message}` };
     }
+
+    // INSERT audit trail baru dengan status 'aktif'
+    await db.execute(`
+      INSERT INTO pemeriksaan_ranap_audit_trail (id_log, no_rawat, tgl_perawatan, jam_rawat, created_at, created_by, updated_at, updated_by, ket_edit, deleted_at, deleted_by, ket_hapus, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      null, newData.no_rawat, newData.tgl_perawatan, newData.jam_rawat,
+      curTime, pelaku, null, null, null, null, null, null, "aktif",
+    ]);
 
     logCppt('EDIT', pelaku, newData.no_rawat, 'BERHASIL', `Data lama ${oldData.tgl_perawatan} ${oldData.jam_rawat} → ${newData.tgl_perawatan} ${newData.jam_rawat}. Alasan: ${alasan}`);
     return { success: true, message: "Data pemeriksaan berhasil diubah" };

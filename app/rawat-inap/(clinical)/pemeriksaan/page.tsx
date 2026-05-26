@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaBed, FaEdit, FaExpand, FaCompress, FaSync, FaSearch } from 'react-icons/fa';
+import { FaBed, FaExpand, FaCompress } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai, simpanPemeriksaanRanap, editPemeriksaanRanap, hapusPemeriksaanRanap } from '@/lib/actions/ranap';
@@ -57,12 +57,6 @@ function PemeriksaanContent() {
   const [activeTab, setActiveTab] = useState('cppt');
   const [isTableExpanded, setIsTableExpanded] = useState(false);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-
-  const toggleSelection = (id: string) => {
-    setSelectedRows(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
-  };
 
   // Patient info
   const [noRawat] = useState(noRawatParam);
@@ -231,7 +225,6 @@ function PemeriksaanContent() {
     setFormKesadaran(row.kesadaran || '');
     setCurrentDate(row.tgl_perawatan || today);
     setCurrentTime(row.jam_rawat || '00:00:00');
-    setIsClockRunning(false);
     setSelectedRowIdx(idx);
     setIsEditMode(true);
   };
@@ -385,8 +378,8 @@ function PemeriksaanContent() {
             value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
           <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white"
             value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-          <input type="checkbox" className="accent-brand-500 w-4 h-4 cursor-pointer ml-2"
-            checked={isClockRunning} onChange={e => setIsClockRunning(e.target.checked)} title="Centang untuk jam real-time" />
+          <input type="checkbox" className="accent-brand-500 w-4 h-4 ml-2 opacity-60"
+            checked={isClockRunning} disabled title="Jam selalu real-time" />
         </div>
       </div>
 
@@ -498,34 +491,28 @@ function PemeriksaanContent() {
                     <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Kesadaran</label>
                     <select className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
                       value={formKesadaran} onChange={e => setFormKesadaran(e.target.value)}>
-                      <option value="">-</option><option value="Compos Mentis">Compos Mentis</option><option value="Apatis">Apatis</option><option value="Somnolent">Somnolent</option><option value="Sopor">Sopor</option><option value="Coma">Coma</option>
+                      <option value="">-</option><option value="Compos Mentis">Compos Mentis</option><option value="Somnolence">Somnolence</option><option value="Sopor">Sopor</option><option value="Coma">Coma</option>
                     </select>
                   </div>
                 </div>
               </div>
-              {/* Fitur 3 & 5: Petugas dari user yang login */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+              {/* Petugas */}
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
-                  <div className="flex gap-1 flex-1">
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                    <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                  </div>
+                  <label className="text-xs font-semibold text-slate-600 w-24 shrink-0">Dilakukan Oleh</label>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-20 bg-slate-50 text-xs" value={pegawaiNik} readOnly />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 bg-slate-50 text-xs" value={pegawaiNama} readOnly />
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Jabatan / Dept</label>
-                  <div className="flex gap-1 flex-1">
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiJabatan} readOnly />
-                    <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                  </div>
+                  <label className="text-xs font-semibold text-slate-600 w-24 shrink-0">Jabatan</label>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 bg-slate-50 text-xs" value={pegawaiJabatan} readOnly />
                 </div>
               </div>
             </div>
           </TopFormContainer>
 
-            {/* Tabel Inline menggunakan komponen DataTableMulti */}
-            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            {/* Tabel Inline */}
+            <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Riwayat Pemeriksaan / CPPT"
                 icon={<FaBed />}
