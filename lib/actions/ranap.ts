@@ -1676,3 +1676,306 @@ export async function getPemberianObat(noRawat: string) {
     return { success: false, message: "Gagal mengambil data obat", error: error.message, data: [] };
   }
 }
+
+/**
+ * Menyimpan data pemeriksaan/CPPT baru (Simpan).
+ * INSERT ke pemeriksaan_ranap + INSERT ke pemeriksaan_ranap_audit_trail (status='aktif').
+ * Meniru case 3 (Simpan) dari DlgRawatInap.java (lines 5465-5502).
+ */
+export async function simpanPemeriksaanRanap(data: {
+  no_rawat: string; tgl_perawatan: string; jam_rawat: string;
+  suhu_tubuh: string; tensi: string; nadi: string; respirasi: string;
+  tinggi: string; berat: string; spo2: string; gcs: string; kesadaran: string;
+  keluhan: string; pemeriksaan: string; alergi: string;
+  penilaian: string; rtl: string; instruksi: string; evaluasi: string; nip: string;
+}) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    const curTime = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+    // INSERT ke pemeriksaan_ranap (20 kolom)
+    const [insertResult]: any = await db.execute(`
+      INSERT INTO pemeriksaan_ranap (no_rawat, tgl_perawatan, jam_rawat, suhu_tubuh, tensi, nadi, respirasi, tinggi, berat, spo2, gcs, kesadaran, keluhan, pemeriksaan, alergi, penilaian, rtl, instruksi, evaluasi, nip)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      data.no_rawat, data.tgl_perawatan, data.jam_rawat,
+      data.suhu_tubuh, data.tensi, data.nadi, data.respirasi,
+      data.tinggi, data.berat, data.spo2, data.gcs, data.kesadaran,
+      data.keluhan, data.pemeriksaan, data.alergi,
+      data.penilaian, data.rtl, data.instruksi, data.evaluasi, data.nip,
+    ]);
+
+    // INSERT ke pemeriksaan_ranap_audit_trail (13 kolom)
+    await db.execute(`
+      INSERT INTO pemeriksaan_ranap_audit_trail (id_log, no_rawat, tgl_perawatan, jam_rawat, created_at, created_by, updated_at, updated_by, ket_edit, deleted_at, deleted_by, ket_hapus, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      null, data.no_rawat, data.tgl_perawatan, data.jam_rawat,
+      curTime, session.id, null, null, null, null, null, null, "aktif",
+    ]);
+
+    return { success: true, message: "Data pemeriksaan berhasil disimpan" };
+  } catch (error: any) {
+    console.error("Error saving pemeriksaan ranap:", error);
+    return { success: false, message: "Gagal menyimpan data pemeriksaan", error: error.message };
+  }
+}
+
+/**
+ * Mengedit/mengganti data pemeriksaan/CPPT (Ganti).
+ * 1. Mark data lama sbg 'direvisi' di audit_trail (insert jika blm ada, update jika sudah)
+ * 2. INSERT baris baru ke pemeriksaan_ranap
+ * 3. INSERT audit_trail baru dgn status='aktif'
+ * Jika langkah 2 gagal → rollback status audit_trail lama ke 'aktif'.
+ * Meniru case 3 (Ganti) dari DlgRawatInap.java (lines 6700-6776).
+ */
+export async function editPemeriksaanRanap(
+  oldData: { no_rawat: string; tgl_perawatan: string; jam_rawat: string },
+  newData: {
+    no_rawat: string; tgl_perawatan: string; jam_rawat: string;
+    suhu_tubuh: string; tensi: string; nadi: string; respirasi: string;
+    tinggi: string; berat: string; spo2: string; gcs: string; kesadaran: string;
+    keluhan: string; pemeriksaan: string; alergi: string;
+    penilaian: string; rtl: string; instruksi: string; evaluasi: string; nip: string;
+  },
+  alasan: string,
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    const pelaku = session.id;
+    const curTime = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+    // Cek apakah audit trail sudah ada untuk data lama
+    const [cekRows]: any = await db.execute(
+      "SELECT id_log FROM pemeriksaan_ranap_audit_trail WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=? LIMIT 1",
+      [oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat],
+    );
+
+    if (cekRows.length === 0) {
+      // Blm ada → INSERT data lama sbg 'direvisi'
+      await db.execute(`
+        INSERT INTO pemeriksaan_ranap_audit_trail (id_log, no_rawat, tgl_perawatan, jam_rawat, created_at, created_by, updated_at, updated_by, ket_edit, deleted_at, deleted_by, ket_hapus, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        null, oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat,
+        curTime, pelaku, null, null, alasan, null, null, null, "direvisi",
+      ]);
+    } else {
+      // Udah ada → UPDATE status ke 'direvisi'
+      await db.execute(`
+        UPDATE pemeriksaan_ranap_audit_trail SET updated_at=?, updated_by=?, ket_edit=?, status=?
+        WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?
+      `, [curTime, pelaku, alasan, "direvisi", oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat]);
+    }
+
+    const pkChanged =
+      oldData.no_rawat !== newData.no_rawat ||
+      oldData.tgl_perawatan !== newData.tgl_perawatan ||
+      oldData.jam_rawat !== newData.jam_rawat;
+
+    if (pkChanged) {
+      // PK berubah → INSERT baris baru, lalu INSERT audit trail baru
+      try {
+        await db.execute(`
+          INSERT INTO pemeriksaan_ranap (no_rawat, tgl_perawatan, jam_rawat, suhu_tubuh, tensi, nadi, respirasi, tinggi, berat, spo2, gcs, kesadaran, keluhan, pemeriksaan, alergi, penilaian, rtl, instruksi, evaluasi, nip)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          newData.no_rawat, newData.tgl_perawatan, newData.jam_rawat,
+          newData.suhu_tubuh, newData.tensi, newData.nadi, newData.respirasi,
+          newData.tinggi, newData.berat, newData.spo2, newData.gcs, newData.kesadaran,
+          newData.keluhan, newData.pemeriksaan, newData.alergi,
+          newData.penilaian, newData.rtl, newData.instruksi, newData.evaluasi, newData.nip,
+        ]);
+      } catch (insertErr: any) {
+        // Rollback: restore audit trail lama ke 'aktif'
+        await db.execute(
+          "UPDATE pemeriksaan_ranap_audit_trail SET status=? WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?",
+          ["aktif", oldData.no_rawat, oldData.tgl_perawatan, oldData.jam_rawat],
+        );
+        console.error("Error inserting new pemeriksaan row on edit:", insertErr);
+        return { success: false, message: "Gagal menyimpan data baru", error: insertErr.message };
+      }
+
+      await db.execute(`
+        INSERT INTO pemeriksaan_ranap_audit_trail (id_log, no_rawat, tgl_perawatan, jam_rawat, created_at, created_by, updated_at, updated_by, ket_edit, deleted_at, deleted_by, ket_hapus, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        null, newData.no_rawat, newData.tgl_perawatan, newData.jam_rawat,
+        curTime, pelaku, null, null, null, null, null, null, "aktif",
+      ]);
+    } else {
+      // PK sama → UPDATE baris yang ada
+      await db.execute(`
+        UPDATE pemeriksaan_ranap SET
+          suhu_tubuh=?, tensi=?, nadi=?, respirasi=?, tinggi=?, berat=?, spo2=?, gcs=?, kesadaran=?,
+          keluhan=?, pemeriksaan=?, alergi=?, penilaian=?, rtl=?, instruksi=?, evaluasi=?, nip=?
+        WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?
+      `, [
+        newData.suhu_tubuh, newData.tensi, newData.nadi, newData.respirasi,
+        newData.tinggi, newData.berat, newData.spo2, newData.gcs, newData.kesadaran,
+        newData.keluhan, newData.pemeriksaan, newData.alergi,
+        newData.penilaian, newData.rtl, newData.instruksi, newData.evaluasi, newData.nip,
+        newData.no_rawat, newData.tgl_perawatan, newData.jam_rawat,
+      ]);
+    }
+
+    return { success: true, message: "Data pemeriksaan berhasil diubah" };
+  } catch (error: any) {
+    console.error("Error editing pemeriksaan ranap:", error);
+    return { success: false, message: "Gagal mengubah data pemeriksaan", error: error.message };
+  }
+}
+
+/**
+ * Menghapus data pemeriksaan/CPPT (Hapus) — soft delete.
+ * UPDATE pemeriksaan_ranap_audit_trail SET deleted_at, deleted_by, ket_hapus, status='dibatalkan'.
+ * Meniru case 3 (Hapus) dari DlgRawatInap.java (lines 5907-5941).
+ */
+/**
+ * Mengambil data audit trail pemeriksaan/CPPT.
+ * Meniru tampil() dari AtRawatInap.java.
+ * Query langsung ke pemeriksaan_ranap_audit_trail (bukan pemeriksaan_ranap).
+ */
+export async function getPemeriksaanRanapAuditTrail(
+  noRawat: string = "",
+  keyword: string = "",
+  tglAwal: string = "",
+  tglAkhir: string = "",
+) {
+  try {
+    const params: any[] = [];
+
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal, tglAkhir);
+    }
+
+    let whereClause = tglAwal && tglAkhir
+      ? "WHERE pemeriksaan_ranap_audit_trail.tgl_perawatan BETWEEN ? AND ?"
+      : "WHERE 1=1";
+
+    if (noRawat.trim()) {
+      whereClause += " AND pemeriksaan_ranap_audit_trail.no_rawat = ?";
+      params.push(noRawat.trim());
+    }
+
+    if (keyword.trim()) {
+      whereClause += `
+        AND (
+          pemeriksaan_ranap_audit_trail.no_rawat LIKE ? OR
+          reg_periksa.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          pemeriksaan_ranap_audit_trail.status LIKE ? OR
+          pemeriksaan_ranap_audit_trail.created_by LIKE ? OR
+          pemeriksaan_ranap_audit_trail.updated_by LIKE ? OR
+          pemeriksaan_ranap_audit_trail.deleted_by LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 7; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT 
+        pemeriksaan_ranap_audit_trail.no_rawat,
+        reg_periksa.no_rkm_medis,
+        pasien.nm_pasien,
+        pemeriksaan_ranap_audit_trail.tgl_perawatan,
+        pemeriksaan_ranap_audit_trail.jam_rawat,
+        pemeriksaan_ranap_audit_trail.created_at,
+        pemeriksaan_ranap_audit_trail.created_by,
+        pemeriksaan_ranap_audit_trail.updated_at,
+        pemeriksaan_ranap_audit_trail.updated_by,
+        pemeriksaan_ranap_audit_trail.ket_edit,
+        pemeriksaan_ranap_audit_trail.deleted_at,
+        pemeriksaan_ranap_audit_trail.deleted_by,
+        pemeriksaan_ranap_audit_trail.ket_hapus,
+        pemeriksaan_ranap_audit_trail.status
+      FROM pemeriksaan_ranap_audit_trail
+      INNER JOIN reg_periksa ON pemeriksaan_ranap_audit_trail.no_rawat = reg_periksa.no_rawat
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      ${whereClause}
+      ORDER BY pemeriksaan_ranap_audit_trail.tgl_perawatan DESC, pemeriksaan_ranap_audit_trail.jam_rawat DESC
+    `;
+
+    const [rows]: any = await db.execute(query, params);
+
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      tgl_perawatan: row.tgl_perawatan instanceof Date ? row.tgl_perawatan.toISOString().split("T")[0] : row.tgl_perawatan,
+      created_at: row.created_at instanceof Date ? row.created_at.toISOString().slice(0, 19).replace("T", " ") : row.created_at,
+      updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString().slice(0, 19).replace("T", " ") : row.updated_at,
+      deleted_at: row.deleted_at instanceof Date ? row.deleted_at.toISOString().slice(0, 19).replace("T", " ") : row.deleted_at,
+    }));
+
+    return { success: true, data: formattedRows };
+  } catch (error: any) {
+    console.error("Error fetching audit trail:", error);
+    return { success: false, message: "Gagal mengambil data audit trail", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengambil detail pemeriksaan ranap berdasarkan no_rawat, tgl_perawatan, jam_rawat.
+ * Meniru getData() dari AtRawatInap.java — menampilkan nilai klinis dari tabel pemeriksaan_ranap.
+ */
+export async function getDetailPemeriksaanRanap(noRawat: string, tglPerawatan: string, jamRawat: string) {
+  try {
+    const query = `
+      SELECT suhu_tubuh, tensi, nadi, respirasi, tinggi, berat, spo2, gcs, kesadaran,
+             keluhan, pemeriksaan, alergi, penilaian, rtl, instruksi, evaluasi,
+             pemeriksaan_ranap.nip, pegawai.nama AS nm_pegawai, pegawai.jbtn
+      FROM pemeriksaan_ranap
+      LEFT JOIN pegawai ON pemeriksaan_ranap.nip = pegawai.nik
+      WHERE pemeriksaan_ranap.no_rawat = ? AND pemeriksaan_ranap.tgl_perawatan = ? AND pemeriksaan_ranap.jam_rawat = ?
+    `;
+    const [rows]: any = await db.execute(query, [noRawat, tglPerawatan, jamRawat]);
+    if (rows.length > 0) {
+      return { success: true, data: rows[0] };
+    }
+    return { success: false, message: "Data tidak ditemukan" };
+  } catch (error: any) {
+    console.error("Error fetching detail pemeriksaan:", error);
+    return { success: false, message: "Gagal mengambil detail pemeriksaan", error: error.message };
+  }
+}
+
+export async function hapusPemeriksaanRanap(
+  noRawat: string,
+  tglPerawatan: string,
+  jamRawat: string,
+  alasan: string,
+  nipPelaku: string,
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    const curTime = new Date().toISOString().slice(0, 19).replace("T", " ");
+    const pelaku = session.id;
+
+    // Soft delete: UPDATE audit trail
+    await db.execute(`
+      UPDATE pemeriksaan_ranap_audit_trail
+      SET deleted_at=?, deleted_by=?, ket_hapus=?, status=?
+      WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?
+    `, [curTime, pelaku, alasan, "dibatalkan", noRawat, tglPerawatan, jamRawat]);
+
+    return { success: true, message: "Data pemeriksaan berhasil dihapus" };
+  } catch (error: any) {
+    console.error("Error deleting pemeriksaan ranap:", error);
+    return { success: false, message: "Gagal menghapus data pemeriksaan", error: error.message };
+  }
+}

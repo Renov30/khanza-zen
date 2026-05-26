@@ -15,6 +15,7 @@ interface DataTableMultiProps {
   onSelectionChange: (ids: string[]) => void;
   isLoading?: boolean;
   emptyMessage?: string;
+  onRowClick?: (row: any) => void;
 }
 
 export default function DataTableMulti({
@@ -28,6 +29,7 @@ export default function DataTableMulti({
   onSelectionChange,
   isLoading = false,
   emptyMessage = "Tidak ada data ditemukan.",
+  onRowClick,
 }: DataTableMultiProps) {
   const allIds = data.map((item) => String(item[idKey]));
   const isAllSelected = data.length > 0 && selectedIds.length === data.length;
@@ -116,7 +118,7 @@ export default function DataTableMulti({
               return (
                 <tr
                   key={id}
-                  onClick={() => toggleRow(id)}
+                  onClick={() => { toggleRow(id); if (onRowClick) onRowClick(row); }}
                   className={`border-b border-slate-100 cursor-pointer transition-all duration-200
                     ${isSelected ? "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)]" : i % 2 === 0 ? "bg-white" : "bg-slate-50/80"} 
                     hover:bg-brand-50 hover:shadow-[inset_4px_0_0_0_var(--color-brand-500)]`}

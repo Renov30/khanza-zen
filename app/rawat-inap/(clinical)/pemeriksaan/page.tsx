@@ -6,11 +6,12 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { FaBed, FaEdit, FaExpand, FaCompress, FaSync, FaSearch } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
-import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai, simpanPemeriksaanRanap, editPemeriksaanRanap, hapusPemeriksaanRanap } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
 interface PemeriksaanRow {
+  id?: string;
   no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   tgl_perawatan: string; jam_rawat: string; suhu_tubuh: string;
   tensi: string; nadi: string; respirasi: string; tinggi: string;
@@ -79,12 +80,39 @@ function PemeriksaanContent() {
   const [tglAwal, setTglAwal] = useState(today);
   const [tglAkhir, setTglAkhir] = useState(today);
 
-  // Logged-in pegawai info (Feature 3 & 5)
+  // Logged-in pegawai info
   const [pegawaiNik, setPegawaiNik] = useState('');
   const [pegawaiNama, setPegawaiNama] = useState('');
   const [pegawaiJabatan, setPegawaiJabatan] = useState('');
 
-  // Real-time clock (Feature 4)
+  // Edit state
+  const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Alasan dialog
+  const [alasanDialog, setAlasanDialog] = useState<{ open: boolean; mode: 'ganti' | 'hapus' }>({ open: false, mode: 'ganti' });
+  const [alasanText, setAlasanText] = useState('');
+
+  // Form state — SOAPIE + TTV
+  const [formKeluhan, setFormKeluhan] = useState('');
+  const [formPemeriksaan, setFormPemeriksaan] = useState('');
+  const [formAlergi, setFormAlergi] = useState('');
+  const [formPenilaian, setFormPenilaian] = useState('');
+  const [formRtl, setFormRtl] = useState('');
+  const [formInstruksi, setFormInstruksi] = useState('');
+  const [formEvaluasi, setFormEvaluasi] = useState('');
+  const [formSuhu, setFormSuhu] = useState('');
+  const [formTensi, setFormTensi] = useState('');
+  const [formNadi, setFormNadi] = useState('');
+  const [formRespirasi, setFormRespirasi] = useState('');
+  const [formTinggi, setFormTinggi] = useState('');
+  const [formBerat, setFormBerat] = useState('');
+  const [formSpo2, setFormSpo2] = useState('');
+  const [formGcs, setFormGcs] = useState('');
+  const [formKesadaran, setFormKesadaran] = useState('');
+
+  // Real-time clock
   const [isClockRunning, setIsClockRunning] = useState(true);
   const [currentDate, setCurrentDate] = useState(today);
   const [currentTime, setCurrentTime] = useState(new Date().toTimeString().slice(0, 8));
@@ -124,7 +152,6 @@ function PemeriksaanContent() {
     try {
       const result = await getPemeriksaanRanap(nrw, kw, ta, tb);
       if (result.success && result.data) {
-        // Map data to include a unique ID for selection
         const mappedData = result.data.map((row: any, i: number) => ({
           ...row,
           id: `${row.tgl_perawatan}-${row.jam_rawat}-${i}`
@@ -144,7 +171,7 @@ function PemeriksaanContent() {
         setPegawaiNama(result.data.nama);
         setPegawaiJabatan(result.data.jabatan);
       }
-    } catch { /* fallback tetap kosong */ }
+    } catch { }
   }, []);
 
   useEffect(() => {
@@ -155,14 +182,185 @@ function PemeriksaanContent() {
     }
   }, [noRawatParam, fetchPatientInfo, fetchPemeriksaan, fetchPegawaiInfo]);
 
-  // Auto-refetch when patient, keyword, or date filters change
   useEffect(() => {
     if (noRawat) fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir);
   }, [noRawat, searchKeyword, tglAwal, tglAkhir]);
 
-  if (!mounted) return null;
+  const resetForm = () => {
+    setFormKeluhan('');
+    setFormPemeriksaan('');
+    setFormAlergi('');
+    setFormPenilaian('');
+    setFormRtl('');
+    setFormInstruksi('');
+    setFormEvaluasi('');
+    setFormSuhu('');
+    setFormTensi('');
+    setFormNadi('');
+    setFormRespirasi('');
+    setFormTinggi('');
+    setFormBerat('');
+    setFormSpo2('');
+    setFormGcs('');
+    setFormKesadaran('');
+    setSelectedRowIdx(null);
+    setIsEditMode(false);
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+  };
+
+  const populateFormFromRow = (row: PemeriksaanRow, idx: number) => {
+    setFormKeluhan(row.keluhan || '');
+    setFormPemeriksaan(row.pemeriksaan || '');
+    setFormAlergi(row.alergi || '');
+    setFormPenilaian(row.penilaian || '');
+    setFormRtl(row.rtl || '');
+    setFormInstruksi(row.instruksi || '');
+    setFormEvaluasi(row.evaluasi || '');
+    setFormSuhu(row.suhu_tubuh || '');
+    setFormTensi(row.tensi || '');
+    setFormNadi(row.nadi || '');
+    setFormRespirasi(row.respirasi || '');
+    setFormTinggi(row.tinggi || '');
+    setFormBerat(row.berat || '');
+    setFormSpo2(row.spo2 || '');
+    setFormGcs(row.gcs || '');
+    setFormKesadaran(row.kesadaran || '');
+    setCurrentDate(row.tgl_perawatan || today);
+    setCurrentTime(row.jam_rawat || '00:00:00');
+    setIsClockRunning(false);
+    setSelectedRowIdx(idx);
+    setIsEditMode(true);
+  };
+
+  const getFormData = () => ({
+    no_rawat: noRawat,
+    tgl_perawatan: currentDate,
+    jam_rawat: currentTime,
+    suhu_tubuh: formSuhu,
+    tensi: formTensi,
+    nadi: formNadi,
+    respirasi: formRespirasi,
+    tinggi: formTinggi,
+    berat: formBerat,
+    spo2: formSpo2,
+    gcs: formGcs,
+    kesadaran: formKesadaran,
+    keluhan: formKeluhan,
+    pemeriksaan: formPemeriksaan,
+    alergi: formAlergi,
+    penilaian: formPenilaian,
+    rtl: formRtl,
+    instruksi: formInstruksi,
+    evaluasi: formEvaluasi,
+    nip: pegawaiNik,
+  });
+
+  const isFormEmpty = () => {
+    return !formKeluhan.trim() && !formPemeriksaan.trim() && !formSuhu.trim() &&
+      !formTensi.trim() && !formAlergi.trim() && !formTinggi.trim() &&
+      !formBerat.trim() && !formRespirasi.trim() && !formNadi.trim() &&
+      !formGcs.trim() && !formRtl.trim() && !formPenilaian.trim() &&
+      !formInstruksi.trim() && !formSpo2.trim() && !formEvaluasi.trim();
+  };
+
+  // Handlers
+
+  const handleSave = async () => {
+    if (isFormEmpty()) { alert('Isi minimal satu data pemeriksaan terlebih dahulu!'); return; }
+    if (!pegawaiNik.trim()) { alert('Dokter/Paramedis masih kosong!'); return; }
+    setIsSaving(true);
+    try {
+      const result = await simpanPemeriksaanRanap(getFormData());
+      if (result.success) {
+        resetForm();
+        fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir);
+      } else {
+        alert(result.message || 'Gagal menyimpan data');
+      }
+    } catch (err: any) {
+      alert('Terjadi kesalahan: ' + err.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handleNew = () => {
+    resetForm();
+    setSelectedRows([]);
+  };
+
+  const handleReplace = async () => {
+    if (selectedRowIdx === null) { alert('Silahkan pilih data yang mau diganti dari tabel terlebih dahulu!'); return; }
+    if (isFormEmpty()) { alert('Isi minimal satu data pemeriksaan terlebih dahulu!'); return; }
+    if (!pegawaiNik.trim()) { alert('Dokter/Paramedis masih kosong!'); return; }
+    setAlasanText('');
+    setAlasanDialog({ open: true, mode: 'ganti' });
+  };
+
+  const confirmReplace = async () => {
+    if (!alasanText.trim()) { alert('Alasan tidak boleh kosong!'); return; }
+    setAlasanDialog({ open: false, mode: 'ganti' });
+    setIsSaving(true);
+    try {
+      const row = pemeriksaanData[selectedRowIdx!];
+      const result = await editPemeriksaanRanap(
+        { no_rawat: row.no_rawat, tgl_perawatan: row.tgl_perawatan, jam_rawat: row.jam_rawat },
+        getFormData(),
+        alasanText.trim(),
+      );
+      if (result.success) {
+        resetForm();
+        fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir);
+      } else {
+        alert(result.message || 'Gagal mengubah data');
+      }
+    } catch (err: any) {
+      alert('Terjadi kesalahan: ' + err.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handleDelete = async () => {
+    const idsToDelete = selectedRows;
+    if (idsToDelete.length === 0) { alert('Silahkan centang data yang mau dihapus terlebih dahulu!'); return; }
+    setAlasanText('');
+    setAlasanDialog({ open: true, mode: 'hapus' });
+  };
+
+  const confirmDelete = async () => {
+    if (!alasanText.trim()) { alert('Alasan tidak boleh kosong!'); return; }
+    setAlasanDialog({ open: false, mode: 'hapus' });
+    const idsToDelete = selectedRows;
+    setIsSaving(true);
+    try {
+      for (const id of idsToDelete) {
+        const row = pemeriksaanData.find(r => r.id === id);
+        if (!row) continue;
+        const result = await hapusPemeriksaanRanap(row.no_rawat, row.tgl_perawatan, row.jam_rawat, alasanText.trim(), pegawaiNik);
+        if (!result.success) {
+          alert(result.message || `Gagal menghapus data ${row.tgl_perawatan} ${row.jam_rawat}`);
+        }
+      }
+      setSelectedRows([]);
+      resetForm();
+      fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } catch (err: any) {
+      alert('Terjadi kesalahan: ' + err.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handlePrint = () => {
+    const url = `/rawat-inap/print/cppt?noRawat=${encodeURIComponent(noRawat)}&tglAwal=${encodeURIComponent(tglAwal)}&tglAkhir=${encodeURIComponent(tglAkhir)}`;
+    window.open(url, '_blank');
+  };
 
   const handleBottomSearch = () => fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir);
+
+  if (!mounted) return null;
 
   return (
     <>
@@ -181,7 +379,6 @@ function PemeriksaanContent() {
           <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-75 sm:w-35 bg-slate-50 focus:outline-none focus:border-brand-500"
             value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
         </div>
-        {/* Fitur 4: Tanggal/jam real-time */}
         <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
           <label className="font-semibold text-slate-600">Tanggal :</label>
           <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500"
@@ -218,31 +415,38 @@ function PemeriksaanContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Subjek (S)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Keluhan pasien..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Keluhan pasien..."
+                    value={formKeluhan} onChange={e => setFormKeluhan(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Alergi</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Alergi pasien..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Alergi pasien..."
+                    value={formAlergi} onChange={e => setFormAlergi(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Objek (O)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Hasil pemeriksaan..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Hasil pemeriksaan..."
+                    value={formPemeriksaan} onChange={e => setFormPemeriksaan(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Instruksi</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Instruksi medis..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Instruksi medis..."
+                    value={formInstruksi} onChange={e => setFormInstruksi(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Asesmen (A)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Diagnosis/Asesmen..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Diagnosis/Asesmen..."
+                    value={formPenilaian} onChange={e => setFormPenilaian(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Evaluasi</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Evaluasi tindakan..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Evaluasi tindakan..."
+                    value={formEvaluasi} onChange={e => setFormEvaluasi(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2 md:col-span-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Plan (P)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Rencana tindakan..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Rencana tindakan..."
+                    value={formRtl} onChange={e => setFormRtl(e.target.value)} />
                 </div>
               </div>
 
@@ -250,16 +454,51 @@ function PemeriksaanContent() {
               <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                 <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">Tanda-Tanda Vital (TTV)</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {[{ l: 'Suhu (°C)' }, { l: 'Tensi (mmHg)' }, { l: 'Berat (Kg)' }, { l: 'Tinggi (Cm)' }, { l: 'Respirasi (/mnt)' }, { l: 'Nadi (/mnt)' }, { l: 'SpO2 (%)' }, { l: 'GCS (E,V,M)' }].map(v => (
-                    <div key={v.l} className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">{v.l}</label>
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white" />
-                    </div>
-                  ))}
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Suhu (°C)</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formSuhu} onChange={e => setFormSuhu(e.target.value)} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Tensi (mmHg)</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formTensi} onChange={e => setFormTensi(e.target.value)} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Berat (Kg)</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formBerat} onChange={e => setFormBerat(e.target.value)} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Tinggi (Cm)</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formTinggi} onChange={e => setFormTinggi(e.target.value)} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Respirasi (/mnt)</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formRespirasi} onChange={e => setFormRespirasi(e.target.value)} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Nadi (/mnt)</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formNadi} onChange={e => setFormNadi(e.target.value)} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">SpO2 (%)</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formSpo2} onChange={e => setFormSpo2(e.target.value)} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">GCS (E,V,M)</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formGcs} onChange={e => setFormGcs(e.target.value)} />
+                  </div>
                   <div className="flex items-center gap-2">
                     <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Kesadaran</label>
-                    <select className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white">
-                      <option>-</option><option>Compos Mentis</option><option>Apatis</option><option>Somnolent</option><option>Sopor</option><option>Coma</option>
+                    <select className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                      value={formKesadaran} onChange={e => setFormKesadaran(e.target.value)}>
+                      <option value="">-</option><option value="Compos Mentis">Compos Mentis</option><option value="Apatis">Apatis</option><option value="Somnolent">Somnolent</option><option value="Sopor">Sopor</option><option value="Coma">Coma</option>
                     </select>
                   </div>
                 </div>
@@ -298,6 +537,10 @@ function PemeriksaanContent() {
                 onSelectionChange={setSelectedRows}
                 isLoading={isLoadingData}
                 emptyMessage="Tidak ada data pemeriksaan yang ditemukan."
+                onRowClick={(row: any) => {
+                  const idx = pemeriksaanData.findIndex(r => r.id === row.id);
+                  if (idx >= 0) populateFormFromRow(row, idx);
+                }}
               />
             </div>
 
@@ -338,9 +581,43 @@ function PemeriksaanContent() {
         )}
       </div>
 
+      {/* Dialog Alasan untuk Ganti/Hapus */}
+      <AnimatePresence>
+        {alasanDialog.open && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm"
+            onClick={() => setAlasanDialog({ ...alasanDialog, open: false })}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
+              className="bg-white rounded-xl shadow-2xl border border-slate-300 w-96 p-5"
+              onClick={e => e.stopPropagation()}>
+              <h3 className="font-bold text-sm text-slate-700 mb-3">
+                {alasanDialog.mode === 'ganti' ? 'Masukkan alasan edit data:' : 'Masukkan alasan hapus data:'}
+              </h3>
+              <textarea className="border border-slate-300 rounded p-2 w-full h-20 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                placeholder="Alasan..." value={alasanText} onChange={e => setAlasanText(e.target.value)} autoFocus />
+              <div className="flex justify-end gap-2 mt-3">
+                <button onClick={() => setAlasanDialog({ ...alasanDialog, open: false })}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded text-xs font-semibold text-slate-600 transition-colors">
+                  Batal
+                </button>
+                <button onClick={alasanDialog.mode === 'ganti' ? confirmReplace : confirmDelete}
+                  className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded text-xs font-semibold transition-colors">
+                  Konfirmasi
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Fitur 1 & 2: BottomPanel dengan filter periode + pencarian */}
       <BottomActionPanel
         recordCount={pemeriksaanData.length}
+        onSave={handleSave}
+        onNew={handleNew}
+        onReplace={handleReplace}
+        onDelete={handleDelete}
+        onPrint={handlePrint}
         onExit={() => router.push('/rawat-inap')}
         searchValue={searchKeyword}
         onSearchChange={setSearchKeyword}

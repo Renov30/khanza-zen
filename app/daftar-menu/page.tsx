@@ -25,6 +25,7 @@ import {
   FaPills,
   FaHospital,
   FaCog,
+  FaHistory,
 } from "react-icons/fa";
 
 // Constants for Mock Data
@@ -199,6 +200,14 @@ const MOCK_MENU_ITEMS = [
     icon: FaCog,
     link: "/setting",
     color: "text-brand-500",
+    category: 8,
+  },
+  {
+    id: 20,
+    label: "Log CPPT Ranap",
+    icon: FaHistory,
+    link: "/rawat-inap/audit-trail",
+    color: "text-amber-600",
     category: 8,
   },
 ];
