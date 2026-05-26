@@ -698,7 +698,7 @@ function SkriningNutrisiContent() {
     <>
       <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
         <div className="flex items-center gap-1 w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 min-w-[80px] sm:min-w-0">Pasien :</label>
+          <label className="font-semibold text-slate-600 shrink-0">Pasien :</label>
           <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-35 sm:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
         </div>
         <div className="flex items-center gap-1 w-full sm:w-auto">
@@ -721,12 +721,12 @@ function SkriningNutrisiContent() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex bg-white border-b border-slate-200 px-3 shrink-0 overflow-x-auto custom-scrollbar">
+      <div className="flex bg-white border-b border-slate-200 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {tabs.map(t => {
           const isActive = activeTab === t.id;
           return (
             <button key={t.id} onClick={() => { setActiveTab(t.id); setIsTableExpanded(false); setSelectedRows([]); }}
-              className={`px-4 py-2.5 text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 font-bold' : 'text-slate-500 hover:text-brand-600'}`}>
+              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 font-bold' : 'text-slate-500 hover:text-brand-600'}`}>
               {t.label}
               {isActive && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-full" />}
             </button>

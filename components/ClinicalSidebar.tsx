@@ -61,11 +61,29 @@ export default function ClinicalSidebar({
   const namaPasien = searchParams.get("nama") || "";
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     if (typeof window !== "undefined") {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) return false;
       const saved = localStorage.getItem("khanza_clinical_sidebar_open");
       if (saved !== null) return JSON.parse(saved);
     }
     return true;
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        setIsSidebarOpen(false);
+      } else {
+        const saved = localStorage.getItem("khanza_clinical_sidebar_open");
+        if (saved !== null) {
+          setIsSidebarOpen(JSON.parse(saved));
+        }
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [popoverParent, setPopoverParent] = useState<string | null>(null);

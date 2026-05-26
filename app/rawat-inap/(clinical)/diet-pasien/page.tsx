@@ -153,7 +153,7 @@ function DietPasienContent() {
     <>
       <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
         <div className="flex items-center gap-1 w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 min-w-[80px] sm:min-w-0">Pasien :</label>
+          <label className="font-semibold text-slate-600 shrink-0">Pasien :</label>
           <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-35 sm:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
         </div>
         <div className="flex items-center gap-1 w-full sm:w-auto">

@@ -104,9 +104,9 @@ export default function BottomActionPanel({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap sm:mr-2">
-          <span className="font-semibold text-slate-600">Pencarian :</span>
-          <div className="flex bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-brand-500 w-[250px]">
+        <div className="flex items-center gap-2 flex-wrap sm:mr-2 w-full sm:w-auto">
+          <span className="font-semibold text-slate-600 hidden sm:inline">Pencarian :</span>
+          <div className="flex bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-brand-500 w-full sm:w-[250px]">
             <input
               type="text"
               className="w-full bg-transparent outline-none px-2 py-1 text-slate-700"

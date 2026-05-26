@@ -170,7 +170,7 @@ function PemeriksaanContent() {
       {/* Bar Info Pasien Atas */}
       <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
         <div className="flex items-center gap-1 w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 min-w-[80px] sm:min-w-0">Pasien :</label>
+          <label className="font-semibold text-slate-600 shrink-0">Pasien :</label>
           <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-35 sm:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
         </div>
         <div className="flex items-center gap-1 w-full sm:w-auto">
@@ -194,13 +194,13 @@ function PemeriksaanContent() {
       </div>
 
       {/* Tab */}
-      <div className="flex bg-white border-b border-slate-200 px-3 shrink-0 overflow-x-auto custom-scrollbar">
+      <div className="flex bg-white border-b border-slate-200 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {['Penanganan Dokter', 'Penanganan Petugas', 'Penanganan Dokter & Petugas', 'Pemeriksaan / CPPT', 'Pemeriksaan Obstetri', 'Pemeriksaan Ginekologi'].map(tab => {
           const tabId = tab.toLowerCase().replace(/[^a-z0-9]/g, '');
           const isActive = activeTab === (tab === 'Pemeriksaan / CPPT' ? 'cppt' : tabId);
           return (
             <button key={tab} onClick={() => setActiveTab(tab === 'Pemeriksaan / CPPT' ? 'cppt' : tabId)}
-              className={`px-4 py-2.5 text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 font-bold' : 'text-slate-500 hover:text-brand-600'}`}>
+              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 font-bold' : 'text-slate-500 hover:text-brand-600'}`}>
               {tab}
               {isActive && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-full" />}
             </button>
@@ -214,50 +214,31 @@ function PemeriksaanContent() {
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Pemeriksaan / CPPT" persistenceKey="khanza_cppt_form_open">
               <div className="flex flex-col gap-5">
-              {/* Fitur 3 & 5: Petugas dari user yang login */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
-                  <div className="flex gap-1 flex-1">
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                    <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Jabatan / Dept</label>
-                  <div className="flex gap-1 flex-1">
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiJabatan} readOnly />
-                    <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
-                  </div>
-                </div>
-              </div>
-
               {/* SOAP, Instruksi & Alergi */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Subjek (S)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Keluhan pasien..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Keluhan pasien..." />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Alergi</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Alergi pasien..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Alergi pasien..." />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Objek (O)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Hasil pemeriksaan..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Hasil pemeriksaan..." />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Instruksi</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Instruksi medis..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Instruksi medis..." />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Asesmen (A)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Diagnosis/Asesmen..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Diagnosis/Asesmen..." />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Evaluasi</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Evaluasi tindakan..." />
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Evaluasi tindakan..." />
                 </div>
                 <div className="flex items-start gap-2 md:col-span-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Plan (P)</label>
@@ -280,6 +261,24 @@ function PemeriksaanContent() {
                     <select className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white">
                       <option>-</option><option>Compos Mentis</option><option>Apatis</option><option>Somnolent</option><option>Sopor</option><option>Coma</option>
                     </select>
+                  </div>
+                </div>
+              </div>
+              {/* Fitur 3 & 5: Petugas dari user yang login */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Dilakukan Oleh</label>
+                  <div className="flex gap-1 flex-1">
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                    <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Jabatan / Dept</label>
+                  <div className="flex gap-1 flex-1">
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiJabatan} readOnly />
+                    <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
                   </div>
                 </div>
               </div>
