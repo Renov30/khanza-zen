@@ -176,7 +176,6 @@ function AsuhanGiziContent() {
 
   const [pegawaiNik, setPegawaiNik] = useState('');
   const [pegawaiNama, setPegawaiNama] = useState('');
-  const [pegawaiJabatan, setPegawaiJabatan] = useState('');
 
   // Form state
   const [bb, setBb] = useState('');
@@ -346,7 +345,6 @@ function AsuhanGiziContent() {
       if (result.success && result.data) {
         setPegawaiNik(result.data.nik);
         setPegawaiNama(result.data.nama);
-        setPegawaiJabatan(result.data.jabatan);
       }
     } catch (e) { console.error('fetchPegawaiInfo error:', e); }
   }, []);

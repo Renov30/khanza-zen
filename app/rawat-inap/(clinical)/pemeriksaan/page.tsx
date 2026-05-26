@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaBed, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaBed, FaEdit, FaExpand, FaCompress } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai, simpanPemeriksaanRanap, editPemeriksaanRanap, hapusPemeriksaanRanap } from '@/lib/actions/ranap';
@@ -77,7 +77,6 @@ function PemeriksaanContent() {
   // Logged-in pegawai info
   const [pegawaiNik, setPegawaiNik] = useState('');
   const [pegawaiNama, setPegawaiNama] = useState('');
-  const [pegawaiJabatan, setPegawaiJabatan] = useState('');
 
   // Edit state
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
@@ -163,7 +162,6 @@ function PemeriksaanContent() {
       if (result.success && result.data) {
         setPegawaiNik(result.data.nik);
         setPegawaiNama(result.data.nama);
-        setPegawaiJabatan(result.data.jabatan);
       }
     } catch { }
   }, []);
@@ -407,19 +405,24 @@ function PemeriksaanContent() {
               {/* SOAP, Instruksi & Alergi */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-start gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Subjek (S)</label>
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Subjek</label>
                   <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Keluhan pasien..."
                     value={formKeluhan} onChange={e => setFormKeluhan(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Alergi</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Alergi pasien..."
-                    value={formAlergi} onChange={e => setFormAlergi(e.target.value)} />
-                </div>
-                <div className="flex items-start gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Objek (O)</label>
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Objek</label>
                   <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Hasil pemeriksaan..."
                     value={formPemeriksaan} onChange={e => setFormPemeriksaan(e.target.value)} />
+                </div>
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Asesmen</label>
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Diagnosis/Asesmen..."
+                    value={formPenilaian} onChange={e => setFormPenilaian(e.target.value)} />
+                </div>
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Plan</label>
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Rencana tindakan..."
+                    value={formRtl} onChange={e => setFormRtl(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Instruksi</label>
@@ -427,19 +430,14 @@ function PemeriksaanContent() {
                     value={formInstruksi} onChange={e => setFormInstruksi(e.target.value)} />
                 </div>
                 <div className="flex items-start gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Asesmen (A)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Diagnosis/Asesmen..."
-                    value={formPenilaian} onChange={e => setFormPenilaian(e.target.value)} />
-                </div>
-                <div className="flex items-start gap-2">
                   <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Evaluasi</label>
                   <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Evaluasi tindakan..."
                     value={formEvaluasi} onChange={e => setFormEvaluasi(e.target.value)} />
                 </div>
-                <div className="flex items-start gap-2 md:col-span-2">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Plan (P)</label>
-                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-20 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Rencana tindakan..."
-                    value={formRtl} onChange={e => setFormRtl(e.target.value)} />
+                <div className="flex items-start gap-2">
+                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">Alergi</label>
+                  <textarea className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs" placeholder="Alergi pasien..."
+                    value={formAlergi} onChange={e => setFormAlergi(e.target.value)} />
                 </div>
               </div>
 
@@ -497,15 +495,14 @@ function PemeriksaanContent() {
                 </div>
               </div>
               {/* Petugas */}
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-24 shrink-0">Dilakukan Oleh</label>
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-20 bg-slate-50 text-xs" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 bg-slate-50 text-xs" value={pegawaiNama} readOnly />
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-24 shrink-0">Jabatan</label>
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 bg-slate-50 text-xs" value={pegawaiJabatan} readOnly />
+                  <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                  <div className="flex gap-1 flex-1">
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                    <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                  </div>
                 </div>
               </div>
             </div>

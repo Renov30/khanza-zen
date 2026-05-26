@@ -162,7 +162,7 @@ export async function getLoggedInPegawai() {
     const userId = session.id;
 
     const query = `
-      SELECT pegawai.nik, pegawai.nama, pegawai.jbtn
+      SELECT pegawai.nik, pegawai.nama
       FROM pegawai
       WHERE pegawai.nik = ?
     `;
@@ -174,7 +174,6 @@ export async function getLoggedInPegawai() {
         data: {
           nik: rows[0].nik,
           nama: rows[0].nama,
-          jabatan: rows[0].jbtn,
         },
       };
     }
@@ -185,7 +184,6 @@ export async function getLoggedInPegawai() {
       data: {
         nik: userId,
         nama: userId,
-        jabatan: "-",
       },
     };
   } catch (error: any) {
