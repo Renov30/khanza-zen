@@ -154,14 +154,14 @@ function DietPasienContent() {
       <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
         <div className="flex items-center gap-1 w-full sm:w-auto">
           <label className="font-semibold text-slate-600 shrink-0">Pasien :</label>
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-35 sm:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
         </div>
         <div className="flex items-center gap-1 w-full sm:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-20 sm:w-16 bg-slate-50 focus:outline-none focus:border-brand-500"
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-16 bg-slate-50 focus:outline-none focus:border-brand-500"
             value={isLoadingPatient ? '...' : noRM} readOnly placeholder="No. RM" />
         </div>
         <div className="flex items-center gap-1 w-full md:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-75 sm:w-35 bg-slate-50 focus:outline-none focus:border-brand-500"
+          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-70 bg-slate-50 focus:outline-none focus:border-brand-500"
             value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
         </div>
         <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
