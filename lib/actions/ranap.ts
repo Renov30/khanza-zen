@@ -168,12 +168,15 @@ export async function getLoggedInPegawai() {
     `;
     const [rows]: any = await db.execute(query, [userId]);
 
+    const isAdmin = session.role === 'admin';
+
     if (rows.length > 0) {
       return {
         success: true,
         data: {
           nik: rows[0].nik,
           nama: rows[0].nama,
+          is_admin: isAdmin,
         },
       };
     }
@@ -184,6 +187,7 @@ export async function getLoggedInPegawai() {
       data: {
         nik: userId,
         nama: userId,
+        is_admin: isAdmin,
       },
     };
   } catch (error: any) {
@@ -1232,9 +1236,18 @@ export async function getRiwayatSoapie(
         tgl_verifikasi: row.tgl_verifikasi,
       }));
 
+      // DPJP info
+      const [dpjpRows]: any = await db.execute(`
+        SELECT dpjp_ranap.kd_dokter, dokter.nm_dokter
+        FROM dpjp_ranap
+        INNER JOIN dokter ON dpjp_ranap.kd_dokter = dokter.kd_dokter
+        WHERE dpjp_ranap.no_rawat = ?
+      `, [noR]);
+
       result.push({
         tglReg: visit.tgl_registrasi instanceof Date ? visit.tgl_registrasi.toISOString().split('T')[0] : visit.tgl_registrasi,
         no_rawat: noR,
+        dpjp: dpjpRows.map((r: any) => ({ kd_dokter: r.kd_dokter, nm_dokter: r.nm_dokter })),
         entries,
       });
     }
@@ -2013,11 +2026,265 @@ export async function hapusPemeriksaanRanap(
       WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?
     `, [curTime, pelaku, alasan, "dibatalkan", noRawat, tglPerawatan, jamRawat]);
 
+    // Cleanup verifikasi_soap_ranap (meniru DlgRawatInap.java baris 5928-5930)
+    await db.execute(`
+      DELETE FROM verifikasi_soap_ranap
+      WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?
+    `, [noRawat, tglPerawatan, jamRawat]);
+
     logCppt('HAPUS', pelaku, noRawat, 'BERHASIL', `Data ${tglPerawatan} ${jamRawat} dihapus. Alasan: ${alasan}`);
     return { success: true, message: "Data pemeriksaan berhasil dihapus" };
   } catch (error: any) {
     console.error("Error deleting pemeriksaan ranap:", error);
     logCppt('HAPUS', 'system', noRawat, 'GAGAL', 'Gagal menghapus data pemeriksaan', error.message);
     return { success: false, message: "Gagal menghapus data pemeriksaan", error: error.message };
+  }
+}
+
+// ──────────────────────────────────────────────
+// VERIFIKASI DPJP (Dokter Penanggung Jawab Pelayanan)
+// ──────────────────────────────────────────────
+
+/**
+ * Cek apakah user login terdaftar sebagai DPJP untuk pasien ini.
+ */
+export async function cekApakahDPJP(noRawat: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, isDPJP: false, message: "Sesi tidak ditemukan" };
+    }
+    const [rows]: any = await db.execute(
+      "SELECT COUNT(1) AS cnt FROM dpjp_ranap WHERE no_rawat=? AND kd_dokter=?",
+      [noRawat, session.id],
+    );
+    const isDPJP = Number(rows[0]?.cnt) > 0;
+    return { success: true, isDPJP, message: isDPJP ? "User adalah DPJP" : "User bukan DPJP" };
+  } catch (error: any) {
+    console.error("Error cek DPJP:", error);
+    return { success: false, isDPJP: false, message: "Gagal cek DPJP", error: error.message };
+  }
+}
+
+/**
+ * Mendapatkan daftar DPJP untuk suatu no_rawat.
+ */
+export async function getDaftarDPJP(noRawat: string) {
+  try {
+    const [rows]: any = await db.execute(`
+      SELECT dpjp_ranap.kd_dokter, dokter.nm_dokter
+      FROM dpjp_ranap
+      INNER JOIN dokter ON dpjp_ranap.kd_dokter = dokter.kd_dokter
+      WHERE dpjp_ranap.no_rawat = ?
+    `, [noRawat]);
+    return { success: true, data: rows.map((r: any) => ({ kd_dokter: r.kd_dokter, nm_dokter: r.nm_dokter })) };
+  } catch (error: any) {
+    console.error("Error get daftar DPJP:", error);
+    return { success: false, data: [], message: error.message };
+  }
+}
+
+/**
+ * Verifikasi satu SOAP Ranap.
+ * Hanya DPJP atau Admin Utama yang bisa verifikasi.
+ */
+export async function verifikasiSoapRanap(
+  noRawat: string,
+  tglPerawatan: string,
+  jamRawat: string,
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    // Cek apakah user adalah DPJP
+    const [dpjpRows]: any = await db.execute(
+      "SELECT COUNT(1) AS cnt FROM dpjp_ranap WHERE no_rawat=? AND kd_dokter=?",
+      [noRawat, session.id],
+    );
+    const isAdmin = session.role === 'admin';
+    const isDPJP = Number(dpjpRows[0]?.cnt) > 0;
+
+    if (!isDPJP && !isAdmin) {
+      return { success: false, message: "Hanya DPJP atau Admin Utama yang dapat memverifikasi SOAP" };
+    }
+
+    // Cek audit trail — hanya data 'aktif' yang bisa diverifikasi
+    const [auditRows]: any = await db.execute(`
+      SELECT status FROM pemeriksaan_ranap_audit_trail
+      WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?
+    `, [noRawat, tglPerawatan, jamRawat]);
+
+    if (auditRows.length > 0 && auditRows[0].status !== 'aktif') {
+      return { success: false, message: "Data sudah direvisi atau dibatalkan, tidak bisa diverifikasi!" };
+    }
+
+    const curTime = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+    await db.execute(`
+      INSERT INTO verifikasi_soap_ranap (verifikasi, no_rawat, tgl_perawatan, jam_rawat, tgl_verifikasi)
+      VALUES (?, ?, ?, ?, ?)
+    `, [session.id, noRawat, tglPerawatan, jamRawat, curTime]);
+
+    return { success: true, message: "Verifikasi berhasil" };
+  } catch (error: any) {
+    console.error("Error verifikasi SOAP ranap:", error);
+    if (error.code === 'ER_DUP_ENTRY') {
+      return { success: false, message: "Data sudah diverifikasi sebelumnya" };
+    }
+    return { success: false, message: "Gagal melakukan verifikasi", error: error.message };
+  }
+}
+
+/**
+ * Hapus verifikasi satu SOAP Ranap.
+ * Hanya pembuat verifikasi atau Admin Utama yang bisa hapus.
+ */
+export async function hapusVerifikasiSoapRanap(
+  noRawat: string,
+  tglPerawatan: string,
+  jamRawat: string,
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    // Cek siapa yang memverifikasi
+    const [verifRows]: any = await db.execute(
+      "SELECT verifikasi FROM verifikasi_soap_ranap WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?",
+      [noRawat, tglPerawatan, jamRawat],
+    );
+
+    if (verifRows.length === 0) {
+      return { success: false, message: "Data verifikasi tidak ditemukan" };
+    }
+
+    const isAdmin = session.role === 'admin';
+    const isOwner = session.id === verifRows[0].verifikasi;
+
+    if (!isAdmin && !isOwner) {
+      return { success: false, message: "Tidak bisa menghapus verifikasi. Hanya pembuat verifikasi atau Admin Utama yang dapat menghapus." };
+    }
+
+    await db.execute(
+      "DELETE FROM verifikasi_soap_ranap WHERE no_rawat=? AND tgl_perawatan=? AND jam_rawat=?",
+      [noRawat, tglPerawatan, jamRawat],
+    );
+
+    return { success: true, message: "Verifikasi berhasil dihapus" };
+  } catch (error: any) {
+    console.error("Error hapus verifikasi SOAP ranap:", error);
+    return { success: false, message: "Gagal menghapus verifikasi", error: error.message };
+  }
+}
+
+/**
+ * Verifikasi semua SOAP yang belum diverifikasi pada suatu tanggal.
+ */
+export async function bulkVerifikasiSoapRanap(noRawat: string, tglPerawatan: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    const isAdmin = session.role === 'admin';
+    const [dpjpRows]: any = await db.execute(
+      "SELECT COUNT(1) AS cnt FROM dpjp_ranap WHERE no_rawat=? AND kd_dokter=?",
+      [noRawat, session.id],
+    );
+    if (!isAdmin && Number(dpjpRows[0]?.cnt) === 0) {
+      return { success: false, message: "Hanya DPJP atau Admin Utama yang dapat memverifikasi SOAP" };
+    }
+
+    const curTime = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+    // Ambil semua SOAP pada tanggal tsb yang belum diverifikasi
+    const [soapRows]: any = await db.execute(`
+      SELECT pemeriksaan_ranap.jam_rawat
+      FROM pemeriksaan_ranap
+      LEFT JOIN verifikasi_soap_ranap
+        ON pemeriksaan_ranap.no_rawat = verifikasi_soap_ranap.no_rawat
+        AND pemeriksaan_ranap.tgl_perawatan = verifikasi_soap_ranap.tgl_perawatan
+        AND pemeriksaan_ranap.jam_rawat = verifikasi_soap_ranap.jam_rawat
+      LEFT JOIN pemeriksaan_ranap_audit_trail
+        ON pemeriksaan_ranap.no_rawat = pemeriksaan_ranap_audit_trail.no_rawat
+        AND pemeriksaan_ranap.tgl_perawatan = pemeriksaan_ranap_audit_trail.tgl_perawatan
+        AND pemeriksaan_ranap.jam_rawat = pemeriksaan_ranap_audit_trail.jam_rawat
+      WHERE pemeriksaan_ranap.no_rawat = ?
+        AND pemeriksaan_ranap.tgl_perawatan = ?
+        AND verifikasi_soap_ranap.verifikasi IS NULL
+        AND (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
+    `, [noRawat, tglPerawatan]);
+
+    if (soapRows.length === 0) {
+      return { success: true, message: "Semua SOAP sudah diverifikasi" };
+    }
+
+    let berhasil = 0;
+    let gagal = 0;
+
+    for (const row of soapRows) {
+      try {
+        await db.execute(`
+          INSERT INTO verifikasi_soap_ranap (verifikasi, no_rawat, tgl_perawatan, jam_rawat, tgl_verifikasi)
+          VALUES (?, ?, ?, ?, ?)
+        `, [session.id, noRawat, tglPerawatan, row.jam_rawat, curTime]);
+        berhasil++;
+      } catch {
+        gagal++;
+      }
+    }
+
+    return {
+      success: true,
+      message: `Verifikasi massal selesai: ${berhasil} berhasil, ${gagal} gagal`,
+      berhasil,
+      gagal,
+    };
+  } catch (error: any) {
+    console.error("Error bulk verifikasi SOAP ranap:", error);
+    return { success: false, message: "Gagal melakukan verifikasi massal", error: error.message };
+  }
+}
+
+/**
+ * Hapus semua verifikasi pada suatu tanggal.
+ */
+export async function hapusBulkVerifikasiSoapRanap(noRawat: string, tglPerawatan: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    const isAdmin = session.role === 'admin';
+    const [dpjpRows]: any = await db.execute(
+      "SELECT COUNT(1) AS cnt FROM dpjp_ranap WHERE no_rawat=? AND kd_dokter=?",
+      [noRawat, session.id],
+    );
+    if (!isAdmin && Number(dpjpRows[0]?.cnt) === 0) {
+      return { success: false, message: "Hanya DPJP atau Admin Utama yang dapat menghapus verifikasi" };
+    }
+
+    const [result]: any = await db.execute(
+      "DELETE FROM verifikasi_soap_ranap WHERE no_rawat=? AND tgl_perawatan=?",
+      [noRawat, tglPerawatan],
+    );
+
+    const terhapus = result.affectedRows || 0;
+    return { success: true, message: `${terhapus} verifikasi berhasil dihapus`, terhapus };
+  } catch (error: any) {
+    console.error("Error bulk hapus verifikasi SOAP ranap:", error);
+    return { success: false, message: "Gagal menghapus verifikasi massal", error: error.message };
   }
 }

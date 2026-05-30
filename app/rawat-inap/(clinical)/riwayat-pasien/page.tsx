@@ -13,8 +13,13 @@ import {
   getPemeriksaanRanapRiwayat, getTindakanRanapDokter,
   getTindakanRanapParamedis, getPenggunaanKamar, getResumeRanap,
   getOperasiPasien, getRadiologiPasien, getLaboratPasien, getPemberianObat,
-  getPasienInfo, getPatientInfoByNoRawat
+  getPasienInfo, getPatientInfoByNoRawat,
+  getLoggedInPegawai, cekApakahDPJP,
+  verifikasiSoapRanap, hapusVerifikasiSoapRanap,
+  bulkVerifikasiSoapRanap, hapusBulkVerifikasiSoapRanap,
+  getDaftarDPJP,
 } from '@/lib/actions/ranap';
+import QRCodeDisplay from '@/components/QRCodeDisplay';
 
 interface KunjunganRow {
   id: string; no_rawat: string; tgl_registrasi: string; jam_reg: string;
@@ -31,7 +36,7 @@ interface SoapEntry {
   verifikasi: string; tgl_verifikasi: string;
 }
 
-interface SoapGroup { tglReg: string; no_rawat: string; entries: SoapEntry[]; }
+interface SoapGroup { tglReg: string; no_rawat: string; dpjp: Array<{ kd_dokter: string; nm_dokter: string }>; entries: SoapEntry[]; }
 
 interface PerawatanSection {
   id: string; label: string; icon: React.ReactNode;
@@ -85,6 +90,19 @@ function RiwayatPasienContent() {
   const [resolvedNmPasien, setResolvedNmPasien] = useState(nmPasienParam);
   const [showPasienInfo, setShowPasienInfo] = useState(false);
   const [pasienInfo, setPasienInfo] = useState<any>(null);
+
+  // User info + DPJP
+  const [pegawaiNik, setPegawaiNik] = useState('');
+  const [pegawaiNama, setPegawaiNama] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [dpjpCache, setDpjpCache] = useState<Record<string, string[]>>({});
+  const [verifLoading, setVerifLoading] = useState<string | null>(null);
+
+  // Confirm dialog untuk verifikasi
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean; title: string; message: string;
+    action: () => Promise<void>;
+  }>({ open: false, title: '', message: '', action: async () => {} });
 
   const [isClockRunning, setIsClockRunning] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
@@ -161,6 +179,14 @@ function RiwayatPasienContent() {
     setMounted(true);
 
     const initFromNoRawat = async () => {
+      // Fetch logged-in user info
+      const pegRes = await getLoggedInPegawai();
+      if (pegRes.success && pegRes.data) {
+        setPegawaiNik(pegRes.data.nik);
+        setPegawaiNama(pegRes.data.nama);
+        setIsAdmin(!!pegRes.data.is_admin);
+      }
+
       if (noRawatParam) {
         const patientRes = await getPatientInfoByNoRawat(noRawatParam);
         if (patientRes.success && patientRes.data) {
@@ -169,6 +195,11 @@ function RiwayatPasienContent() {
           setResolvedNmPasien(patientRes.data.nm_pasien);
           const infoRes = await getPasienInfo(patientRes.data.no_rkm_medis);
           if (infoRes.success && infoRes.data) setPasienInfo(infoRes.data);
+          // Pre-cache DPJP
+          const dpjpRes = await getDaftarDPJP(noRawatParam);
+          if (dpjpRes.success) {
+            setDpjpCache(prev => ({ ...prev, [noRawatParam]: dpjpRes.data.map((d: any) => d.kd_dokter) }));
+          }
         }
       } else if (noRMParam) {
         setResolvedNoRM(noRMParam);
@@ -192,6 +223,50 @@ function RiwayatPasienContent() {
       enabled.forEach(s => fetchSectionData(selectedVisit, s));
     }
   }, [selectedVisit, checkedSections, fetchSectionData]);
+
+  // Cache DPJP per no_rawat saat soapieData berubah
+  useEffect(() => {
+    soapieData.forEach(async (group) => {
+      if (!dpjpCache[group.no_rawat]) {
+        const res = await getDaftarDPJP(group.no_rawat);
+        if (res.success) {
+          setDpjpCache(prev => ({ ...prev, [group.no_rawat]: res.data.map((d: any) => d.kd_dokter) }));
+        }
+      }
+    });
+  }, [soapieData]);
+
+  // Handlers verifikasi
+  const handleBulkVerifikasi = async (noRawat: string, tglPerawatan: string) => {
+    setVerifLoading(`bulk-${noRawat}-${tglPerawatan}`);
+    const res = await bulkVerifikasiSoapRanap(noRawat, tglPerawatan);
+    if (res.success) {
+      if (res.message !== "Semua SOAP sudah diverifikasi") {
+        alert(res.message);
+      }
+      fetchSoapie();
+    } else {
+      alert(res.message);
+    }
+    setVerifLoading(null);
+  };
+
+  const handleBulkHapus = async (noRawat: string, tglPerawatan: string) => {
+    setVerifLoading(`bulkhapus-${noRawat}-${tglPerawatan}`);
+    const res = await hapusBulkVerifikasiSoapRanap(noRawat, tglPerawatan);
+    if (res.success) {
+      if (res.terhapus > 0) alert(res.message);
+      fetchSoapie();
+    } else {
+      alert(res.message);
+    }
+    setVerifLoading(null);
+  };
+
+  const isUserDPJP = (noRawat: string): boolean => {
+    const dpjpList = dpjpCache[noRawat] || [];
+    return isAdmin || dpjpList.includes(pegawaiNik);
+  };
 
   if (!mounted) return null;
 
@@ -405,11 +480,15 @@ function RiwayatPasienContent() {
                 <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" /></div>
               ) : soapieData.length === 0 ? (
                 <div className="text-center py-8 text-slate-400 text-xs italic">Tidak ada data SOAPIE ditemukan.</div>
-              ) : soapieData.map((group, gi) => (
+              ) : soapieData.map((group, gi) => {
+                const userCanVerify = isUserDPJP(group.no_rawat);
+                const dpjpNames = group.dpjp?.map((d: any) => d.nm_dokter).join(', ') || '-';
+                return (
                 <div key={gi} className="mb-6">
-                  <div className="flex items-center gap-3 mb-3 text-xs">
+                  <div className="flex items-center gap-3 mb-3 text-xs flex-wrap">
                     <span className="font-bold text-brand-700 bg-brand-50 px-3 py-1 rounded-full">Tgl.Reg: {group.tglReg}</span>
                     <span className="font-semibold text-slate-600">No.Rawat: {group.no_rawat}</span>
+                    <span className="text-slate-500 italic text-[11px]">DPJP: {dpjpNames}</span>
                   </div>
                   <div className="border border-slate-200 rounded-lg overflow-hidden">
                     <div className="bg-slate-100 text-[11px] font-bold text-slate-600 grid grid-cols-12 gap-0">
@@ -421,6 +500,7 @@ function RiwayatPasienContent() {
                       <div className="col-span-2 p-2">Verifikasi DPJP</div>
                     </div>
                     {group.entries.map((entry, ei) => (
+
                       <div key={ei} className={`grid grid-cols-12 gap-0 text-xs border-t border-slate-200 ${ei % 2 === 0 ? "bg-white" : "bg-slate-50/50"}`}>
                         <div className="col-span-1 p-2 border-r border-slate-200 text-center font-semibold text-brand-700">{entry.status}</div>
                         <div className="col-span-1 p-2 border-r border-slate-200 text-slate-600">{entry.tglJam}</div>
@@ -437,20 +517,105 @@ function RiwayatPasienContent() {
                           </div>
                         </div>
                         <div className="col-span-2 p-2 border-r border-slate-200 text-slate-600">{entry.instruksi || '-'}</div>
-                        <div className="col-span-2 p-2">
+                        <div className="col-span-2 p-2 flex flex-col items-center gap-1">
                           {entry.verifikasi ? (
-                            <span className="text-green-600 font-semibold text-[11px] bg-green-50 px-2 py-0.5 rounded-full">
-                              Terverifikasi {entry.tgl_verifikasi}
-                            </span>
+                            <>
+                              <QRCodeDisplay
+                                value={entry.verifikasi}
+                                size={80}
+                                label={entry.verifikasi}
+                                sublabel={entry.tgl_verifikasi}
+                              />
+                              {(userCanVerify || isAdmin) && (
+                                <button
+                                  onClick={() => {
+                                    const tgl = entry.tglJam.split(' ')[0];
+                                    const jam = entry.tglJam.split(' ')[1] || '';
+                                    setConfirmDialog({
+                                      open: true,
+                                      title: 'Hapus Verifikasi',
+                                      message: `Hapus verifikasi SOAP untuk ${tgl} ${jam}?`,
+                                      action: async () => {
+                                        const res = await hapusVerifikasiSoapRanap(group.no_rawat, tgl, jam);
+                                        if (!res.success) alert(res.message);
+                                        fetchSoapie();
+                                      },
+                                    });
+                                  }}
+                                  className="text-[10px] px-2 py-0.5 bg-red-50 text-red-600 border border-red-200 rounded hover:bg-red-100 transition-colors">
+                                  Hapus
+                                </button>
+                              )}
+                            </>
                           ) : (
-                            <span className="text-slate-400 italic text-[11px]">Belum Verifikasi</span>
+                            <>
+                              <span className="text-slate-400 italic text-[11px] mb-1">Belum Verifikasi</span>
+                              {userCanVerify && (
+                                <button
+                                  onClick={() => {
+                                    const parts = entry.tglJam.split(' ');
+                                    const tgl = parts[0];
+                                    const jam = parts[1] || '';
+                                    setConfirmDialog({
+                                      open: true,
+                                      title: 'Verifikasi SOAP',
+                                      message: `Verifikasi SOAP untuk ${tgl} ${jam}?`,
+                                      action: async () => {
+                                        const res = await verifikasiSoapRanap(group.no_rawat, tgl, jam);
+                                        if (!res.success) alert(res.message);
+                                        fetchSoapie();
+                                      },
+                                    });
+                                  }}
+                                  className="text-[10px] px-2 py-0.5 bg-green-50 text-green-700 border border-green-200 rounded hover:bg-green-100 transition-colors">
+                                  Verifikasi
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
                     ))}
                   </div>
+                  {/* Bulk actions per group */}
+                  {userCanVerify && group.entries.some(e => !e.verifikasi) && (
+                    <div className="flex items-center gap-2 mt-2 px-1">
+                      <button
+                        onClick={() => {
+                          setConfirmDialog({
+                            open: true,
+                            title: 'Verifikasi Semua',
+                            message: `Verifikasi semua SOAP yang belum diverifikasi pada tanggal ini?`,
+                            action: async () => {
+                              await handleBulkVerifikasi(group.no_rawat, group.tglReg);
+                            },
+                          });
+                        }}
+                        disabled={verifLoading === `bulk-${group.no_rawat}-${group.tglReg}`}
+                        className="text-[10px] px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50">
+                        {verifLoading === `bulk-${group.no_rawat}-${group.tglReg}` ? 'Memverifikasi...' : 'Verifikasi Semua SOAP'}
+                      </button>
+                      {group.entries.some(e => e.verifikasi) && (
+                        <button
+                          onClick={() => {
+                            setConfirmDialog({
+                              open: true,
+                              title: 'Hapus Semua Verifikasi',
+                              message: `Hapus semua verifikasi SOAP pada tanggal ini?`,
+                              action: async () => {
+                                await handleBulkHapus(group.no_rawat, group.tglReg);
+                              },
+                            });
+                          }}
+                          disabled={verifLoading === `bulkhapus-${group.no_rawat}-${group.tglReg}`}
+                          className="text-[10px] px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50">
+                          {verifLoading === `bulkhapus-${group.no_rawat}-${group.tglReg}` ? 'Menghapus...' : 'Hapus Semua Verifikasi'}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-              ))}
+              );})}
             </motion.div>
           )}
 
@@ -530,6 +695,35 @@ function RiwayatPasienContent() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Confirm Dialog */}
+      <AnimatePresence>
+        {confirmDialog.open && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm"
+            onClick={() => setConfirmDialog(prev => ({ ...prev, open: false }))}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
+              className="bg-white rounded-xl shadow-2xl border border-slate-300 w-96 p-5"
+              onClick={e => e.stopPropagation()}>
+              <h3 className="font-bold text-sm text-slate-700 mb-2">{confirmDialog.title}</h3>
+              <p className="text-xs text-slate-600 mb-4">{confirmDialog.message}</p>
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded text-xs font-semibold text-slate-600 transition-colors">
+                  Batal
+                </button>
+                <button onClick={async () => {
+                  await confirmDialog.action();
+                  setConfirmDialog(prev => ({ ...prev, open: false }));
+                }}
+                  className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded text-xs font-semibold transition-colors">
+                  Konfirmasi
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* BottomActionPanel */}
       <BottomActionPanel
