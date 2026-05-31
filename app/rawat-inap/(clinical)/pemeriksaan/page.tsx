@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaBed, FaEdit, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaBed, FaEdit, FaExpand, FaCompress, FaExclamationTriangle } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
-import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai, simpanPemeriksaanRanap, editPemeriksaanRanap, hapusPemeriksaanRanap } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai, simpanPemeriksaanRanap, editPemeriksaanRanap, hapusPemeriksaanRanap, cekVerifSOAPSebelumnya } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
@@ -82,6 +82,11 @@ function PemeriksaanContent() {
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Verifikasi SOAP sebelumnya
+  const [isVerifBlocked, setIsVerifBlocked] = useState(false);
+  const [verifBlockMessage, setVerifBlockMessage] = useState('');
+  const [isCheckingVerif, setIsCheckingVerif] = useState(false);
 
   // Alasan dialog
   const [alasanDialog, setAlasanDialog] = useState<{ open: boolean; mode: 'ganti' | 'hapus' }>({ open: false, mode: 'ganti' });
@@ -166,13 +171,33 @@ function PemeriksaanContent() {
     } catch { }
   }, []);
 
+  const checkVerifSebelumnya = useCallback(async (nrw: string) => {
+    if (!nrw.trim()) return;
+    setIsCheckingVerif(true);
+    try {
+      const result = await cekVerifSOAPSebelumnya(nrw);
+      if (result.success && !result.allowed) {
+        setIsVerifBlocked(true);
+        setVerifBlockMessage(result.message || 'SOAP sebelumnya belum diverifikasi');
+      } else {
+        setIsVerifBlocked(false);
+        setVerifBlockMessage('');
+      }
+    } catch {
+      setIsVerifBlocked(false);
+      setVerifBlockMessage('');
+    }
+    setIsCheckingVerif(false);
+  }, []);
+
   useEffect(() => {
     setMounted(true);
     fetchPegawaiInfo();
     if (noRawatParam) {
       fetchPatientInfo(noRawatParam);
+      checkVerifSebelumnya(noRawatParam);
     }
-  }, [noRawatParam, fetchPatientInfo, fetchPemeriksaan, fetchPegawaiInfo]);
+  }, [noRawatParam, fetchPatientInfo, fetchPemeriksaan, fetchPegawaiInfo, checkVerifSebelumnya]);
 
   useEffect(() => {
     if (noRawat) fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir);
@@ -261,6 +286,7 @@ function PemeriksaanContent() {
   // Handlers
 
   const handleSave = async () => {
+    if (isVerifBlocked) { alert('Tidak dapat menyimpan: SOAP sebelumnya belum diverifikasi. Harap selesaikan verifikasi terlebih dahulu.'); return; }
     if (isFormEmpty()) { alert('Isi minimal satu data pemeriksaan terlebih dahulu!'); return; }
     if (!pegawaiNik.trim()) { alert('Dokter/Paramedis masih kosong!'); return; }
     setIsSaving(true);
@@ -284,6 +310,7 @@ function PemeriksaanContent() {
   };
 
   const handleReplace = async () => {
+    if (isVerifBlocked && isEditMode) { alert('Tidak dapat mengganti: SOAP sebelumnya belum diverifikasi. Harap selesaikan verifikasi terlebih dahulu.'); return; }
     if (selectedRowIdx === null) { alert('Silahkan pilih data yang mau diganti dari tabel terlebih dahulu!'); return; }
     if (isFormEmpty()) { alert('Isi minimal satu data pemeriksaan terlebih dahulu!'); return; }
     if (!pegawaiNik.trim()) { alert('Dokter/Paramedis masih kosong!'); return; }
@@ -400,8 +427,22 @@ function PemeriksaanContent() {
       <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
         {activeTab === 'cppt' && (
           <div className="flex flex-col min-h-full w-full">
+            {/* Warning banner jika SOAP sebelumnya belum diverifikasi */}
+            <AnimatePresence>
+              {isVerifBlocked && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                  className="mx-2 mt-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 shadow-sm">
+                  <FaExclamationTriangle className="text-red-500 mt-0.5 shrink-0" />
+                  <div className="text-xs text-red-700">
+                    <p className="font-semibold">SOAP Sebelumnya Belum Diverifikasi</p>
+                    <p className="mt-0.5">{verifBlockMessage}</p>
+                    <p className="mt-1 text-red-500">Harap selesaikan verifikasi SOAP pada tanggal sebelumnya sebelum mengisi SOAP baru.</p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <TopFormContainer title="Form Input Pemeriksaan / CPPT" persistenceKey="khanza_cppt_form_open">
-              <div className="flex flex-col gap-5">
+              <div className={`flex flex-col gap-5 ${isVerifBlocked ? 'opacity-50 pointer-events-none select-none' : ''}`}>
               {/* SOAP, Instruksi & Alergi */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-start gap-2">

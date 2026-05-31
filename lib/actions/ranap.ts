@@ -2041,6 +2041,111 @@ export async function hapusPemeriksaanRanap(
   }
 }
 
+/**
+ * Cek verifikasi SOAP sebelumnya — hanya untuk DPJP.
+ * Jika ada SOAP pada hari terakhir (sebelum hari ini) yang belum diverifikasi,
+ * maka pembuatan SOAP baru diblokir.
+ * Meniru cekVerifSOAPSebelumnya() dari DlgRawatInap.java (line 11054-11201).
+ */
+export async function cekVerifSOAPSebelumnya(noRawat: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, allowed: true, message: "Sesi tidak ditemukan" };
+    }
+
+    // 1. Cek apakah user adalah DPJP
+    const [dpjpRows]: any = await db.execute(
+      "SELECT COUNT(1) AS cnt FROM dpjp_ranap WHERE no_rawat=? AND kd_dokter=?",
+      [noRawat, session.id],
+    );
+    const isDPJP = Number(dpjpRows[0]?.cnt) > 0;
+
+    if (!isDPJP) {
+      return { success: true, allowed: true, message: "User bukan DPJP, tidak perlu verifikasi sebelumnya" };
+    }
+
+    // 2. Cari tanggal perawatan terakhir yang bukan hari ini (UNION ranap + ralan)
+    const [tglRows]: any = await db.execute(`
+      SELECT MAX(tgl_perawatan) AS tgl_terakhir
+      FROM (
+        SELECT tgl_perawatan FROM pemeriksaan_ranap WHERE no_rawat = ? AND tgl_perawatan < CURDATE()
+        UNION
+        SELECT tgl_perawatan FROM pemeriksaan_ralan WHERE no_rawat = ? AND tgl_perawatan < CURDATE()
+      ) AS semua_periksa
+    `, [noRawat, noRawat]);
+
+    if (tglRows.length === 0 || !tglRows[0].tgl_terakhir) {
+      return { success: true, allowed: true, message: "Tidak ada pemeriksaan sebelumnya" };
+    }
+
+    const tglTerakhir = tglRows[0].tgl_terakhir instanceof Date
+      ? tglRows[0].tgl_terakhir.toISOString().split("T")[0]
+      : tglRows[0].tgl_terakhir;
+
+    // 3. Hitung jumlah pemeriksaan pada tanggal terakhir (ranap + ralan, hanya status='aktif')
+    const [jmlRanap]: any = await db.execute(`
+      SELECT COUNT(1) AS jumlah
+      FROM pemeriksaan_ranap
+      LEFT JOIN pemeriksaan_ranap_audit_trail
+        ON pemeriksaan_ranap.no_rawat = pemeriksaan_ranap_audit_trail.no_rawat
+        AND pemeriksaan_ranap.tgl_perawatan = pemeriksaan_ranap_audit_trail.tgl_perawatan
+        AND pemeriksaan_ranap.jam_rawat = pemeriksaan_ranap_audit_trail.jam_rawat
+      WHERE pemeriksaan_ranap.no_rawat = ?
+        AND pemeriksaan_ranap.tgl_perawatan = ?
+        AND (pemeriksaan_ranap_audit_trail.status = 'aktif' OR pemeriksaan_ranap_audit_trail.status IS NULL)
+    `, [noRawat, tglTerakhir]);
+    const jumlahRanap = Number(jmlRanap[0]?.jumlah) || 0;
+
+    const [jmlRalan]: any = await db.execute(`
+      SELECT COUNT(1) AS jumlah
+      FROM pemeriksaan_ralan
+      LEFT JOIN pemeriksaan_ralan_audit_trail
+        ON pemeriksaan_ralan.no_rawat = pemeriksaan_ralan_audit_trail.no_rawat
+        AND pemeriksaan_ralan.tgl_perawatan = pemeriksaan_ralan_audit_trail.tgl_perawatan
+        AND pemeriksaan_ralan.jam_rawat = pemeriksaan_ralan_audit_trail.jam_rawat
+      WHERE pemeriksaan_ralan.no_rawat = ?
+        AND pemeriksaan_ralan.tgl_perawatan = ?
+        AND (pemeriksaan_ralan_audit_trail.status = 'aktif' OR pemeriksaan_ralan_audit_trail.status IS NULL)
+    `, [noRawat, tglTerakhir]);
+    const jumlahRalan = Number(jmlRalan[0]?.jumlah) || 0;
+
+    const jumlahPeriksa = jumlahRanap + jumlahRalan;
+
+    // 4. Hitung jumlah verifikasi pada tanggal tersebut (ranap + ralan)
+    const [verifRanap]: any = await db.execute(
+      "SELECT COUNT(1) AS jumlah FROM verifikasi_soap_ranap WHERE no_rawat=? AND tgl_perawatan=?",
+      [noRawat, tglTerakhir],
+    );
+    const jumlahVerifRanap = Number(verifRanap[0]?.jumlah) || 0;
+
+    const [verifRalan]: any = await db.execute(
+      "SELECT COUNT(1) AS jumlah FROM verifikasi_soap_ralan WHERE no_rawat=? AND tgl_perawatan=?",
+      [noRawat, tglTerakhir],
+    );
+    const jumlahVerifRalan = Number(verifRalan[0]?.jumlah) || 0;
+
+    const jumlahVerif = jumlahVerifRanap + jumlahVerifRalan;
+
+    if (jumlahVerif >= jumlahPeriksa) {
+      return { success: true, allowed: true, message: `Semua SOAP tanggal ${tglTerakhir} sudah diverifikasi (${jumlahVerif}/${jumlahPeriksa})` };
+    }
+
+    return {
+      success: true,
+      allowed: false,
+      message: `SOAP tanggal ${tglTerakhir} belum diverifikasi (${jumlahVerif}/${jumlahPeriksa})`,
+      tglTerakhir,
+      jumlahPeriksa,
+      jumlahVerif,
+    };
+  } catch (error: any) {
+    console.error("Error cek verif sebelumnya:", error);
+    return { success: false, allowed: true, message: "Gagal cek verifikasi sebelumnya", error: error.message };
+  }
+}
+
 // ──────────────────────────────────────────────
 // VERIFIKASI DPJP (Dokter Penanggung Jawab Pelayanan)
 // ──────────────────────────────────────────────
