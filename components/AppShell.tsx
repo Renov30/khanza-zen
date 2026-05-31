@@ -153,7 +153,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           />
           <ToolbarMenuItem
             icon={<FaQuestionCircle className="text-sky-300" />}
-            label="Helpdesk"
+            label="Bantuan"
           />
           <ToolbarMenuItem
             icon={<FaCommentDots className="text-teal-300" />}
@@ -161,7 +161,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           />
           <ToolbarMenuItem
             icon={<FaBook className="text-blue-200" />}
-            label="Tentang Program"
+            label="Tentang"
           />
         </div>
       </motion.nav>
