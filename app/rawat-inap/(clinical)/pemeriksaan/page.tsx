@@ -435,30 +435,7 @@ function PemeriksaanContent() {
   return (
     <>
 
-      {/* Bar Info Pasien Atas */}
-      <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
-        <div className="flex items-center gap-1 w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 shrink-0">Pasien :</label>
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
-        </div>
-        <div className="flex items-center gap-1 w-full sm:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-16 bg-slate-50 focus:outline-none focus:border-brand-500"
-            value={isLoadingPatient ? '...' : noRM} readOnly placeholder="No. RM" />
-        </div>
-        <div className="flex items-center gap-1 w-full md:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-70 bg-slate-50 focus:outline-none focus:border-brand-500"
-            value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
-        </div>
-        <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
-          <label className="font-semibold text-slate-600">Tanggal :</label>
-          <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500"
-            value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-          <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white"
-            value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-          <input type="checkbox" className="accent-brand-500 w-4 h-4 ml-2 opacity-60"
-            checked={isClockRunning} disabled title="Jam selalu real-time" />
-        </div>
-      </div>
+
 
       {/* Tab */}
       <div className="flex bg-white border-b border-slate-200 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
@@ -493,8 +470,26 @@ function PemeriksaanContent() {
                 </motion.div>
               )}
             </AnimatePresence>
-            <TopFormContainer title="Form Input Pemeriksaan / CPPT" isOpen={formOpen}>
+              <TopFormContainer title="Form Input Pemeriksaan / CPPT" isOpen={formOpen}>
               <div className={`flex flex-col gap-5 ${isVerifBlocked ? 'opacity-50 pointer-events-none select-none' : ''}`}>
+              {/* Info Pasien & Tanggal */}
+              <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200 flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <label className="text-xs font-semibold text-slate-600 shrink-0">No.Rawat</label>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-28 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                </div>
+                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-14 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-52 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+                <div className="ml-auto flex items-center gap-1.5">
+                  <label className="text-xs font-semibold text-slate-600 shrink-0">Tanggal</label>
+                  <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500"
+                    value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                  <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-22 focus:outline-none focus:border-brand-500 bg-white"
+                    value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                  <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60"
+                    checked={isClockRunning} disabled title="Jam selalu real-time" />
+                </div>
+              </div>
               {/* SOAP, Instruksi & Alergi */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-start gap-2">
@@ -536,7 +531,6 @@ function PemeriksaanContent() {
 
               {/* TTV */}
               <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">Tanda-Tanda Vital (TTV)</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <div className="flex items-center gap-2">
                     <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">Suhu (°C)</label>
