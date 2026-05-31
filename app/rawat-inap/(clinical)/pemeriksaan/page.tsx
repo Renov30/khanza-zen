@@ -118,6 +118,23 @@ function PemeriksaanContent() {
   const [formGcs, setFormGcs] = useState('');
   const [formKesadaran, setFormKesadaran] = useState('');
 
+  // Form open/close state (toggled via table title click)
+  const [formOpen, setFormOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("khanza_cppt_form_open");
+      if (saved !== null) return JSON.parse(saved);
+    }
+    return true;
+  });
+
+  const toggleForm = useCallback(() => {
+    setFormOpen((prev: boolean) => {
+      const next = !prev;
+      if (typeof window !== "undefined") localStorage.setItem("khanza_cppt_form_open", JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   // Real-time clock
   const [isClockRunning, setIsClockRunning] = useState(true);
   const [currentDate, setCurrentDate] = useState(today);
@@ -476,7 +493,7 @@ function PemeriksaanContent() {
                 </motion.div>
               )}
             </AnimatePresence>
-            <TopFormContainer title="Form Input Pemeriksaan / CPPT" persistenceKey="khanza_cppt_form_open">
+            <TopFormContainer title="Form Input Pemeriksaan / CPPT" isOpen={formOpen}>
               <div className={`flex flex-col gap-5 ${isVerifBlocked ? 'opacity-50 pointer-events-none select-none' : ''}`}>
               {/* SOAP, Instruksi & Alergi */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -593,6 +610,8 @@ function PemeriksaanContent() {
                 title="Riwayat Pemeriksaan / CPPT"
                 icon={<FaBed />}
                 onRefresh={handleBottomSearch}
+                onTitleClick={toggleForm}
+                titleChevronOpen={formOpen}
                 columns={columns}
                 data={pemeriksaanData}
                 idKey="id"

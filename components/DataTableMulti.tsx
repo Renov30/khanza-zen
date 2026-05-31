@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
-import { FaSync } from "react-icons/fa";
+import { FaSync, FaChevronDown } from "react-icons/fa";
+import { motion } from "framer-motion";
 import { TableColumn } from "./TableTypes";
 
 interface DataTableMultiProps {
   title?: string;
   icon?: React.ReactNode;
   onRefresh?: () => void;
+  onTitleClick?: () => void;
+  titleChevronOpen?: boolean;
   columns: TableColumn[];
   data: any[];
   idKey: string;
@@ -22,6 +25,8 @@ export default function DataTableMulti({
   title,
   icon,
   onRefresh,
+  onTitleClick,
+  titleChevronOpen,
   columns,
   data,
   idKey,
@@ -53,10 +58,19 @@ export default function DataTableMulti({
   return (
     <div className="flex flex-col flex-1 overflow-hidden h-full">
       {title && (
-        <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
+        <div className={`bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0 ${onTitleClick ? 'cursor-pointer select-none' : ''}`}
+          onClick={onTitleClick}>
           <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
             {icon && <span className="text-brand-600">{icon}</span>}
             {title}
+            {onTitleClick && (
+              <motion.span
+                animate={{ rotate: titleChevronOpen ? 180 : 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <FaChevronDown className="text-xs text-brand-800" />
+              </motion.span>
+            )}
           </h2>
           {onRefresh && (
             <button
