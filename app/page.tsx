@@ -8,8 +8,13 @@ export default function Home() {
   const { instansi, logoUrl, wallpaperUrl } = useSetting();
 
   const namaInstansi = instansi?.namaInstansi || "";
-  const alamatInstansi = [instansi?.alamatInstansi, instansi?.kabupaten, instansi?.propinsi]
-    .filter(Boolean).join(", ");
+  const alamatInstansi = [
+    instansi?.alamatInstansi,
+    instansi?.kabupaten,
+    instansi?.propinsi,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30">
@@ -37,11 +42,11 @@ export default function Home() {
           />
           <div className="flex flex-col">
             <h1 className="text-base sm:text-lg font-extrabold text-slate-800 tracking-tight italic flex items-center gap-2">
-              <span className="text-brand-700">RS</span> {namaInstansi || "SUKACITA BANTUL"}
+              {namaInstansi || "KHANZA ZEN"}
             </h1>
             <p className="text-[10px] sm:text-xs font-semibold text-slate-600 mt-0.5 flex items-center gap-1">
               <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-brand-500 inline-block animate-pulse"></span>
-              {alamatInstansi || "GUWOSARI, Pajangan, Bantul"}
+              {alamatInstansi || "SIMRS Lightweight Berbasis Web"}
             </p>
           </div>
         </div>
