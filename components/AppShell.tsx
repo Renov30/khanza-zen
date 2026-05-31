@@ -137,7 +137,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.15 }}
-            className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 text-white flex overflow-x-auto whitespace-nowrap px-2 py-0.5 lg:py-1 shadow-md z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 dark:bg-slate-800/80 dark:[background-image:none] dark:backdrop-blur-md text-white dark:text-slate-200 flex overflow-x-auto whitespace-nowrap px-2 py-0.5 lg:py-1 shadow-md z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
             <div className="flex items-center gap-1 w-max">
               <ToolbarMenuItem
@@ -250,7 +250,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Container Profil User Tetap (Tanpa Clipping Overflow) */}
-            <div className="flex items-center pl-4 bg-white/20">
+            <div className="flex items-center pl-4">
               {!isLoggedIn ? (
                 <ShortcutMenuItem
                   icon={
@@ -272,9 +272,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* Area Konten Utama */}
           <main className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30 dark:bg-slate-900">
-            <div className="absolute inset-0 w-full h-full">
-              {children}
-            </div>
+            <div className="absolute inset-0 w-full h-full">{children}</div>
           </main>
 
           {/* Menu Konteks */}
@@ -513,7 +511,7 @@ function ProfileMenu({
   return (
     <div className="relative">
       <div
-        className="flex items-center gap-3 px-3 py-1.5 cursor-pointer hover:bg-brand-100/40 rounded-xl transition-all duration-150 border border-transparent hover:border-brand-200/50 dark:hover:border-white/10 hover:shadow-sm group/account"
+        className="flex items-center gap-3 px-3 py-1.5 cursor-pointer hover:bg-brand-100/40 dark:hover:bg-slate-700 rounded-xl transition-all duration-150 border border-transparent hover:border-brand-200/50 dark:hover:border-white/10 hover:shadow-sm group/account"
         onClick={(e) => {
           e.stopPropagation();
           onToggle(!isOpen);
@@ -544,20 +542,19 @@ function ProfileMenu({
               </span>
               <span className="text-[10px] text-emerald-500">Online</span>
             </div>
-            <button
-              className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-medium"
-            >
+            <button className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-medium">
               <FaUser className="text-slate-400 dark:text-slate-300" />
               <span>Profile</span>
             </button>
-            <button
-              className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-medium"
-            >
+            <button className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-medium">
               <FaBell className="text-slate-400 dark:text-slate-300" />
               <span>Notifications</span>
             </button>
             <button
-              onClick={() => { router.push("/setting"); onToggle(false); }}
+              onClick={() => {
+                router.push("/setting");
+                onToggle(false);
+              }}
               className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-medium"
             >
               <FaCog className="text-slate-400 dark:text-slate-300" />
