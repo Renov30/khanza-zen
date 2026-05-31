@@ -242,7 +242,7 @@ export default function DaftarMenuPage() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
-      className="flex h-full w-full bg-slate-50/50 dark:bg-slate-900 overflow-hidden relative rounded-tl-xl shadow-inner border-t border-l border-white"
+      className="flex h-full w-full bg-slate-50/50 dark:bg-slate-900 overflow-hidden relative rounded-tl-xl shadow-inner border-t border-l border-white dark:border-t-white/5 dark:border-l-white/5"
     >
       {/* Kontrol Sidebar / Animasi */}
       <AnimatePresence initial={false}>

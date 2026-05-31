@@ -486,7 +486,7 @@ function ShortcutMenuItem({
           : "rgba(209,250,229,0.3)",
       }}
       transition={{ duration: 0.1 }}
-      className={`group flex flex-col items-center justify-center gap-0.5 md:gap-1 min-w-[44px] md:min-w-[70px] lg:min-w-[76px] p-1 md:p-2 rounded-xl transition-all duration-150 border ${active ? "border-brand-200 bg-brand-50/60 shadow-sm" : "border-transparent"} hover:border-brand-100 hover:shadow-sm relative overflow-hidden`}
+      className={`group flex flex-col items-center justify-center gap-0.5 md:gap-1 min-w-[44px] md:min-w-[70px] lg:min-w-[76px] p-1 md:p-2 rounded-xl transition-all duration-150 border ${active ? "border-brand-200 bg-brand-50/60 shadow-sm" : "border-transparent"} hover:border-brand-100 dark:hover:border-white/10 hover:shadow-sm relative overflow-hidden`}
     >
       <span
         className={`text-lg md:text-xl lg:text-2xl drop-shadow-sm z-10 ${active && !isRed ? "text-brand-600" : "dark:text-slate-300"}`}
@@ -520,7 +520,7 @@ function ProfileMenu({
   return (
     <div className="relative">
       <div
-        className="flex items-center gap-3 px-3 py-1.5 cursor-pointer hover:bg-brand-100/40 rounded-xl transition-all duration-150 border border-transparent hover:border-brand-200/50 hover:shadow-sm group/account"
+        className="flex items-center gap-3 px-3 py-1.5 cursor-pointer hover:bg-brand-100/40 rounded-xl transition-all duration-150 border border-transparent hover:border-brand-200/50 dark:hover:border-white/10 hover:shadow-sm group/account"
         onClick={(e) => {
           e.stopPropagation();
           onToggle(!isOpen);
