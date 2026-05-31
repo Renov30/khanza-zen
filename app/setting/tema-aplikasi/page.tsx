@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -10,9 +10,6 @@ import {
   FaTimes,
   FaCheck,
   FaPaintBrush,
-  FaEye,
-  FaSun,
-  FaMoon,
 } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +30,8 @@ export default function TemaAplikasiPage() {
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
+  const originalWarna = useRef<Record<string, string> | null>(null);
+  const originalId = useRef<number | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -46,7 +45,10 @@ export default function TemaAplikasiPage() {
         setPalettes(palettesRes.data);
       }
       if (activeRes.success && activeRes.data) {
-        setSelectedId(activeRes.data.theme.themePaletteId);
+        const activeId = activeRes.data.theme.themePaletteId;
+        setSelectedId(activeId);
+        originalId.current = activeId;
+        originalWarna.current = { ...activeRes.data.palette.warna };
       }
       setIsLoading(false);
     };
@@ -67,6 +69,8 @@ export default function TemaAplikasiPage() {
       const palette = palettes.find((p) => p.id === selectedId);
       if (palette) {
         applyThemeColors(palette.warna);
+        originalWarna.current = { ...palette.warna };
+        originalId.current = selectedId;
       }
       refreshTheme();
     }
@@ -74,10 +78,23 @@ export default function TemaAplikasiPage() {
     setIsSaving(false);
   };
 
+  const handleCancel = () => {
+    if (originalWarna.current) {
+      applyThemeColors(originalWarna.current);
+    }
+    if (originalId.current !== null) {
+      setSelectedId(originalId.current);
+    }
+    setMessage("");
+    router.back();
+  };
+
   const handlePreview = (palette: ThemePalette) => {
     applyThemeColors(palette.warna);
     setSelectedId(palette.id);
   };
+
+  const hasChanged = selectedId !== originalId.current;
 
   if (isLoading) {
     return (
@@ -195,159 +212,34 @@ export default function TemaAplikasiPage() {
             </div>
           </div>
 
-          {/* Preview Tema */}
-          <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-            <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">
-              <FaEye className="text-brand-500" />
-              Preview Tema
-            </h3>
-            <p className="text-xs text-slate-500 mb-4">
-              Lihat bagaimana tampilan tema dalam mode terang dan mode gelap.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Light Mode */}
-              <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
-                <div className="px-4 py-2 border-b border-slate-100 font-bold text-sm flex items-center gap-2 bg-slate-50">
-                  <FaSun className="text-amber-400" />
-                  Mode Terang
-                </div>
-                <div className="p-4 space-y-3">
-                  <div className="border border-slate-200 rounded-lg p-3 space-y-2">
-                    <h4 className="font-bold text-slate-800 text-sm">
-                      Judul Card
-                    </h4>
-                    <p className="text-xs text-slate-500">
-                      Contoh konten untuk melihat bagaimana tema terlihat dalam
-                      mode terang.
-                    </p>
-                    <div className="flex gap-2 pt-1">
-                      <button className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-1.5 rounded-md transition-colors">
-                        Simpan
-                      </button>
-                      <button className="border border-slate-300 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-md hover:bg-slate-50 transition-colors">
-                        Batal
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-700">
-                      Contoh Input
-                    </label>
-                    <input
-                      className="w-full border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
-                      placeholder="Ketik sesuatu..."
-                      readOnly
-                    />
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <span className="bg-brand-100 text-brand-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      Active
-                    </span>
-                    <span className="bg-slate-100 text-slate-500 text-[10px] font-medium px-2.5 py-0.5 rounded-full">
-                      Pending
-                    </span>
-                    <span className="bg-red-100 text-red-600 text-[10px] font-medium px-2.5 py-0.5 rounded-full">
-                      Error
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Dark Mode */}
-              <div
-                className="rounded-xl border border-slate-600/50 overflow-hidden"
-                style={{ backgroundColor: "#0f172a", color: "#e2e8f0" }}
-              >
-                <div
-                  className="px-4 py-2 border-b font-bold text-sm flex items-center gap-2"
-                  style={{ borderColor: "#1e293b", backgroundColor: "#1e293b" }}
-                >
-                  <FaMoon className="text-indigo-400" />
-                  Mode Gelap
-                </div>
-                <div className="p-4 space-y-3">
-                  <div
-                    className="border rounded-lg p-3 space-y-2"
-                    style={{
-                      borderColor: "#334155",
-                      backgroundColor: "#1e293b",
-                    }}
-                  >
-                    <h4 className="font-bold text-slate-100 text-sm">
-                      Judul Card
-                    </h4>
-                    <p className="text-xs text-slate-400">
-                      Contoh konten untuk melihat bagaimana tema terlihat dalam
-                      mode gelap.
-                    </p>
-                    <div className="flex gap-2 pt-1">
-                      <button className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-1.5 rounded-md transition-colors">
-                        Simpan
-                      </button>
-                      <button
-                        className="border text-xs font-bold px-3 py-1.5 rounded-md transition-colors"
-                        style={{ borderColor: "#475569", color: "#94a3b8" }}
-                      >
-                        Batal
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label
-                      className="text-xs font-medium"
-                      style={{ color: "#94a3b8" }}
-                    >
-                      Contoh Input
-                    </label>
-                    <input
-                      className="w-full border rounded-md px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-400"
-                      style={{
-                        borderColor: "#475569",
-                        backgroundColor: "#0f172a",
-                        color: "#e2e8f0",
-                      }}
-                      placeholder="Ketik sesuatu..."
-                      readOnly
-                    />
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <span className="bg-brand-600 text-brand-100 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      Active
-                    </span>
-                    <span
-                      className="text-[10px] font-medium px-2.5 py-0.5 rounded-full"
-                      style={{ backgroundColor: "#334155", color: "#94a3b8" }}
-                    >
-                      Pending
-                    </span>
-                    <span
-                      className="text-[10px] font-medium px-2.5 py-0.5 rounded-full"
-                      style={{ backgroundColor: "#7f1d1d", color: "#fca5a5" }}
-                    >
-                      Error
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div className="flex justify-end gap-2">
+            {hasChanged ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCancel}
+                className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 shadow-sm transition-all font-bold text-[11px]"
+              >
+                <FaTimes />
+                Batal
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => router.back()}
+                className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 hover:text-red-600 shadow-sm transition-all font-bold text-[11px]"
+              >
+                <FaTimes />
+                Keluar
+              </Button>
+            )}
             <Button
               type="button"
-              variant="outline"
               size="sm"
-              onClick={() => router.back()}
-              className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 shadow-sm transition-all font-bold text-[11px]"
-            >
-              <FaTimes />
-              Batal
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              disabled={isSaving || !selectedId}
+              disabled={isSaving || !selectedId || !hasChanged}
               onClick={handleApply}
               className="bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-sm text-[11px]"
             >
