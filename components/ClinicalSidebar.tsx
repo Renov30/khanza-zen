@@ -13,7 +13,9 @@ import {
   FaBars,
   FaSearch,
   FaChevronDown,
+  FaCircle,
 } from "react-icons/fa";
+import { cekResumePasien } from "@/lib/actions/ranap";
 
 interface MenuItem {
   icon: React.ReactNode;
@@ -84,6 +86,18 @@ export default function ClinicalSidebar({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+  const [isResumeFilled, setIsResumeFilled] = useState(false);
+
+  useEffect(() => {
+    if (noRawat) {
+      cekResumePasien(noRawat).then(res => {
+        if (res.success) setIsResumeFilled(res.isFilled);
+      }).catch(() => setIsResumeFilled(false));
+    } else {
+      setIsResumeFilled(false);
+    }
+  }, [noRawat]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [popoverParent, setPopoverParent] = useState<string | null>(null);
@@ -267,7 +281,14 @@ export default function ClinicalSidebar({
                 >
                   {item.icon}
                 </span>
-                {isSidebarOpen && <span>{item.label}</span>}
+                {isSidebarOpen && (
+                  <span className="flex items-center gap-1.5">
+                    {item.label}
+                    {item.label === "Resume Pasien" && (
+                      <FaCircle className={`text-[8px] ${isResumeFilled ? 'text-green-500' : 'text-red-500'}`} title={isResumeFilled ? 'Resume sudah diisi' : 'Resume belum diisi'} />
+                    )}
+                  </span>
+                )}
               </div>
             );
           })}

@@ -3,10 +3,13 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaBed, FaEdit, FaExpand, FaCompress, FaExclamationTriangle } from 'react-icons/fa';
+import { FaBed, FaExpand, FaCompress, FaExclamationTriangle, FaHistory } from 'react-icons/fa';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
-import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai, simpanPemeriksaanRanap, editPemeriksaanRanap, hapusPemeriksaanRanap, cekVerifSOAPSebelumnya } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getPemeriksaanRanap, getLoggedInPegawai, simpanPemeriksaanRanap, editPemeriksaanRanap, hapusPemeriksaanRanap, cekVerifSOAPSebelumnya, get5SoapTerakhir } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
@@ -87,6 +90,11 @@ function PemeriksaanContent() {
   const [isVerifBlocked, setIsVerifBlocked] = useState(false);
   const [verifBlockMessage, setVerifBlockMessage] = useState('');
   const [isCheckingVerif, setIsCheckingVerif] = useState(false);
+
+  // 5 SOAP Terakhir modal
+  const [showSoap5Modal, setShowSoap5Modal] = useState(false);
+  const [soap5Data, setSoap5Data] = useState<any[]>([]);
+  const [isLoadingSoap5, setIsLoadingSoap5] = useState(false);
 
   // Alasan dialog
   const [alasanDialog, setAlasanDialog] = useState<{ open: boolean; mode: 'ganti' | 'hapus' }>({ open: false, mode: 'ganti' });
@@ -170,6 +178,33 @@ function PemeriksaanContent() {
       }
     } catch { }
   }, []);
+
+  const handleShow5Soap = useCallback(async () => {
+    if (!noRM.trim() || !pegawaiNik.trim()) {
+      alert('Maaf, Silahkan pilih dulu pasien dan petugas/dokter pemberi asuhan...!!!');
+      return;
+    }
+    setIsLoadingSoap5(true);
+    setShowSoap5Modal(true);
+    try {
+      const result = await get5SoapTerakhir(noRM, pegawaiNik);
+      if (result.success) setSoap5Data(result.data || []);
+      else setSoap5Data([]);
+    } catch { setSoap5Data([]); }
+    setIsLoadingSoap5(false);
+  }, [noRM, pegawaiNik]);
+
+  const selectFromSoap5 = (row: any) => {
+    if (row) {
+      setFormKeluhan(row.keluhan || '');
+      setFormPemeriksaan(row.pemeriksaan || '');
+      setFormPenilaian(row.penilaian || '');
+      setFormRtl(row.rtl || '');
+      setFormInstruksi(row.instruksi || '');
+      setFormEvaluasi(row.evaluasi || '');
+    }
+    setShowSoap5Modal(false);
+  };
 
   const checkVerifSebelumnya = useCallback(async (nrw: string) => {
     if (!nrw.trim()) return;
@@ -542,7 +577,10 @@ function PemeriksaanContent() {
                   <div className="flex gap-1 flex-1">
                     <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                     <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                    <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                    <Button variant="outline" size="xs" onClick={handleShow5Soap} title="5 SOAP Terakhir"
+                      className="border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 font-bold text-[11px]">
+                      <FaHistory /> 5 SOAP
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -595,6 +633,68 @@ function PemeriksaanContent() {
                   </div>
                 </motion.div>
               </>)}
+            </AnimatePresence>
+
+            {/* Modal 5 SOAP Terakhir */}
+            <AnimatePresence>
+              {showSoap5Modal && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm"
+                  onClick={() => setShowSoap5Modal(false)}>
+                  <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-[720px]"
+                    onClick={e => e.stopPropagation()}>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <FaHistory className="text-brand-500" /> 5 SOAP Terakhir
+                        </CardTitle>
+                        <span className="text-xs text-muted-foreground">
+                          {soap5Data.length} data ditemukan — klik baris untuk mengisi form
+                        </span>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        {isLoadingSoap5 ? (
+                          <div className="flex justify-center py-12 text-sm text-muted-foreground">Memuat data...</div>
+                        ) : soap5Data.length === 0 ? (
+                          <div className="flex justify-center py-12 text-sm text-muted-foreground">Tidak ada data SOAP ditemukan untuk petugas ini</div>
+                        ) : (
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[90px]">Tanggal</TableHead>
+                                <TableHead className="w-[65px]">Jam</TableHead>
+                                <TableHead>Subjek</TableHead>
+                                <TableHead>Objek</TableHead>
+                                <TableHead>Asesmen</TableHead>
+                                <TableHead>Plan</TableHead>
+                                <TableHead>Instruksi</TableHead>
+                                <TableHead>Evaluasi</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {soap5Data.map((row: any, i: number) => (
+                                <TableRow key={i} onClick={() => selectFromSoap5(row)} className="cursor-pointer">
+                                  <TableCell className="font-medium">{row.tgl_perawatan}</TableCell>
+                                  <TableCell>{row.jam_rawat}</TableCell>
+                                  <TableCell className="truncate max-w-[110px]">{row.keluhan || '-'}</TableCell>
+                                  <TableCell className="truncate max-w-[110px]">{row.pemeriksaan || '-'}</TableCell>
+                                  <TableCell className="truncate max-w-[110px]">{row.penilaian || '-'}</TableCell>
+                                  <TableCell className="truncate max-w-[110px]">{row.rtl || '-'}</TableCell>
+                                  <TableCell className="truncate max-w-[110px]">{row.instruksi || '-'}</TableCell>
+                                  <TableCell className="truncate max-w-[110px]">{row.evaluasi || '-'}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        )}
+                      </CardContent>
+                      <CardFooter className="justify-end">
+                        <Button variant="outline" onClick={() => setShowSoap5Modal(false)}>Tutup</Button>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
         )}

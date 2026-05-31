@@ -2042,6 +2042,53 @@ export async function hapusPemeriksaanRanap(
 }
 
 /**
+ * Mengambil 5 SOAP terakhir pasien berdasarkan NIP petugas.
+ * Meniru RMCari5SOAPTerakhir.java -> tampil().
+ */
+export async function get5SoapTerakhir(noRM: string, nip: string) {
+  try {
+    const query = `
+      SELECT pemeriksaan_ranap.tgl_perawatan, pemeriksaan_ranap.jam_rawat,
+             pemeriksaan_ranap.keluhan, pemeriksaan_ranap.pemeriksaan,
+             pemeriksaan_ranap.penilaian, pemeriksaan_ranap.rtl,
+             pemeriksaan_ranap.instruksi, pemeriksaan_ranap.evaluasi
+      FROM pemeriksaan_ranap
+      INNER JOIN reg_periksa ON pemeriksaan_ranap.no_rawat = reg_periksa.no_rawat
+      WHERE reg_periksa.no_rkm_medis = ? AND pemeriksaan_ranap.nip = ?
+      ORDER BY pemeriksaan_ranap.tgl_perawatan DESC, pemeriksaan_ranap.jam_rawat DESC
+      LIMIT 5
+    `;
+    const [rows]: any = await db.execute(query, [noRM, nip]);
+    const formatted = rows.map((row: any) => ({
+      ...row,
+      tgl_perawatan: row.tgl_perawatan instanceof Date ? row.tgl_perawatan.toISOString().split("T")[0] : row.tgl_perawatan,
+    }));
+    return { success: true, data: formatted };
+  } catch (error: any) {
+    console.error("Error fetching 5 SOAP terakhir:", error);
+    return { success: false, message: "Gagal mengambil 5 SOAP terakhir", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mengecek apakah resume pasien rawat inap sudah diisi.
+ * Meniru isResumeFilled() dari DlgRawatInap.java (line 10707).
+ */
+export async function cekResumePasien(noRawat: string) {
+  try {
+    const [rows]: any = await db.execute(
+      "SELECT COUNT(*) AS jumlah FROM resume_pasien_ranap WHERE no_rawat = ?",
+      [noRawat],
+    );
+    const isFilled = Number(rows[0]?.jumlah) > 0;
+    return { success: true, isFilled };
+  } catch (error: any) {
+    console.error("Error cek resume pasien:", error);
+    return { success: false, isFilled: false, message: "Gagal cek resume", error: error.message };
+  }
+}
+
+/**
  * Cek verifikasi SOAP sebelumnya — hanya untuk DPJP.
  * Jika ada SOAP pada hari terakhir (sebelum hari ini) yang belum diverifikasi,
  * maka pembuatan SOAP baru diblokir.
