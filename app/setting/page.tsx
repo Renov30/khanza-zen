@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { FaCog, FaSave, FaImage, FaTrash, FaTimes } from "react-icons/fa";
+import { FaCog, FaSave, FaImage, FaTrash, FaTimes, FaPalette } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { getSettingRs, updateSetting } from "@/lib/actions/setting";
 import { useSetting } from "@/components/SettingContext";
@@ -235,6 +235,13 @@ export default function SettingPage() {
                   className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 hover:text-red-600 shadow-sm transition-all font-bold text-[11px]">
                   <FaTimes />
                   Keluar
+                </Button>
+              </Link>
+              <Link href="/setting/tema-aplikasi">
+                <Button type="button" variant="outline" size="sm"
+                  className="border-brand-200 hover:border-brand-400 hover:bg-brand-50 text-brand-600 shadow-sm transition-all font-bold text-[11px]">
+                  <FaPalette />
+                  Terapkan Tema
                 </Button>
               </Link>
               <Button type="submit" size="sm" disabled={isSaving}

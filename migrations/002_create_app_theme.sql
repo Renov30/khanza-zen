@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS app_theme (
+  id INT PRIMARY KEY DEFAULT 1,
+  theme_palette_id INT NOT NULL,
+  is_dark_mode BOOLEAN DEFAULT FALSE,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (theme_palette_id) REFERENCES theme_palettes(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

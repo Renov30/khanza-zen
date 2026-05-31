@@ -4,6 +4,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+:root {
+  --brand-50: var(--color-sky-50);
+  --brand-100: var(--color-sky-100);
+  --brand-200: var(--color-sky-200);
+  --brand-300: var(--color-sky-300);
+  --brand-400: var(--color-sky-400);
+  --brand-500: var(--color-sky-500);
+  --brand-600: var(--color-sky-600);
+  --brand-700: var(--color-sky-700);
+  --brand-800: var(--color-sky-800);
+  --brand-900: var(--color-sky-900);
+  --brand-950: var(--color-sky-950);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -48,24 +62,20 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* 
-   * =========================================
-   * VARIABEL WARNA TEMA UTAMA (BRAND COLOR)
-   * =========================================
-   * Untuk mengubah warna dasar seluruh halaman (yang sebelumnya emerald), 
-   * Anda hanya perlu mengubah kata "emerald" di bawah ini menjadi warna lain 
-   * dari Tailwind, contohnya: "blue", "rose", "indigo", "teal", dll.
+   * Dynamic brand colors - value diambil dari CSS variables :root
+   * runtime bisa diubah via ThemeProvider
    */
-  --color-brand-50: var(--color-sky-50);
-  --color-brand-100: var(--color-sky-100);
-  --color-brand-200: var(--color-sky-200);
-  --color-brand-300: var(--color-sky-300);
-  --color-brand-400: var(--color-sky-400);
-  --color-brand-500: var(--color-sky-500);
-  --color-brand-600: var(--color-sky-600);
-  --color-brand-700: var(--color-sky-700);
-  --color-brand-800: var(--color-sky-800);
-  --color-brand-900: var(--color-sky-900);
-  --color-brand-950: var(--color-sky-950);
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-brand-950: var(--brand-950);
 }
 
 :root {

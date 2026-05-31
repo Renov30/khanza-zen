@@ -25,6 +25,7 @@ import {
   FaPills,
   FaHospital,
   FaCog,
+  FaPalette,
   FaHistory,
 } from "react-icons/fa";
 
@@ -204,6 +205,14 @@ const MOCK_MENU_ITEMS = [
   },
   {
     id: 20,
+    label: "Tema Aplikasi",
+    icon: FaPalette,
+    link: "/setting/tema-aplikasi",
+    color: "text-brand-500",
+    category: 8,
+  },
+  {
+    id: 21,
     label: "Log CPPT Ranap",
     icon: FaHistory,
     link: "/rawat-inap/audit-trail",
