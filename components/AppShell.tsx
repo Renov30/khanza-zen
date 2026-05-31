@@ -478,28 +478,21 @@ function ShortcutMenuItem({
   onClick?: () => void;
 }) {
   return (
-    <motion.button
+    <button
       onClick={onClick}
-      whileHover={{
-        backgroundColor: isRed
-          ? "rgba(254,226,226,0.5)"
-          : "rgba(209,250,229,0.3)",
-      }}
-      transition={{ duration: 0.1 }}
-      className={`group flex flex-col items-center justify-center gap-0.5 md:gap-1 min-w-[44px] md:min-w-[70px] lg:min-w-[76px] p-1 md:p-2 rounded-xl transition-all duration-150 border ${active ? "border-brand-200 bg-brand-50/60 shadow-sm" : "border-transparent"} hover:border-brand-100 dark:hover:border-white/10 hover:shadow-sm relative overflow-hidden`}
+      className={`group flex flex-col items-center justify-center gap-0.5 md:gap-1 min-w-[44px] md:min-w-[70px] lg:min-w-[76px] p-1 md:p-2 rounded-xl transition-all duration-150 border ${active ? "border-brand-200 bg-brand-50/60 shadow-sm dark:bg-slate-800 dark:border-white/15" : "border-transparent"} hover:border-brand-100 hover:bg-brand-50/60 dark:hover:border-white/15 dark:hover:bg-slate-700 hover:shadow-sm`}
     >
       <span
-        className={`text-lg md:text-xl lg:text-2xl drop-shadow-sm z-10 ${active && !isRed ? "text-brand-600" : "dark:text-slate-300"}`}
+        className={`text-lg md:text-xl lg:text-2xl drop-shadow-sm ${active && !isRed ? "text-brand-600" : "dark:text-slate-300"}`}
       >
         {icon}
       </span>
       <span
-        className={`text-[10px] lg:text-xs font-bold z-10 hidden md:block ${isRed ? "text-red-600" : active ? "text-brand-700 dark:text-brand-400" : "text-slate-600 dark:text-slate-400 group-hover:text-brand-700 dark:group-hover:text-brand-400"}`}
+        className={`text-[10px] lg:text-xs font-bold hidden md:block ${isRed ? "text-red-600" : active ? "text-brand-700 dark:text-brand-400" : "text-slate-600 dark:text-slate-400 group-hover:text-brand-700 dark:group-hover:text-brand-400"}`}
       >
         {label}
       </span>
-      <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
-    </motion.button>
+    </button>
   );
 }
 
