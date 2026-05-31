@@ -45,7 +45,60 @@ Warna dasar saat ini adalah **emerald** (hijau) — dapat diubah secara global h
 
 **Alasan:** Label di atas input lebih mudah dipindai mata secara vertikal (riset *eyetracking*) dan otomatis responsive tanpa masalah label terpotong.
 
-### 2.2 Pengelompokan Logis (Logical Grouping)
+### 2.2 FormSection — Komponen Wrapper Konsisten
+
+Gunakan `<FormSection>` untuk membungkus setiap baris/seksi form, bukan `<div>` dengan styling manual.
+
+```tsx
+import FormSection from "@/components/FormSection";
+
+// ✅ BENAR — pakai komponen FormSection
+<FormSection className="flex flex-wrap items-center gap-2">
+  ... konten ...
+</FormSection>
+
+// ❌ SALAH — styling container manual
+<div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+  ... konten ...
+</div>
+```
+
+**Aturan:**
+- `FormSection` memberi styling konsisten: `bg-slate-50/50 p-3 rounded-lg border border-slate-200`
+- Bisa ditambah `className` tambahan untuk layout (e.g. `flex flex-wrap items-center gap-2`)
+- Cocok untuk info bar, petugas bar, atau grup field apapun
+
+### 2.3 Info Bar Inline (Horizontal) — **PENGECUALIAN**
+
+Hanya untuk **info bar read-only** yang bersifat sekilas (info pasien, petugas, tanggal), label boleh di samping input.
+Jangan gunakan pola ini untuk form input aktif — form input tetap harus label di atas (section 2.1).
+
+```tsx
+<FormSection className="flex flex-wrap items-center gap-2">
+  <div className="flex items-center gap-2">
+    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">
+      No.Rawat
+    </label>
+    <input ... readOnly />
+  </div>
+  <input ... readOnly placeholder="RM" />
+  <input ... readOnly placeholder="Nama" />
+  <div className="ml-auto flex items-center gap-2">
+    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">
+      Tanggal
+    </label>
+    <input type="date" ... />
+    <input type="time" ... />
+  </div>
+</FormSection>
+```
+
+**Pola label:**
+- Setiap label: `text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0`
+- Gap label→field: `gap-2`
+- Input yang berdiri sendiri tanpa label: langsung `<input>` tanpa wrapper `<div>`
+
+### 2.4 Pengelompokan Logis (Logical Grouping)
 
 Form yang kompleks **harus** dikelompokkan dalam section/card terpisah:
 
@@ -60,7 +113,7 @@ Form yang kompleks **harus** dikelompokkan dalam section/card terpisah:
 </div>
 ```
 
-### 2.3 Grid Responsif untuk Formulir
+### 2.5 Grid Responsif untuk Formulir
 
 | Ukuran layar | Kolom grid form       |
 |--------------|----------------------|
