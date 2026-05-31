@@ -542,6 +542,7 @@ function ProfileMenu({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            onClick={(e) => e.stopPropagation()}
             className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-brand-100 dark:border-slate-700 py-2 z-[100] overflow-hidden"
           >
             <div className="px-4 py-2 border-b border-slate-50 dark:border-slate-700 mb-1 sm:hidden">
@@ -574,9 +575,9 @@ function ProfileMenu({
               className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-medium"
             >
               {isDarkMode ? (
-                <FaSun className="text-amber-400" />
+                <FaMoon className="text-indigo-400" />
               ) : (
-                <FaMoon className="text-slate-400 dark:text-slate-300" />
+                <FaSun className="text-amber-400" />
               )}
               <span className="flex-1">Dark Mode</span>
               <div
