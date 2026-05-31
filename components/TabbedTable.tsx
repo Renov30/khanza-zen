@@ -28,7 +28,7 @@ export default function TabbedTable({ tabs, defaultTabId, onTabChange, hideTabBa
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       {!hideTabBar && (
-        <div className="flex gap-1 px-4 mt-2 mb-0 shrink-0 border-b border-slate-200">
+        <div className="flex gap-1 px-4 mt-2 mb-0 shrink-0 border-b border-slate-200 dark:border-slate-700">
           {tabs.map((tab) => (
             <button 
               key={tab.id}
@@ -36,7 +36,7 @@ export default function TabbedTable({ tabs, defaultTabId, onTabChange, hideTabBa
               className={`px-4 py-2 text-xs transition-all relative whitespace-nowrap ${
                 activeTab === tab.id 
                   ? "font-bold text-brand-700" 
-                  : "font-semibold text-slate-500 hover:text-brand-600"
+                  : "font-semibold text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
               }`}
             >
               {tab.label}

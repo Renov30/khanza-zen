@@ -105,9 +105,9 @@ export default function TemaAplikasiPage() {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-white">
-      <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0">
-        <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
+    <div className="h-full flex flex-col overflow-hidden bg-white dark:bg-slate-800">
+      <div className="bg-gradient-to-r from-brand-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 px-4 py-1 border-b border-brand-100 dark:border-slate-600 flex items-center justify-between shadow-sm z-10 shrink-0">
+        <h2 className="text-brand-800 dark:text-brand-300 font-bold text-sm flex items-center gap-2 tracking-wide">
           <FaPalette className="text-brand-600" />
           Tema Aplikasi
         </h2>
@@ -123,20 +123,20 @@ export default function TemaAplikasiPage() {
             <div
               className={`px-4 py-2.5 rounded-lg text-xs font-bold border ${
                 messageType === "success"
-                  ? "bg-green-50 text-green-700 border-green-200"
-                  : "bg-red-50 text-red-700 border-red-200"
+                  ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                  : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800"
               }`}
             >
               {message}
             </div>
           )}
 
-          <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-            <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">
+          <div className="bg-brand-50/40 dark:bg-slate-800/50 p-4 rounded-lg border border-brand-100/50 dark:border-slate-700">
+            <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-300 mb-3 flex items-center gap-2 border-b border-brand-100 dark:border-slate-700 pb-2">
               <FaPaintBrush className="text-brand-500" />
               Pilih Tema Warna
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
               Pilih tema warna yang Anda inginkan. Tema akan diterapkan ke
               seluruh tampilan aplikasi secara langsung.
             </p>
@@ -154,8 +154,8 @@ export default function TemaAplikasiPage() {
                     whileTap={{ scale: 0.98 }}
                     className={`relative text-left p-4 rounded-xl border-2 transition-all cursor-pointer ${
                       isSelected
-                        ? "border-brand-500 shadow-lg shadow-brand-100/50 bg-white"
-                        : "border-slate-200 hover:border-brand-200 bg-white/80 hover:shadow-md"
+                        ? "border-brand-500 shadow-lg shadow-brand-100/50 bg-white dark:bg-slate-700 dark:shadow-slate-900/50"
+                        : "border-slate-200 dark:border-slate-600 hover:border-brand-200 bg-white/80 dark:bg-slate-800/80 hover:shadow-md"
                     }`}
                   >
                     {isSelected && (
@@ -167,10 +167,10 @@ export default function TemaAplikasiPage() {
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-6 h-6 rounded-full border border-slate-200 shadow-sm"
+                          className="w-6 h-6 rounded-full border border-slate-200 dark:border-slate-500 shadow-sm"
                           style={{ backgroundColor: w["500"] || "#0ea5e9" }}
                         />
-                        <span className="text-sm font-bold text-slate-700">
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
                           {palette.nama}
                         </span>
                       </div>
@@ -201,7 +201,7 @@ export default function TemaAplikasiPage() {
                       </div>
 
                       {palette.deskripsi && (
-                        <p className="text-[10px] text-slate-400 leading-relaxed line-clamp-2">
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed line-clamp-2">
                           {palette.deskripsi}
                         </p>
                       )}
@@ -219,7 +219,7 @@ export default function TemaAplikasiPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleCancel}
-                className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 shadow-sm transition-all font-bold text-[11px]"
+                className="border-red-200 dark:border-red-800 hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 shadow-sm transition-all font-bold text-[11px]"
               >
                 <FaTimes />
                 Batal
@@ -230,7 +230,7 @@ export default function TemaAplikasiPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => router.back()}
-                className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 hover:text-red-600 shadow-sm transition-all font-bold text-[11px]"
+                className="border-red-200 dark:border-red-800 hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 shadow-sm transition-all font-bold text-[11px]"
               >
                 <FaTimes />
                 Keluar

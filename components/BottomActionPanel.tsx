@@ -76,28 +76,28 @@ export default function BottomActionPanel({
   };
 
   return (
-    <div className="bg-white px-4 py-3 border-t border-slate-200 text-xs shadow-[0_-4px_10px_rgba(0,0,0,0.03)] z-20 shrink-0 flex flex-col gap-3">
+    <div className="bg-white px-4 py-3 border-t border-slate-200 text-xs shadow-[0_-4px_10px_rgba(0,0,0,0.03)] z-20 shrink-0 flex flex-col gap-3 dark:bg-slate-800 dark:border-slate-700">
       {extraFilters && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-2 border-b border-brand-50 pb-2 mb-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-2 border-b border-brand-50 pb-2 mb-1 dark:border-slate-700">
           {extraFilters}
         </div>
       )}
       {/* Baris Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100 dark:bg-slate-900 dark:border-slate-700">
         <div className="flex items-center gap-2 flex-wrap">
           {leftFilters}
-          <span className="font-semibold text-slate-600 ml-1">Periode :</span>
+          <span className="font-semibold text-slate-600 ml-1 dark:text-slate-300">Periode :</span>
           <div className="flex items-center gap-1.5">
             <input
               type="date"
-              className="border border-slate-200 rounded text-slate-600 px-2 py-1 focus:outline-brand-500 focus:ring-1 focus:ring-brand-500 bg-white shadow-sm"
+              className="border border-slate-200 rounded text-slate-600 px-2 py-1 focus:outline-brand-500 focus:ring-1 focus:ring-brand-500 bg-white shadow-sm dark:border-slate-600 dark:text-slate-200 dark:bg-slate-700"
               value={dateStart}
               onChange={(e) => onDateStartChange?.(e.target.value)}
             />
-            <span className="text-slate-400 font-bold">s.d.</span>
+            <span className="text-slate-400 font-bold dark:text-slate-500">s.d.</span>
             <input
               type="date"
-              className="border border-slate-200 rounded text-slate-600 px-2 py-1 focus:outline-brand-500 focus:ring-1 focus:ring-brand-500 bg-white shadow-sm"
+              className="border border-slate-200 rounded text-slate-600 px-2 py-1 focus:outline-brand-500 focus:ring-1 focus:ring-brand-500 bg-white shadow-sm dark:border-slate-600 dark:text-slate-200 dark:bg-slate-700"
               value={dateEnd}
               onChange={(e) => onDateEndChange?.(e.target.value)}
             />
@@ -105,26 +105,26 @@ export default function BottomActionPanel({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap sm:mr-2 w-full sm:w-auto">
-          <span className="font-semibold text-slate-600 hidden sm:inline">Pencarian :</span>
-          <div className="flex bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-brand-500 w-full sm:w-[250px]">
+          <span className="font-semibold text-slate-600 hidden sm:inline dark:text-slate-300">Pencarian :</span>
+          <div className="flex bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-brand-500 w-full sm:w-[250px] dark:bg-slate-700 dark:border-slate-600">
             <input
               type="text"
-              className="w-full bg-transparent outline-none px-2 py-1 text-slate-700"
+              className="w-full bg-transparent outline-none px-2 py-1 text-slate-700 dark:text-slate-200"
               placeholder="Cari data di sini..."
               value={searchValue}
               onChange={(e) => onSearchChange?.(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <div className="flex border-l border-slate-200">
+            <div className="flex border-l border-slate-200 dark:border-slate-600">
               <button
                 onClick={onSearch}
-                className="px-2 text-brand-500 hover:bg-brand-50 transition-colors"
+                className="px-2 text-brand-500 hover:bg-brand-50 transition-colors dark:hover:bg-slate-700"
               >
                 <FaCheck className="text-[10px]" />
               </button>
               <button
                 onClick={onSearch}
-                className="px-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-colors border-l border-slate-100"
+                className="px-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-colors border-l border-slate-100 dark:text-slate-500 dark:hover:text-brand-400 dark:hover:bg-slate-700 dark:border-slate-700"
               >
                 <FaSearch className="text-[10px]" />
               </button>
@@ -176,9 +176,9 @@ export default function BottomActionPanel({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center px-3 py-1.5 text-slate-500 font-semibold text-[11px] mx-1">
+          <div className="flex items-center px-3 py-1.5 text-slate-500 font-semibold text-[11px] mx-1 dark:text-slate-400">
             Record :{" "}
-            <span className="text-slate-800 ml-1.5">{recordCount}</span>
+            <span className="text-slate-800 ml-1.5 dark:text-slate-100">{recordCount}</span>
           </div>
 
           <ActionButton
@@ -219,10 +219,10 @@ export function ActionButton({
         variant === "primary"
           ? "bg-brand-600 hover:bg-brand-700 text-white border-brand-600 shadow-sm"
           : variant === "danger"
-            ? "bg-white border-red-200 hover:border-red-400 hover:bg-red-50 text-red-700"
+            ? "bg-white border-red-200 hover:border-red-400 hover:bg-red-50 text-red-700 dark:bg-slate-700 dark:border-red-800 dark:hover:border-red-400 dark:hover:bg-red-900/30 dark:text-red-300"
             : isExit
-              ? "bg-white border-red-200 hover:border-red-400 hover:bg-red-50 text-red-700"
-              : "bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700",
+              ? "bg-white border-red-200 hover:border-red-400 hover:bg-red-50 text-red-700 dark:bg-slate-700 dark:border-red-800 dark:hover:border-red-400 dark:hover:bg-red-900/30 dark:text-red-300"
+              : "bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200",
         className,
       )}
     >

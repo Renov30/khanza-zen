@@ -170,13 +170,13 @@ export default function ClinicalSidebar({
         initial={false}
         animate={{ width: isSidebarOpen ? 224 : 48 }}
         transition={{ duration: 0.15, ease: "linear" }}
-        className="bg-white border-r border-slate-200 flex flex-col overflow-hidden shrink-0"
+        className="bg-white border-r border-slate-200 flex flex-col overflow-hidden shrink-0 dark:bg-slate-800 dark:border-slate-700"
       >
         {/* Toggle + Pencarian */}
-        <div className="p-2 border-b border-slate-100 flex items-center gap-2 h-12">
+        <div className="p-2 border-b border-slate-100 flex items-center gap-2 h-12 dark:border-slate-700">
           <button
             onClick={toggleSidebar}
-            className="p-1.5 hover:bg-brand-50 rounded transition-colors text-brand-700 shrink-0 focus:outline-none"
+            className="p-1.5 hover:bg-brand-50 rounded transition-colors text-brand-700 shrink-0 focus:outline-none dark:hover:bg-slate-700"
             title="Toggle Sidebar"
           >
             <FaBars />
@@ -187,10 +187,10 @@ export default function ClinicalSidebar({
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 dark:bg-slate-700 dark:border-slate-600"
                 placeholder="Cari menu..."
               />
-              <FaSearch className="absolute left-2.5 top-2 text-slate-400 text-xs" />
+              <FaSearch className="absolute left-2.5 top-2 text-slate-400 text-xs dark:text-slate-500" />
             </div>
           )}
         </div>
@@ -209,13 +209,13 @@ export default function ClinicalSidebar({
                   <div
                     data-parent={item.label}
                     onClick={() => toggleExpand(item.label)}
-                    className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap ${anyChildActive
-                      ? "bg-brand-50 text-brand-700 font-bold"
-                      : "text-slate-700 hover:bg-brand-50"
+                    className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap dark:border-slate-700 ${anyChildActive
+                      ? "bg-brand-50 text-brand-700 font-bold dark:bg-slate-700 dark:text-brand-300"
+                      : "text-slate-700 hover:bg-brand-50 dark:text-slate-200 dark:hover:bg-slate-700"
                       }`}
                     title={!isSidebarOpen ? item.label : undefined}
                   >
-                    <span className={`text-sm shrink-0 ${anyChildActive ? "text-brand-600" : "text-brand-500"}`}>
+                    <span className={`text-sm shrink-0 ${anyChildActive ? "text-brand-600 dark:text-brand-400" : "text-brand-500 dark:text-brand-400"}`}>
                       {item.icon}
                     </span>
                     {isSidebarOpen && (
@@ -224,7 +224,7 @@ export default function ClinicalSidebar({
                         <motion.span
                           animate={{ rotate: isExpanded ? 180 : 0 }}
                           transition={{ duration: 0.15 }}
-                          className="text-[10px] text-slate-400"
+                          className="text-[10px] text-slate-400 dark:text-slate-500"
                         >
                           <FaChevronDown />
                         </motion.span>
@@ -247,11 +247,11 @@ export default function ClinicalSidebar({
                             key={ci}
                             onClick={() => handleNavigate(child)}
                             className={`flex items-center gap-3 pl-9 pr-3 py-2.5 cursor-pointer text-xs transition-colors whitespace-nowrap ${isActive(child.path)
-                              ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500"
-                              : "text-slate-600 hover:bg-brand-50 hover:text-slate-700"
+                              ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500 dark:bg-slate-700 dark:text-brand-300"
+                              : "text-slate-600 hover:bg-brand-50 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-200"
                               }`}
                           >
-                            <span className={`text-sm shrink-0 ${isActive(child.path) ? "text-brand-600" : "text-slate-500"}`}>
+                            <span className={`text-sm shrink-0 ${isActive(child.path) ? "text-brand-600" : "text-slate-500 dark:text-slate-400"}`}>
                               {child.icon}
                             </span>
                             <span>{child.label}</span>
@@ -268,16 +268,16 @@ export default function ClinicalSidebar({
               <div
                 key={idx}
                 onClick={() => handleNavigate(item)}
-                className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap ${isActive(item.path)
-                  ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500"
+                className={`flex items-center gap-3 px-3 py-3 cursor-pointer text-xs border-b border-slate-50 transition-colors whitespace-nowrap dark:border-slate-700 ${isActive(item.path)
+                  ? "bg-brand-50 text-brand-700 font-bold border-l-[3px] border-l-brand-500 dark:bg-slate-700 dark:text-brand-300"
                   : item.path
-                    ? "text-slate-700 hover:bg-brand-50"
-                    : "text-slate-400 cursor-default"
+                    ? "text-slate-700 hover:bg-brand-50 dark:text-slate-200 dark:hover:bg-slate-700"
+                    : "text-slate-400 cursor-default dark:text-slate-500"
                   }`}
                 title={!isSidebarOpen ? item.label : undefined}
               >
                 <span
-                  className={`text-sm shrink-0 ${isActive(item.path) ? "text-brand-600" : item.path ? "text-brand-500" : "text-slate-300"}`}
+                  className={`text-sm shrink-0 ${isActive(item.path) ? "text-brand-600" : item.path ? "text-brand-500 dark:text-brand-400" : "text-slate-300 dark:text-slate-600"}`}
                 >
                   {item.icon}
                 </span>
@@ -298,7 +298,7 @@ export default function ClinicalSidebar({
         {!isSidebarOpen && popoverParent && (
           <div
             ref={popoverRef}
-            className="fixed left-12 z-50 bg-white border border-slate-200 shadow-xl rounded-lg py-1 min-w-[200px]"
+            className="fixed left-12 z-50 bg-white border border-slate-200 shadow-xl rounded-lg py-1 min-w-[200px] dark:bg-slate-800 dark:border-slate-700"
             style={{ top: popoverTop }}
           >
             {(() => {
@@ -309,11 +309,11 @@ export default function ClinicalSidebar({
                   key={ci}
                   onClick={() => { handleNavigate(child); setPopoverParent(null); }}
                   className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer text-xs transition-colors ${isActive(child.path)
-                    ? "bg-brand-50 text-brand-700 font-bold"
-                    : "text-slate-600 hover:bg-brand-50"
+                    ? "bg-brand-50 text-brand-700 font-bold dark:bg-slate-700 dark:text-brand-300"
+                    : "text-slate-600 hover:bg-brand-50 dark:text-slate-300 dark:hover:bg-slate-700"
                     }`}
                 >
-                  <span className={`text-sm shrink-0 ${isActive(child.path) ? "text-brand-600" : "text-slate-500"}`}>
+                  <span className={`text-sm shrink-0 ${isActive(child.path) ? "text-brand-600" : "text-slate-500 dark:text-slate-400"}`}>
                     {child.icon}
                   </span>
                   <span>{child.label}</span>
@@ -330,7 +330,7 @@ export default function ClinicalSidebar({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
-        className="flex-1 flex flex-col overflow-hidden bg-slate-50 relative"
+        className="flex-1 flex flex-col overflow-hidden bg-slate-50 relative dark:bg-slate-900"
       >
         {children}
       </motion.div>

@@ -242,7 +242,7 @@ export default function DaftarMenuPage() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
-      className="flex h-full w-full bg-slate-50/50 overflow-hidden relative rounded-tl-xl shadow-inner border-t border-l border-white"
+      className="flex h-full w-full bg-slate-50/50 dark:bg-slate-900 overflow-hidden relative rounded-tl-xl shadow-inner border-t border-l border-white"
     >
       {/* Kontrol Sidebar / Animasi */}
       <AnimatePresence initial={false}>
@@ -252,19 +252,19 @@ export default function DaftarMenuPage() {
             animate={{ width: 320, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.15, ease: "linear" }}
-            className="h-full border-r border-slate-200 bg-white shadow-sm flex flex-col z-10 shrink-0"
+            className="h-full border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm flex flex-col z-10 shrink-0"
           >
             {/* Header Sidebar & Pencarian */}
-            <div className="p-4 border-b border-slate-100 bg-brand-50/50">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-brand-50/50 dark:bg-slate-800/50">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Cari fitur aplikasi..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all shadow-sm"
+                  className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all shadow-sm"
                 />
-                <FaSearch className="absolute left-3 top-2.5 text-slate-400" />
+                <FaSearch className="absolute left-3 top-2.5 text-slate-400 dark:text-slate-500" />
               </div>
             </div>
 
@@ -279,8 +279,8 @@ export default function DaftarMenuPage() {
                   }}
                   className={`w-full text-left px-3 py-2 rounded-md text-xs transition-colors ${
                     activeCategory === idx && searchQuery === ""
-                      ? "bg-brand-50 text-brand-700 font-bold border border-brand-200/50 shadow-sm"
-                      : "text-slate-600 hover:bg-slate-50 border border-transparent font-medium"
+                      ? "bg-brand-50 dark:bg-slate-700 text-brand-700 dark:text-brand-400 font-bold border border-brand-200/50 shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-transparent font-medium"
                   }`}
                 >
                   <span className="line-clamp-2 leading-relaxed">{cat}</span>
@@ -289,7 +289,7 @@ export default function DaftarMenuPage() {
             </div>
 
             {/* Footer info Sidebar */}
-            <div className="p-3 border-t border-slate-100 bg-slate-50 text-[10px] text-slate-400 font-medium text-center">
+            <div className="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[10px] text-slate-400 dark:text-slate-500 font-medium text-center">
               Total {MOCK_MENU_ITEMS.length} Menu Modul Tersedia
             </div>
           </motion.div>
@@ -301,7 +301,7 @@ export default function DaftarMenuPage() {
         {/* Tombol Toggle Terapung Atas */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className={`cursor-pointer absolute top-6 ${isSidebarOpen ? "-left-4" : "left-4"} w-8 h-8 flex items-center justify-center z-20 bg-white border border-slate-200 rounded-full shadow-md hover:bg-brand-50 hover:text-brand-600 transition-all duration-300 text-slate-500`}
+          className={`cursor-pointer absolute top-6 ${isSidebarOpen ? "-left-4" : "left-4"} w-8 h-8 flex items-center justify-center z-20 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full shadow-md hover:bg-brand-50 hover:text-brand-600 transition-all duration-300 text-slate-500 dark:text-slate-300`}
         >
           {isSidebarOpen ? (
             <FaChevronLeft className="text-[10px]" />
@@ -311,12 +311,12 @@ export default function DaftarMenuPage() {
         </button>
 
         {/* Header Konten dengan Divider Lebar Penuh */}
-        <div className="pt-5 pb-4 px-8 pl-16 border-b border-brand-100/70 bg-white/40 backdrop-blur-sm z-10 shrink-0 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-700 font-serif tracking-tight">
+        <div className="pt-5 pb-4 px-8 pl-16 border-b border-brand-100/70 dark:border-slate-700 bg-white/40 dark:bg-slate-800/60 backdrop-blur-sm z-10 shrink-0 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200 font-serif tracking-tight">
             {searchQuery ? (
               `Hasil Pencarian: "${searchQuery}"`
             ) : (
-              <span className="text-brand-700 text-lg sm:text-xl drop-shadow-sm">
+              <span className="text-brand-700 dark:text-brand-400 text-lg sm:text-xl drop-shadow-sm">
                 {CATEGORIES[activeCategory]}
               </span>
             )}
@@ -335,18 +335,18 @@ export default function DaftarMenuPage() {
         </div>
 
         {/* Grid Ikon - Flex Wrap Terpusat dengan ukuran vertikal standar */}
-        <div className="flex-1 overflow-y-auto p-8 pt-8 align-top bg-gradient-to-br from-slate-50/50 to-white/20">
+        <div className="flex-1 overflow-y-auto p-8 pt-8 align-top bg-gradient-to-br from-slate-50/50 to-white/20 dark:from-slate-900 dark:to-slate-800">
           {filteredItems.length > 0 ? (
             <div className="flex flex-wrap justify-center gap-6 sm:gap-10 max-w-[1400px] mx-auto">
               {filteredItems.map((item, idx) => (
                 <Link href={item.link} key={item.id}>
-                  <div className="flex flex-col items-center justify-start p-4 rounded-xl hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-lg transition-all cursor-pointer group text-center gap-4 w-36 h-40">
+                    <div className="flex flex-col items-center justify-start p-4 rounded-xl hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:shadow-lg transition-all cursor-pointer group text-center gap-4 w-36 h-40">
                     <div
-                      className={`w-20 h-20 shrink-0 flex items-center justify-center rounded-2xl bg-white group-hover:bg-brand-50 border border-slate-100 group-hover:border-brand-200 shadow-sm transition-colors ${item.color}`}
+                      className={`w-20 h-20 shrink-0 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-700 group-hover:bg-brand-50 border border-slate-100 dark:border-slate-600 group-hover:border-brand-200 shadow-sm transition-colors ${item.color}`}
                     >
                       <item.icon className="text-4xl drop-shadow-sm group-hover:scale-110 transition-transform" />
                     </div>
-                    <span className="text-[11px] font-semibold text-slate-600 group-hover:text-brand-800 transition-colors leading-tight px-1">
+                    <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 group-hover:text-brand-800 transition-colors leading-tight px-1">
                       {item.label}
                     </span>
                   </div>
@@ -354,7 +354,7 @@ export default function DaftarMenuPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-40 text-slate-400 gap-3">
+            <div className="flex flex-col items-center justify-center h-40 text-slate-400 dark:text-slate-500 gap-3">
               <FaSearch className="text-4xl opacity-20" />
               <p className="text-sm font-medium">Modul tidak ditemukan</p>
             </div>

@@ -17,7 +17,7 @@ export default function Home() {
     .join(", ");
 
   return (
-    <div className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30">
+    <div className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30 dark:bg-slate-900">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -34,17 +34,17 @@ export default function Home() {
         transition={{ duration: 0.15 }}
         className="absolute bottom-16 left-4 sm:bottom-8 sm:left-8 z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5"
       >
-        <div className="flex flex-row items-center gap-3 drop-shadow-lg bg-white/40 backdrop-blur-sm px-4 sm:px-5 py-3 rounded-xl border border-white/70">
+        <div className="flex flex-row items-center gap-3 drop-shadow-lg bg-white/40 dark:bg-slate-800/60 backdrop-blur-sm px-4 sm:px-5 py-3 rounded-xl border border-white/70 dark:border-slate-700">
           <img
             src={logoUrl}
             alt="Logo RS"
             className="h-10 sm:h-14 w-10 sm:w-14 shrink-0 rounded-full object-cover"
           />
           <div className="flex flex-col">
-            <h1 className="text-base sm:text-lg font-extrabold text-slate-800 tracking-tight italic flex items-center gap-2">
+            <h1 className="text-base sm:text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight italic flex items-center gap-2">
               {namaInstansi || "KHANZA ZEN"}
             </h1>
-            <p className="text-[10px] sm:text-xs font-semibold text-slate-600 mt-0.5 flex items-center gap-1">
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-300 mt-0.5 flex items-center gap-1">
               <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-brand-500 inline-block animate-pulse"></span>
               {alamatInstansi || "SIMRS Lightweight Berbasis Web"}
             </p>

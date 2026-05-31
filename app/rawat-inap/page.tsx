@@ -56,7 +56,7 @@ export default function RawatInap() {
     {
       header: "Nama Pasien",
       key: "nm_pasien",
-      className: "text-slate-800 font-bold",
+      className: "text-slate-800 dark:text-slate-100 font-bold",
       render: (row) => `${row.nm_pasien} (${row.umur})`,
     },
     {
@@ -64,39 +64,39 @@ export default function RawatInap() {
       key: "alamat",
       className: "text-slate-600 truncate max-w-[200px]",
     },
-    { header: "Penanggung Jawab", key: "p_jawab", className: "text-slate-600" },
-    { header: "Hubungan P.J.", key: "hubunganpj", className: "text-slate-600" },
+    { header: "Penanggung Jawab", key: "p_jawab", className: "text-slate-600 dark:text-slate-300" },
+    { header: "Hubungan P.J.", key: "hubunganpj", className: "text-slate-600 dark:text-slate-300" },
     {
       header: "Jenis Bayar",
       key: "png_jawab",
       className: "text-center",
       render: (row) => (
-        <span className="bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full text-[9px] font-bold">
+        <span className="bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 px-2 py-0.5 rounded-full text-[9px] font-bold">
           {row.png_jawab}
         </span>
       ),
     },
-    { header: "Kamar", key: "kamar", className: "text-slate-700 font-medium" },
+    { header: "Kamar", key: "kamar", className: "text-slate-700 dark:text-slate-200 font-medium" },
     {
       header: "Tarif Kamar",
       key: "trf_kamar",
-      className: "text-right text-slate-700",
+      className: "text-right text-slate-700 dark:text-slate-200",
       render: (row) => new Intl.NumberFormat("id-ID").format(row.trf_kamar),
     },
     {
       header: "Diagnosa Awal",
       key: "diagnosa_awal",
-      className: "text-slate-600 truncate max-w-[150px]",
+      className: "text-slate-600 dark:text-slate-300 truncate max-w-[150px]",
     },
     {
       header: "Diagnosa Akhir",
       key: "diagnosa_akhir",
-      className: "text-slate-600 truncate max-w-[150px]",
+      className: "text-slate-600 dark:text-slate-300 truncate max-w-[150px]",
     },
-    { header: "Tgl.Masuk", key: "tgl_masuk", className: "text-center text-slate-600" },
-    { header: "Jam Masuk", key: "jam_masuk", className: "text-center text-slate-600" },
-    { header: "Tgl.Keluar", key: "tgl_keluar", className: "text-center text-slate-600", render: (row) => row.tgl_keluar || "-" },
-    { header: "Jam Keluar", key: "jam_keluar", className: "text-center text-slate-600", render: (row) => row.jam_keluar || "-" },
+    { header: "Tgl.Masuk", key: "tgl_masuk", className: "text-center text-slate-600 dark:text-slate-300" },
+    { header: "Jam Masuk", key: "jam_masuk", className: "text-center text-slate-600 dark:text-slate-300" },
+    { header: "Tgl.Keluar", key: "tgl_keluar", className: "text-center text-slate-600 dark:text-slate-300", render: (row) => row.tgl_keluar || "-" },
+    { header: "Jam Keluar", key: "jam_keluar", className: "text-center text-slate-600 dark:text-slate-300", render: (row) => row.jam_keluar || "-" },
     {
       header: "Ttl.Biaya",
       key: "ttl_biaya",
@@ -109,29 +109,29 @@ export default function RawatInap() {
       className: "text-center",
       render: (row) => (
         <span
-          className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.stts_pulang === "-" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"}`}
+          className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.stts_pulang === "-" ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300" : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"}`}
         >
           {row.stts_pulang}
         </span>
       ),
     },
-    { header: "Lama", key: "lama", className: "text-center text-slate-600" },
-    { header: "Dokter P.J.", key: "nm_dokter", className: "text-slate-700" },
-    { header: "Kd Kamar", key: "kd_kamar", className: "text-slate-500" },
+    { header: "Lama", key: "lama", className: "text-center text-slate-600 dark:text-slate-300" },
+    { header: "Dokter P.J.", key: "nm_dokter", className: "text-slate-700 dark:text-slate-200" },
+    { header: "Kd Kamar", key: "kd_kamar", className: "text-slate-500 dark:text-slate-400" },
     {
       header: "Status Bayar",
       key: "status_bayar",
       className: "text-center",
       render: (row) => (
         <span
-          className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.status_bayar === "Sudah Bayar" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}
+          className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.status_bayar === "Sudah Bayar" ? "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300" : "bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300"}`}
         >
           {row.status_bayar}
         </span>
       ),
     },
-    { header: "Agama", key: "agama", className: "text-slate-600" },
-    { header: "No. HP", key: "no_tlp", className: "text-slate-600" },
+    { header: "Agama", key: "agama", className: "text-slate-600 dark:text-slate-300" },
+    { header: "No. HP", key: "no_tlp", className: "text-slate-600 dark:text-slate-300" },
   ];
 
   const fetchData = async (keyword: string = searchKeyword) => {
@@ -160,7 +160,7 @@ export default function RawatInap() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
-      className="flex flex-col w-full h-full overflow-hidden bg-slate-50 text-slate-800 rounded-tl-xl shadow-inner border-t border-l border-white"
+      className="flex flex-col w-full h-full overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-tl-xl shadow-inner border-t border-l border-white"
     >
 
       <DataTableSingle
@@ -191,9 +191,9 @@ export default function RawatInap() {
         onDateEndChange={setTglAkhir}
         leftFilters={
           <div className="flex items-center gap-2 mr-2">
-            <span className="font-semibold text-slate-600">Status :</span>
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Status :</span>
             <select
-              className="border border-slate-200 rounded text-slate-600 px-2 py-1 focus:outline-brand-500 focus:ring-1 focus:ring-brand-500 bg-white shadow-sm outline-none"
+              className="border border-slate-200 dark:border-slate-600 rounded text-slate-600 dark:text-slate-300 px-2 py-1 focus:outline-brand-500 focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-700 shadow-sm outline-none"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >

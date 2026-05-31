@@ -407,14 +407,14 @@ function SkriningNutrisiContent() {
     label: string; value: string; onChange?: (v: string) => void; unit?: string; placeholder?: string; className?: string
   }) => (
     <div className={`flex items-center gap-2 ${className}`}>
-      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 flex items-center gap-1">
+      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0 flex items-center gap-1">
         {label}
-        {unit && <span className="text-[10px] text-slate-400 font-normal lowercase">({unit})</span>}
+        {unit && <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal lowercase">({unit})</span>}
       </label>
       <input type="text"
         value={value} onChange={e => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 min-w-0 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors bg-white"
+        className="flex-1 min-w-0 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors bg-white dark:bg-slate-700 dark:text-slate-100"
       />
     </div>
   );
@@ -423,9 +423,9 @@ function SkriningNutrisiContent() {
     label: string; value: string; onChange: (v: string) => void; options: string[]; className?: string
   }) => (
     <div className={`flex items-center gap-2 ${className}`}>
-      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">{label}</label>
+      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)}
-        className="flex-1 min-w-0 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors bg-white">
+        className="flex-1 min-w-0 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors bg-white dark:bg-slate-700 dark:text-slate-100">
         {options.map(o => <option key={o}>{o}</option>)}
       </select>
     </div>
@@ -436,8 +436,8 @@ function SkriningNutrisiContent() {
       case 'dewasa': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Dewasa (MST)" persistenceKey="khanza_skrining_nutrisi_form_open">
           <div className="flex flex-col gap-5">
-            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-              <h3 className="text-[13px] font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2">Antropometri & TTV</h3>
+            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                 <FormField label="BB" value={dBB} onChange={setDBB} unit="Kg" placeholder="0" />
                 <FormField label="LILA" value={dLILA} onChange={setDLILA} unit="Cm" placeholder="0" />
@@ -450,34 +450,34 @@ function SkriningNutrisiContent() {
                 <FormField label="Alergi" value={dAlergi} onChange={setDAlergi} placeholder="Alergi..." className="lg:col-span-2" />
               </div>
             </div>
-            <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-              <h3 className="text-[13px] font-bold text-slate-700 mb-3 border-b border-slate-200 pb-2">Skrining Gizi (MST)</h3>
+            <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining Gizi (MST)</h3>
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Penurunan BB</label>
-                  <input type="text" value={dSG1} onChange={e => setDSG1(e.target.value)} placeholder="tidak tahu/tidak=0, 0.5-5kg=1, 5-10kg=2, >10kg=3" className="flex-1 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white" />
-                  <label className="text-xs font-semibold text-slate-600 w-12 shrink-0 ml-2">Nilai 1</label>
-                  <input type="text" value={dNilai1} onChange={e => setDNilai1(e.target.value)} className="w-16 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white text-center" />
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">Penurunan BB</label>
+                  <input type="text" value={dSG1} onChange={e => setDSG1(e.target.value)} placeholder="tidak tahu/tidak=0, 0.5-5kg=1, 5-10kg=2, >10kg=3" className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0 ml-2">Nilai 1</label>
+                  <input type="text" value={dNilai1} onChange={e => setDNilai1(e.target.value)} className="w-16 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 text-center" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-28 shrink-0">Asupan Makanan</label>
-                  <input type="text" value={dSG2} onChange={e => setDSG2(e.target.value)} placeholder="berkurang=1, tidak=0" className="flex-1 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white" />
-                  <label className="text-xs font-semibold text-slate-600 w-12 shrink-0 ml-2">Nilai 2</label>
-                  <input type="text" value={dNilai2} onChange={e => setDNilai2(e.target.value)} className="w-16 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white text-center" />
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">Asupan Makanan</label>
+                  <input type="text" value={dSG2} onChange={e => setDSG2(e.target.value)} placeholder="berkurang=1, tidak=0" className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0 ml-2">Nilai 2</label>
+                  <input type="text" value={dNilai2} onChange={e => setDNilai2(e.target.value)} className="w-16 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 text-center" />
                 </div>
                 <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
-                  <label className="text-xs font-bold text-brand-700 w-28 shrink-0">Total Skor</label>
-                  <input type="text" value={dTotal} readOnly className="flex-1 border border-brand-300 rounded px-2 py-1.5 text-xs bg-brand-50 font-bold text-brand-700" />
+                  <label className="text-xs font-bold text-brand-700 dark:text-brand-400 w-28 shrink-0">Total Skor</label>
+                  <input type="text" value={dTotal} readOnly className="flex-1 border border-brand-300 dark:border-brand-700 rounded px-2 py-1.5 text-xs bg-brand-50 dark:bg-slate-700 font-bold text-brand-700 dark:text-brand-400" />
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                 <div className="flex gap-1 flex-1">
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                  <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNik} readOnly />
+                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNama} readOnly />
+                  <button className="px-2 text-brand-500 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 rounded border border-transparent hover:border-brand-200 dark:hover:border-slate-600 transition-colors"><FaEdit /></button>
                 </div>
               </div>
             </div>
@@ -487,8 +487,8 @@ function SkriningNutrisiContent() {
       case 'anak': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Anak (StrongKids)" persistenceKey="khanza_skrining_nutrisi_anak_form_open">
           <div className="flex flex-col gap-5">
-            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-              <h3 className="text-[13px] font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2">Antropometri & TTV</h3>
+            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 <FormField label="BB" value={aBB} onChange={setABB} unit="Kg" placeholder="0" />
                 <FormField label="TB/PB" value={aTBPB} onChange={setATBPB} unit="Cm" placeholder="0" />
@@ -500,48 +500,48 @@ function SkriningNutrisiContent() {
                 <FormField label="Alergi" value={aAlergi} onChange={setAAlergi} placeholder="Alergi..." className="lg:col-span-2" />
               </div>
             </div>
-            <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-              <h3 className="text-[13px] font-bold text-slate-700 mb-3 border-b border-slate-200 pb-2">Skrining StrongKids</h3>
+            <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining StrongKids</h3>
               <div className="flex flex-col gap-3">
                 <SelectField label="1. Penurunan BB" value={aSG1} onChange={setASG1} options={['Tidak', 'Ya']} />
                 <div className="flex items-center gap-2 ml-[104px] -mt-2">
-                  <span className="text-[11px] text-slate-400">(Penurunan BB 1 bulan terakhir)</span>
-                  <span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {aN1}</span>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">(Penurunan BB 1 bulan terakhir)</span>
+                  <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {aN1}</span>
                 </div>
                 <SelectField label="2. Tampak Kurus" value={aSG2} onChange={setASG2} options={['Tidak', 'Ya']} />
                 <div className="flex items-center gap-2 ml-[104px] -mt-2">
-                  <span className="text-[11px] text-slate-400">(Apakah pasien tampak kurus?)</span>
-                  <span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {aN2}</span>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">(Apakah pasien tampak kurus?)</span>
+                  <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {aN2}</span>
                 </div>
                 <SelectField label="3. Diare/Muntah" value={aSG3} onChange={setASG3} options={['Tidak', 'Ya']} />
                 <div className="flex items-center gap-2 ml-[104px] -mt-2">
-                  <span className="text-[11px] text-slate-400">(Diare &gt;5x/hr/muntah &gt;3x/hr atau asupan berkurang)</span>
-                  <span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {aN3}</span>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">(Diare &gt;5x/hr/muntah &gt;3x/hr atau asupan berkurang)</span>
+                  <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {aN3}</span>
                 </div>
                 <SelectField label="4. Penyakit Risiko" value={aSG4} onChange={setASG4} options={['Tidak', 'Ya']} />
                 <div className="flex items-center gap-2 ml-[104px] -mt-2">
-                  <span className="text-[11px] text-slate-400">(Penyakit/keadaan yang menyebabkan risiko malnutrisi)</span>
-                  <span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {aN4}</span>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">(Penyakit/keadaan yang menyebabkan risiko malnutrisi)</span>
+                  <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {aN4}</span>
                 </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-200 mt-1">
-                  <label className="text-xs font-bold text-brand-700 w-28 shrink-0">Total Skor</label>
-                  <input type="text" value={aTotal} readOnly className="w-16 border border-brand-300 rounded px-2 py-1.5 text-xs bg-brand-50 font-bold text-brand-700 text-center" />
-                  <label className="text-xs font-bold text-slate-700 ml-4 shrink-0">Skor Nutrisi</label>
-                  <input type="text" value={aSkorNutrisi} readOnly className="flex-1 border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 font-semibold text-slate-700" />
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700 mt-1">
+                  <label className="text-xs font-bold text-brand-700 dark:text-brand-400 w-28 shrink-0">Total Skor</label>
+                  <input type="text" value={aTotal} readOnly className="w-16 border border-brand-300 dark:border-brand-700 rounded px-2 py-1.5 text-xs bg-brand-50 dark:bg-slate-700 font-bold text-brand-700 dark:text-brand-400 text-center" />
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 ml-4 shrink-0">Skor Nutrisi</label>
+                  <input type="text" value={aSkorNutrisi} readOnly className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 font-semibold text-slate-700 dark:text-slate-200" />
                 </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
                   <SelectField label="Diketahui Dietisien" value={aDiketahui} onChange={setADiketahui} options={['Tidak', 'Ya']} className="flex-1" />
                   <FormField label="Jam/Dokter" value={aKetDiketahui} onChange={setAKetDiketahui} placeholder="Jam dilaporkan / nama dokter..." className="flex-1" />
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                 <div className="flex gap-1 flex-1">
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                  <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNik} readOnly />
+                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNama} readOnly />
+                  <button className="px-2 text-brand-500 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 rounded border border-transparent hover:border-brand-200 dark:hover:border-slate-600 transition-colors"><FaEdit /></button>
                 </div>
               </div>
             </div>
@@ -551,8 +551,8 @@ function SkriningNutrisiContent() {
       case 'lansia': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Lansia (MNA)" persistenceKey="khanza_skrining_nutrisi_lansia_form_open">
           <div className="flex flex-col gap-5">
-            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-              <h3 className="text-[13px] font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2">Antropometri & TTV</h3>
+            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 <FormField label="BB" value={lBB} onChange={setLBB} unit="Kg" placeholder="0" />
                 <FormField label="TB/PB" value={lTBPB} onChange={setLTBPB} unit="Cm" placeholder="0" />
@@ -564,41 +564,41 @@ function SkriningNutrisiContent() {
                 <FormField label="Alergi" value={lAlergi} onChange={setLAlergi} placeholder="Alergi..." className="lg:col-span-2" />
               </div>
             </div>
-            <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200">
-              <h3 className="text-[13px] font-bold text-slate-700 mb-3 border-b border-slate-200 pb-2">Skrining MNA</h3>
+            <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining MNA</h3>
               <div className="flex flex-col gap-3">
                 <SelectField label="A. Asupan Makan" value={lSG1} onChange={setLSG1}
                   options={['Asupan Makan Tidak Berkurang', 'Asupan Makan Agak Berkurang', 'Asupan Makan Sangat Berkurang']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {lN1}</span></div>
+                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN1}</span></div>
                 <SelectField label="B. Penurunan BB" value={lSG2} onChange={setLSG2}
                   options={['Tidak Ada Penurunan Berat Badan', 'Penurunan Berat Badan Antara 1 Hingga 3 Kg', 'Tidak Tahu', 'Penurunan Berat Badan Lebih Dari 3 Kg']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {lN2}</span></div>
+                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN2}</span></div>
                 <SelectField label="C. Mobilitas" value={lSG3} onChange={setLSG3}
                   options={['Dapat Bepergian Keluar Rumah', 'Mampu Bangun Dari Tempat Tidur/Kursi Tetapi Tidak Bepergian Keluar Rumah', 'Terbatas Dari Tempat Tidur Atau Kursi']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {lN3}</span></div>
+                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN3}</span></div>
                 <SelectField label="D. Psikologis" value={lSG4} onChange={setLSG4} options={['Tidak', 'Ya']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-[11px] text-slate-400">(Tekanan psikologis/penyakit berat 3 bulan terakhir)</span><span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {lN4}</span></div>
+                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-[11px] text-slate-400 dark:text-slate-500">(Tekanan psikologis/penyakit berat 3 bulan terakhir)</span><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN4}</span></div>
                 <SelectField label="E. Neuropsikologis" value={lSG5} onChange={setLSG5}
                   options={['Tidak Ada Gangguan Psikologis', 'Kepikunan Ringan', 'Depresi Berat Atau Kepikunan Berat']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {lN5}</span></div>
+                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN5}</span></div>
                 <SelectField label="F. IMT" value={lSG6} onChange={setLSG6}
                   options={['IMT >= 23', '21 Hingga < 23', '19 Hingga < 21', 'IMT < 19']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 ml-auto">Nilai: {lN6}</span></div>
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-200 mt-1">
-                  <label className="text-xs font-bold text-brand-700 w-28 shrink-0">Total Skor</label>
-                  <input type="text" value={lTotal} readOnly className="w-16 border border-brand-300 rounded px-2 py-1.5 text-xs bg-brand-50 font-bold text-brand-700 text-center" />
-                  <label className="text-xs font-bold text-slate-700 ml-4 shrink-0">Skor Nutrisi</label>
-                  <input type="text" value={lSkorNutrisi} readOnly className="flex-1 border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 font-semibold text-slate-700" />
+                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN6}</span></div>
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700 mt-1">
+                  <label className="text-xs font-bold text-brand-700 dark:text-brand-400 w-28 shrink-0">Total Skor</label>
+                  <input type="text" value={lTotal} readOnly className="w-16 border border-brand-300 dark:border-brand-700 rounded px-2 py-1.5 text-xs bg-brand-50 dark:bg-slate-700 font-bold text-brand-700 dark:text-brand-400 text-center" />
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 ml-4 shrink-0">Skor Nutrisi</label>
+                  <input type="text" value={lSkorNutrisi} readOnly className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 font-semibold text-slate-700 dark:text-slate-200" />
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                 <div className="flex gap-1 flex-1">
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                  <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNik} readOnly />
+                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNama} readOnly />
+                  <button className="px-2 text-brand-500 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 rounded border border-transparent hover:border-brand-200 dark:hover:border-slate-600 transition-colors"><FaEdit /></button>
                 </div>
               </div>
             </div>
@@ -608,79 +608,79 @@ function SkriningNutrisiContent() {
       case 'gizilanjut': return (
         <TopFormContainer title="Form Input Skrining Gizi Lanjutan" persistenceKey="khanza_skrining_gizi_lanjut_form_open">
           <div className="flex flex-col gap-5">
-            <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-              <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Gizi</h3>
+            <div className="bg-brand-50/40 dark:bg-slate-700/40 p-4 rounded-lg border border-brand-100/50 dark:border-slate-600">
+              <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-4 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">Data Skrining Gizi</h3>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">BB</label>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">BB</label>
                 <input type="text" value={gBB} onChange={e => setGBB(e.target.value)}
-                  className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
-                <span className="text-[10px] text-slate-400 -ml-2 w-6">Kg</span>
-                <label className="text-xs font-semibold text-slate-600 w-8 shrink-0">TB</label>
+                  className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-6">Kg</span>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 shrink-0">TB</label>
                 <input type="text" value={gTB} onChange={e => setGTB(e.target.value)}
-                  className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
-                <span className="text-[10px] text-slate-400 -ml-2 w-6">Cm</span>
-                <label className="text-xs font-semibold text-slate-600 w-8 shrink-0">IMT</label>
+                  className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-6">Cm</span>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 shrink-0">IMT</label>
                 <input type="text" value={gIMT} readOnly
-                  className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 focus:outline-none focus:border-brand-500 w-20" />
-                <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">Alergi</label>
+                  className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500 w-20" />
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0">Alergi</label>
                 <input type="text" value={gAlergi} onChange={e => setGAlergi(e.target.value)}
-                  className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[120px]" placeholder="Alergi makanan/obat..." />
+                  className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[120px]" placeholder="Alergi makanan/obat..." />
               </div>
             </div>
             <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
               <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Penilaian Skrining</h3>
               <div className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 1</label>
-                  <span className="text-xs text-slate-700 w-[300px] shrink-0">1. Skor IMT /z Score</span>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 1</label>
+                  <span className="text-xs text-slate-700 dark:text-slate-200 w-[300px] shrink-0">1. Skor IMT /z Score</span>
                   <select value={gSkor1} onChange={e => setGSkor1(e.target.value)}
-                    className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
                     <option>IMT &gt; 20/z score &gt; 2</option>
                     <option>IMT 18,5-20/-2 =&lt; z score =&lt; 2</option>
                     <option>IMT &lt; 18,5/z score &lt; -2</option>
                   </select>
-                  <label className="text-xs font-semibold text-slate-600">Skor :</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
                   <input type="text" value={gSkor1Val} readOnly
-                    className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold dark:text-slate-200" />
                 </div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 2</label>
-                  <span className="text-xs text-slate-700 w-[300px] shrink-0">2. Skor kehilangan BB yang tidak direncanakan 3-6 bulan terakhir</span>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 2</label>
+                  <span className="text-xs text-slate-700 dark:text-slate-200 w-[300px] shrink-0">2. Skor kehilangan BB yang tidak direncanakan 3-6 bulan terakhir</span>
                   <select value={gSkor2} onChange={e => setGSkor2(e.target.value)}
-                    className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
                     <option>BB Hilang &lt; 5%</option>
                     <option>BB Hilang 5 - 10 %</option>
                     <option>BB Hilang &gt; 10 %</option>
                   </select>
-                  <label className="text-xs font-semibold text-slate-600">Skor :</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
                   <input type="text" value={gSkor2Val} readOnly
-                    className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold dark:text-slate-200" />
                 </div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 3</label>
-                  <span className="text-xs text-slate-700 w-[300px] shrink-0">3. Skor efek penyakit akut</span>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 3</label>
+                  <span className="text-xs text-slate-700 dark:text-slate-200 w-[300px] shrink-0">3. Skor efek penyakit akut</span>
                   <select value={gSkor3} onChange={e => setGSkor3(e.target.value)}
-                    className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
                     <option>Ada asupan nutrisi &gt; 5 hari</option>
                     <option>Tidak ada asupan nutrisi &gt; 5 hari</option>
                   </select>
-                  <label className="text-xs font-semibold text-slate-600">Skor :</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
                   <input type="text" value={gSkor3Val} readOnly
-                    className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold dark:text-slate-200" />
                 </div>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 border-t border-brand-100/50 mt-1">
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Total Skor</label>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 border-t border-brand-100/50 dark:border-slate-600 mt-1">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Total Skor</label>
                   <input type="text" value={gTotal} readOnly
-                    className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold text-brand-700" />
-                  <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Kesimpulan</label>
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold text-brand-700 dark:text-brand-400" />
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Kesimpulan</label>
                   <input type="text" value={gKesimpulan} readOnly
-                    className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 text-slate-700 flex-1 min-w-[200px]" />
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex-1 min-w-[200px]" />
                 </div>
               </div>
             </div>
             <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200">
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                 <div className="flex gap-1 flex-1">
                   <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                   <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
@@ -696,24 +696,24 @@ function SkriningNutrisiContent() {
 
   return (
     <>
-      <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
         <div className="flex items-center gap-1 w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 shrink-0">Pasien :</label>
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+          <label className="font-semibold text-slate-600 dark:text-slate-300 shrink-0">Pasien :</label>
+          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-33 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
         </div>
         <div className="flex items-center gap-1 w-full sm:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-16 bg-slate-50 focus:outline-none focus:border-brand-500"
+          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-16 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500"
             value={isLoadingPatient ? '...' : noRM} readOnly placeholder="No. RM" />
         </div>
         <div className="flex items-center gap-1 w-full md:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-70 bg-slate-50 focus:outline-none focus:border-brand-500"
+          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-70 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500"
             value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
         </div>
         <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
-          <label className="font-semibold text-slate-600">Tanggal :</label>
-          <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500"
+          <label className="font-semibold text-slate-600 dark:text-slate-300">Tanggal :</label>
+          <input type="date" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500 bg-white dark:bg-slate-700"
             value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-          <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white"
+          <input type="time" step="1" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
             value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
           <input type="checkbox" className="accent-brand-500 w-4 h-4 ml-2 opacity-60"
             checked={isClockRunning} disabled title="Jam selalu real-time" />
@@ -721,12 +721,12 @@ function SkriningNutrisiContent() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex bg-white border-b border-slate-200 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
+      <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {tabs.map(t => {
           const isActive = activeTab === t.id;
           return (
             <button key={t.id} onClick={() => { setActiveTab(t.id); setIsTableExpanded(false); setSelectedRows([]); }}
-              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 font-bold' : 'text-slate-500 hover:text-brand-600'}`}>
+              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 dark:text-brand-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-brand-600'}`}>
               {t.label}
               {isActive && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-full" />}
             </button>
@@ -734,7 +734,7 @@ function SkriningNutrisiContent() {
         })}
       </div>
 
-      <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
+      <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 pt-0 pb-2 relative">
         <div className="flex flex-col min-h-full w-full">
           {renderForm()}
 
@@ -758,15 +758,15 @@ function SkriningNutrisiContent() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
                 className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsTableExpanded(false)} />
               <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.15 }}
-                className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 p-4 shadow-2xl rounded-xl border border-slate-300 flex flex-col">
-                <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
-                  <h3 className="font-bold text-slate-700 text-[13px]">Tabel Data {tabs.find(t => t.id === activeTab)?.label || 'Skrining Nutrisi'}</h3>
+                className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 dark:bg-slate-900 p-4 shadow-2xl rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col">
+                <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-t-lg px-3 py-2 shrink-0">
+                  <h3 className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">Tabel Data {tabs.find(t => t.id === activeTab)?.label || 'Skrining Nutrisi'}</h3>
                   <button onClick={() => setIsTableExpanded(false)}
-                    className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                    className="px-2 py-1 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-slate-600 dark:text-slate-300 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
                     <FaCompress className="text-[10px]" /> Perkecil
                   </button>
                 </div>
-                <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
+                <div className="border border-slate-300 dark:border-slate-700 border-t-0 overflow-auto bg-white dark:bg-slate-800 rounded-b-lg flex-1">
                   <DataTableMulti
                     columns={currentColumns}
                     data={currentData}

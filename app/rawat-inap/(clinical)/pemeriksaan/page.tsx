@@ -92,7 +92,7 @@ const columns: TableColumn[] = [
   {
     header: "Nama Pasien",
     key: "nm_pasien",
-    className: "text-slate-800 font-bold",
+    className: "text-slate-800 dark:text-slate-100 font-bold",
     width: "200px",
   },
   { header: "Tgl.Rawat", key: "tgl_perawatan", width: "100px" },
@@ -614,7 +614,7 @@ function PemeriksaanContent() {
   return (
     <>
       {/* Tab */}
-      <div className="flex bg-white border-b border-slate-200 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
+      <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {[
           "Penanganan Dokter",
           "Penanganan Petugas",
@@ -632,7 +632,7 @@ function PemeriksaanContent() {
               onClick={() =>
                 setActiveTab(tab === "Pemeriksaan / CPPT" ? "cppt" : tabId)
               }
-              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? "text-brand-700 font-bold" : "text-slate-500 hover:text-brand-600"}`}
+              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? "text-brand-700 dark:text-brand-400 font-bold" : "text-slate-500 dark:text-slate-400 hover:text-brand-600"}`}
             >
               {tab}
               {isActive && (
@@ -644,7 +644,7 @@ function PemeriksaanContent() {
       </div>
 
       {/* Konten Tab */}
-      <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
+      <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 pt-0 pb-2 relative">
         {activeTab === "cppt" && (
           <div className="flex flex-col min-h-full w-full">
             {/* Warning banner jika SOAP sebelumnya belum diverifikasi */}
@@ -654,15 +654,15 @@ function PemeriksaanContent() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mx-2 mt-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 shadow-sm"
+                  className="mx-2 mt-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3 shadow-sm"
                 >
-                  <FaExclamationTriangle className="text-red-500 mt-0.5 shrink-0" />
-                  <div className="text-xs text-red-700">
+                  <FaExclamationTriangle className="text-red-500 dark:text-red-400 mt-0.5 shrink-0" />
+                  <div className="text-xs text-red-700 dark:text-red-300">
                     <p className="font-semibold">
                       SOAP Sebelumnya Belum Diverifikasi
                     </p>
                     <p className="mt-0.5">{verifBlockMessage}</p>
-                    <p className="mt-1 text-red-500">
+                    <p className="mt-1 text-red-500 dark:text-red-400">
                       Harap selesaikan verifikasi SOAP pada tanggal sebelumnya
                       sebelum mengisi SOAP baru.
                     </p>
@@ -680,37 +680,37 @@ function PemeriksaanContent() {
                 {/* Info Pasien & Tanggal */}
                 <FormSection className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-18 sm:w-20 shrink-0">
                       Nama Pasien
                     </label>
                     <input
                       type="text"
-                      className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={noRawat}
                       readOnly
                     />
                   </div>
                   <input
                     type="text"
-                    className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 w-16 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                     value={isLoadingPatient ? "..." : noRM}
                     readOnly
                     placeholder="RM"
                   />
                   <input
                     type="text"
-                    className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500"
+                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 w-75 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                     value={isLoadingPatient ? "Memuat..." : namaPasien}
                     readOnly
                     placeholder="Nama"
                   />
                   <div className="ml-auto flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 sm:w-12 shrink-0">
                       Tanggal
                     </label>
                     <input
                       type="date"
-                      className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
                       value={currentDate}
                       onChange={(e) => {
                         if (!isClockRunning) setCurrentDate(e.target.value);
@@ -720,7 +720,7 @@ function PemeriksaanContent() {
                     <input
                       type="time"
                       step="1"
-                      className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white"
+                       className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
                       value={currentTime}
                       onChange={(e) => {
                         if (!isClockRunning) setCurrentTime(e.target.value);
@@ -739,77 +739,77 @@ function PemeriksaanContent() {
                 {/* SOAP, Instruksi & Alergi */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-start gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0 pt-2">
                       Subjek
                     </label>
                     <textarea
-                      className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                      className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                       placeholder="Keluhan pasien..."
                       value={formKeluhan}
                       onChange={(e) => setFormKeluhan(e.target.value)}
                     />
                   </div>
                   <div className="flex items-start gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0 pt-2">
                       Objek
                     </label>
                     <textarea
-                      className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                      className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                       placeholder="Hasil pemeriksaan..."
                       value={formPemeriksaan}
                       onChange={(e) => setFormPemeriksaan(e.target.value)}
                     />
                   </div>
                   <div className="flex items-start gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0 pt-2">
                       Asesmen
                     </label>
                     <textarea
-                      className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                      className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                       placeholder="Diagnosis/Asesmen..."
                       value={formPenilaian}
                       onChange={(e) => setFormPenilaian(e.target.value)}
                     />
                   </div>
                   <div className="flex items-start gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0 pt-2">
                       Plan
                     </label>
                     <textarea
-                      className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                      className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                       placeholder="Rencana tindakan..."
                       value={formRtl}
                       onChange={(e) => setFormRtl(e.target.value)}
                     />
                   </div>
                   <div className="flex items-start gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0 pt-2">
                       Instruksi
                     </label>
                     <textarea
-                      className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                      className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                       placeholder="Instruksi medis..."
                       value={formInstruksi}
                       onChange={(e) => setFormInstruksi(e.target.value)}
                     />
                   </div>
                   <div className="flex items-start gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0 pt-2">
                       Evaluasi
                     </label>
                     <textarea
-                      className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                      className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                       placeholder="Evaluasi tindakan..."
                       value={formEvaluasi}
                       onChange={(e) => setFormEvaluasi(e.target.value)}
                     />
                   </div>
                   <div className="flex items-start gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0 pt-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0 pt-2">
                       Alergi
                     </label>
                     <textarea
-                      className="border border-slate-300 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                      className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 h-15 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                       placeholder="Alergi pasien..."
                       value={formAlergi}
                       onChange={(e) => setFormAlergi(e.target.value)}
@@ -818,105 +818,105 @@ function PemeriksaanContent() {
                 </div>
 
                 {/* TTV */}
-                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-3 flex items-center gap-2 border-b border-brand-100 pb-2">
+                <div className="bg-brand-50/40 dark:bg-slate-700/40 p-4 rounded-lg border border-brand-100/50 dark:border-slate-600">
+                  <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-3 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">
                     Tanda-Tanda Vital (TTV)
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         Suhu (°C)
                       </label>
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formSuhu}
                         onChange={(e) => setFormSuhu(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         Tensi (mmHg)
                       </label>
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formTensi}
                         onChange={(e) => setFormTensi(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         Berat (Kg)
                       </label>
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formBerat}
                         onChange={(e) => setFormBerat(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         Tinggi (Cm)
                       </label>
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formTinggi}
                         onChange={(e) => setFormTinggi(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         Respirasi (/mnt)
                       </label>
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formRespirasi}
                         onChange={(e) => setFormRespirasi(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         Nadi (/mnt)
                       </label>
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formNadi}
                         onChange={(e) => setFormNadi(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         SpO2 (%)
                       </label>
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formSpo2}
                         onChange={(e) => setFormSpo2(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         GCS (E,V,M)
                       </label>
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formGcs}
                         onChange={(e) => setFormGcs(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[11px] font-semibold text-slate-600 w-28 shrink-0">
+                       <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         Kesadaran
                       </label>
                       <select
-                        className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formKesadaran}
                         onChange={(e) => setFormKesadaran(e.target.value)}
                       >
@@ -932,19 +932,19 @@ function PemeriksaanContent() {
                 {/* Petugas */}
                 <FormSection>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">
                       Dilakukan Oleh
                     </label>
                     <div className="flex gap-1 flex-1">
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
                         value={pegawaiNik}
                         readOnly
                       />
                       <input
                         type="text"
-                        className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
                         value={pegawaiNama}
                         readOnly
                       />
@@ -953,7 +953,7 @@ function PemeriksaanContent() {
                         size="xs"
                         onClick={handleShow5Soap}
                         title="5 SOAP Terakhir"
-                        className="border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 font-bold text-[11px]"
+                        className="border-slate-200 dark:border-slate-600 hover:border-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[11px]"
                       >
                         <FaHistory /> 5 SOAP
                       </Button>
@@ -1004,20 +1004,20 @@ function PemeriksaanContent() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 p-4 shadow-2xl rounded-xl border border-slate-300 flex flex-col"
+                    className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 dark:bg-slate-900 p-4 shadow-2xl rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col"
                   >
-                    <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
-                      <h3 className="font-bold text-slate-700 text-[13px]">
+                    <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-t-lg px-3 py-2 shrink-0">
+                      <h3 className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">
                         Tabel Riwayat Pemeriksaan / CPPT
                       </h3>
                       <button
                         onClick={() => setIsTableExpanded(false)}
-                        className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm"
+                        className="px-2 py-1 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-slate-600 dark:text-slate-300 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm"
                       >
                         <FaCompress className="text-[10px]" /> Perkecil
                       </button>
                     </div>
-                    <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
+                    <div className="border border-slate-300 dark:border-slate-700 border-t-0 overflow-auto bg-white dark:bg-slate-800 rounded-b-lg flex-1">
                       <DataTableMulti
                         columns={columns}
                         data={pemeriksaanData}
@@ -1137,7 +1137,7 @@ function PemeriksaanContent() {
         )}
 
         {activeTab !== "cppt" && (
-          <div className="flex items-center justify-center h-full text-slate-400">
+          <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500">
             Menu {activeTab.toUpperCase()} belum tersedia (Demo)
           </div>
         )}
@@ -1157,16 +1157,16 @@ function PemeriksaanContent() {
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl border border-slate-300 w-96 p-5"
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 w-96 p-5"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="font-bold text-sm text-slate-700 mb-3">
+              <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200 mb-3">
                 {alasanDialog.mode === "ganti"
                   ? "Masukkan alasan edit data:"
                   : "Masukkan alasan hapus data:"}
               </h3>
               <textarea
-                className="border border-slate-300 rounded p-2 w-full h-20 resize-none focus:outline-none focus:border-brand-500 text-xs"
+                className="border border-slate-300 dark:border-slate-600 rounded p-2 w-full h-20 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                 placeholder="Alasan..."
                 value={alasanText}
                 onChange={(e) => setAlasanText(e.target.value)}
@@ -1177,7 +1177,7 @@ function PemeriksaanContent() {
                   onClick={() =>
                     setAlasanDialog({ ...alasanDialog, open: false })
                   }
-                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded text-xs font-semibold text-slate-600 transition-colors"
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors"
                 >
                   Batal
                 </button>
