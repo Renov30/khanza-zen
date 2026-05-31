@@ -96,7 +96,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     await logoutAction();
-    
+
     // Notify other tabs
     const authChannel = new BroadcastChannel("auth_sync");
     authChannel.postMessage("logout");
@@ -105,7 +105,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     setIsLoggedIn(false);
     setIsAccountMenuOpen(false);
     setIsLoginModalOpen(true);
-    
+
     if (pathname !== "/") {
       router.push("/");
     }
@@ -493,9 +493,9 @@ function ToolbarMenuItem({
     <motion.button
       whileHover={{ backgroundColor: "rgba(255,255,255,0.15)" }}
       transition={{ duration: 0.1 }}
-      className="flex items-center gap-1 px-2 md:px-3 py-0.5 lg:py-1 rounded-lg text-[10px] lg:text-xs font-medium transition-colors duration-150 hover:shadow-sm"
+      className="flex items-center gap-1 px-2 md:px-2 py-0.5 lg:py-1 rounded-lg text-[10px] lg:text-xs font-medium transition-colors duration-150 hover:shadow-sm"
     >
-      <span className="text-sm md:text-base drop-shadow-md">{icon}</span>
+      <span className="text-sm md:text-xs drop-shadow-md">{icon}</span>
       <span className="drop-shadow-sm hidden md:inline">{label}</span>
     </motion.button>
   );
@@ -531,7 +531,7 @@ function ShortcutMenuItem({
         {icon}
       </span>
       <span
-        className={`text-[10px] lg:text-[11px] font-bold z-10 hidden md:block ${isRed ? "text-red-600" : active ? "text-brand-700" : "text-slate-600 group-hover:text-brand-700"}`}
+        className={`text-[10px] lg:text-xs font-bold z-10 hidden md:block ${isRed ? "text-red-600" : active ? "text-brand-700" : "text-slate-600 group-hover:text-brand-700"}`}
       >
         {label}
       </span>
