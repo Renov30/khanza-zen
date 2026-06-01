@@ -38,8 +38,8 @@ export default function SettingPage() {
     if (res.success && res.data) {
       setForm((prev) => ({ ...prev, ...res.data }));
     }
-    setLogoPreview("/api/setting/logo");
-    setWallpaperPreview("/api/setting/wallpaper");
+    setLogoPreview("/api/setting/logo?t=" + Date.now());
+    setWallpaperPreview("/api/setting/wallpaper?preview=1&t=" + Date.now());
     setIsLoading(false);
   }, []);
 
@@ -48,8 +48,8 @@ export default function SettingPage() {
       fetchData();
     } else {
       setIsLoading(false);
-      setLogoPreview("/api/setting/logo");
-      setWallpaperPreview("/api/setting/wallpaper");
+      setLogoPreview("/api/setting/logo?t=" + Date.now());
+      setWallpaperPreview("/api/setting/wallpaper?preview=1&t=" + Date.now());
     }
   }, [instansi, fetchData]);
 
@@ -71,7 +71,7 @@ export default function SettingPage() {
     if (res.success) {
       refreshSettings();
       if (!logoFile) setLogoPreview("/api/setting/logo?" + Date.now());
-      if (!wallpaperFile) setWallpaperPreview("/api/setting/wallpaper?" + Date.now());
+      if (!wallpaperFile) setWallpaperPreview("/api/setting/wallpaper?preview=1&t=" + Date.now());
       setLogoFile(null);
       setWallpaperFile(null);
     }
@@ -210,7 +210,7 @@ export default function SettingPage() {
                     }}
                     className="text-xs text-slate-600 dark:text-slate-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border file:border-brand-200 dark:file:border-slate-600 file:text-xs file:font-semibold file:bg-brand-50 dark:file:bg-slate-700 file:text-brand-700 dark:file:text-slate-200 hover:file:bg-brand-100 dark:hover:file:bg-slate-600" />
                   {wallpaperFile && (
-                    <button type="button" onClick={() => { setWallpaperFile(null); setWallpaperPreview("/api/setting/wallpaper?" + Date.now()); }}
+                    <button type="button" onClick={() => { setWallpaperFile(null); setWallpaperPreview("/api/setting/wallpaper?preview=1&t=" + Date.now()); }}
                       className="text-xs text-red-600 mt-1 flex items-center gap-1 hover:underline">
                       <FaTrash /> Batal
                     </button>

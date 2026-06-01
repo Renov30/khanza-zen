@@ -64,9 +64,11 @@ export function SettingProvider({ children }: { children: React.ReactNode }) {
         aktifkan: res.data.aktifkan || "No",
       });
 
-      // Fetch logo blob (cache:no-store ensures fresh data after refresh)
+      // Initial load (fetchId=1) → browser cache 1 tahun berlaku
+      // Refresh (fetchId>1) → ?v=... bypass cache ambil gambar baru
+      const cacheBust = fetchId > 1 ? "?v=" + fetchId : "";
       try {
-        const logoResp = await fetch("/api/setting/logo", { cache: "no-store" });
+        const logoResp = await fetch("/api/setting/logo" + cacheBust);
         if (logoResp.ok) {
           const blob = await logoResp.blob();
           const oldLogo = logoBlobRef.current;
@@ -81,7 +83,7 @@ export function SettingProvider({ children }: { children: React.ReactNode }) {
       // Fetch wallpaper blob (only if aktifkan=Yes)
       if (res.data.aktifkan === "Yes") {
         try {
-          const wallResp = await fetch("/api/setting/wallpaper", { cache: "no-store" });
+          const wallResp = await fetch("/api/setting/wallpaper" + cacheBust);
           if (wallResp.ok) {
             const blob = await wallResp.blob();
             const oldWall = wallpaperBlobRef.current;

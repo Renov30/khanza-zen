@@ -1,14 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getDbConnection } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const isPreview = searchParams.get('preview') === '1';
+
     const pool = await getDbConnection();
     const [rows]: any = await pool.execute(
       "select wallpaper, aktifkan from setting limit 1"
     );
 
-    if (rows.length > 0 && rows[0].wallpaper && rows[0].aktifkan === 'Yes') {
+    const show = rows.length > 0 && rows[0].wallpaper && (isPreview || rows[0].aktifkan === 'Yes');
+
+    if (show) {
       const buf: Buffer = rows[0].wallpaper;
       return new NextResponse(new Uint8Array(buf), {
         headers: {
