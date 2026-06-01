@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SIMRS - RS Bunda Pengharapan",
+  title: "SIMRS-ZEN",
   description: "Sistem Informasi Manajemen Rumah Sakit",
 };
 
@@ -24,9 +24,7 @@ export default function RootLayout({
       className={`${inter.variable} font-sans h-full antialiased`}
     >
       <body className="h-full overflow-hidden bg-slate-100 text-slate-800">
-        <AppShell>
-          {children}
-        </AppShell>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
