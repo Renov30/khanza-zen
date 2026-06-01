@@ -27,6 +27,7 @@ export default function Home() {
       />
 
       <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent z-0"></div>
+      <div className="absolute inset-0 bg-black/0 dark:bg-black/35 z-0 transition-colors duration-300"></div>
 
       <motion.div
         initial={{ opacity: 0 }}

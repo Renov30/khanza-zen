@@ -522,8 +522,8 @@ function ProfileMenu({
             {username || "User"}
           </span>
         </div>
-        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-brand-100 to-white flex items-center justify-center border border-brand-200 shadow-sm transition-all duration-150 group-hover/account:scale-105 group-hover/account:shadow-md group-hover/account:border-brand-300">
-          <FaUser className="text-brand-600 text-base md:text-xl drop-shadow-sm" />
+        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-brand-100 to-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center border border-brand-200 dark:border-slate-600 shadow-sm transition-all duration-150 group-hover/account:scale-105 group-hover/account:shadow-md group-hover/account:border-brand-300 dark:group-hover/account:border-slate-500">
+          <FaUser className="text-brand-600 dark:text-slate-300 text-base md:text-xl drop-shadow-sm" />
         </div>
       </div>
 
