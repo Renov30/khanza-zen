@@ -20,7 +20,9 @@ export function getDatabaseConfig(): DbConfig {
     throw new Error(`Database configuration file not found at: ${xmlPath}`);
   }
 
-  const xmlContent = fs.readFileSync(xmlPath, 'utf8');
+  let xmlContent = fs.readFileSync(xmlPath, 'utf8');
+
+  xmlContent = xmlContent.replace(/<!--[\s\S]*?-->/g, '');
   
   const getValue = (key: string): string => {
     const regex = new RegExp(`<entry key="${key}">(.*?)</entry>`);
