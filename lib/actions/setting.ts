@@ -47,6 +47,7 @@ export async function updateSetting(formData: FormData) {
     const logoFile = formData.get("logo") as File | null;
     const wallpaperFile = formData.get("wallpaper") as File | null;
 
+    console.log("[updateSetting] logoFile:", logoFile?.name, logoFile?.size);
     const logoBuffer = logoFile && logoFile.size > 0
       ? Buffer.from(await logoFile.arrayBuffer())
       : null;

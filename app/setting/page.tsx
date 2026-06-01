@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { FaCog, FaSave, FaImage, FaTrash, FaTimes, FaPalette } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { getSettingRs, updateSetting } from "@/lib/actions/setting";
@@ -24,8 +25,6 @@ export default function SettingPage() {
   });
   const [isLoading, setIsLoading] = useState(!instansi);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">("success");
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [wallpaperPreview, setWallpaperPreview] = useState<string | null>(null);
@@ -56,7 +55,6 @@ export default function SettingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setMessage("");
 
     const fd = new FormData();
     Object.entries(form).forEach(([k, v]) => fd.append(k, v));
@@ -64,17 +62,22 @@ export default function SettingPage() {
     if (wallpaperFile) fd.append("wallpaper", wallpaperFile);
 
     const res = await updateSetting(fd);
-    setMessage(res.message);
-    setMessageType(res.success ? "success" : "error");
-    setIsSaving(false);
-
     if (res.success) {
+      toast.success(res.message);
       refreshSettings();
       if (!logoFile) setLogoPreview("/api/setting/logo?" + Date.now());
       if (!wallpaperFile) setWallpaperPreview("/api/setting/wallpaper?preview=1&t=" + Date.now());
       setLogoFile(null);
       setWallpaperFile(null);
+
+      // Preload wallpaper baru ke browser cache, replace cache lama
+      if (wallpaperFile) {
+        new window.Image().src = "/api/setting/wallpaper?t=" + Date.now();
+      }
+    } else {
+      toast.error(res.message);
     }
+    setIsSaving(false);
   };
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -104,19 +107,6 @@ export default function SettingPage() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-3xl mx-auto space-y-4"
         >
-          {/* Notifikasi */}
-          {message && (
-            <div
-              className={`px-4 py-2.5 rounded-lg text-xs font-bold border ${
-                messageType === "success"
-                  ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800"
-                  : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800"
-              }`}
-            >
-              {message}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Section Identitas RS — standar UI_STANDARDS 2.2 */}
             <div className="bg-brand-50/40 dark:bg-slate-800/50 p-4 rounded-lg border border-brand-100/50 dark:border-slate-700">

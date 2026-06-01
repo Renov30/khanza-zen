@@ -15,10 +15,13 @@ export async function GET(request: NextRequest) {
 
     if (show) {
       const buf: Buffer = rows[0].wallpaper;
+      const hasVersion = searchParams.has('v') || searchParams.has('t');
       return new NextResponse(new Uint8Array(buf), {
         headers: {
           'Content-Type': 'image/png',
-          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Cache-Control': hasVersion
+            ? 'no-cache, no-store, must-revalidate'
+            : 'public, max-age=31536000, immutable',
         },
       });
     }

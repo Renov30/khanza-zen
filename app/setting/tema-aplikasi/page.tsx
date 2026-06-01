@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   FaPalette,
   FaSave,
@@ -26,10 +27,6 @@ export default function TemaAplikasiPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">(
-    "success",
-  );
   const originalWarna = useRef<Record<string, string> | null>(null);
   const originalId = useRef<number | null>(null);
   const router = useRouter();
@@ -58,14 +55,11 @@ export default function TemaAplikasiPage() {
   const handleApply = async () => {
     if (!selectedId) return;
     setIsSaving(true);
-    setMessage("");
 
     const res = await setActiveThemeAction(selectedId);
 
-    setMessage(res.message);
-    setMessageType(res.success ? "success" : "error");
-
     if (res.success) {
+      toast.success(res.message);
       const palette = palettes.find((p) => p.id === selectedId);
       if (palette) {
         applyThemeColors(palette.warna);
@@ -73,6 +67,8 @@ export default function TemaAplikasiPage() {
         originalId.current = selectedId;
       }
       refreshTheme();
+    } else {
+      toast.error(res.message);
     }
 
     setIsSaving(false);
@@ -85,7 +81,6 @@ export default function TemaAplikasiPage() {
     if (originalId.current !== null) {
       setSelectedId(originalId.current);
     }
-    setMessage("");
     router.back();
   };
 
@@ -119,18 +114,6 @@ export default function TemaAplikasiPage() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-4xl mx-auto space-y-4"
         >
-          {message && (
-            <div
-              className={`px-4 py-2.5 rounded-lg text-xs font-bold border ${
-                messageType === "success"
-                  ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                  : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800"
-              }`}
-            >
-              {message}
-            </div>
-          )}
-
           <div className="bg-brand-50/40 dark:bg-slate-800/50 p-4 rounded-lg border border-brand-100/50 dark:border-slate-700">
             <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-300 mb-3 flex items-center gap-2 border-b border-brand-100 dark:border-slate-700 pb-2">
               <FaPaintBrush className="text-brand-500" />

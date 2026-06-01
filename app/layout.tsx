@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 import AppShell from "@/components/AppShell";
 
 const inter = Inter({
@@ -25,6 +26,7 @@ export default function RootLayout({
     >
       <body className="h-full overflow-hidden bg-slate-100 text-slate-800">
         <AppShell>{children}</AppShell>
+        <Toaster position="bottom-right" richColors closeButton />
       </body>
     </html>
   );

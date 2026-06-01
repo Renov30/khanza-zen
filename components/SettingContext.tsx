@@ -48,7 +48,9 @@ export function SettingProvider({ children }: { children: React.ReactNode }) {
 
   const doFetch = useCallback(async (fetchId: number) => {
     const res = await getSettingRs();
-    if (!mountedRef.current || fetchId !== fetchIdRef.current) return;
+    if (!mountedRef.current || fetchId !== fetchIdRef.current) {
+      return;
+    }
 
     if (res.success && res.data) {
       setInstansi({
@@ -64,11 +66,11 @@ export function SettingProvider({ children }: { children: React.ReactNode }) {
         aktifkan: res.data.aktifkan || "No",
       });
 
-      // Initial load (fetchId=1) → browser cache 1 tahun berlaku
-      // Refresh (fetchId>1) → ?v=... bypass cache ambil gambar baru
       const cacheBust = fetchId > 1 ? "?v=" + fetchId : "";
+      const fetchOpts: RequestInit = fetchId > 1 ? { cache: "no-store" } : {};
+
       try {
-        const logoResp = await fetch("/api/setting/logo" + cacheBust);
+        const logoResp = await fetch("/api/setting/logo" + cacheBust, fetchOpts);
         if (logoResp.ok) {
           const blob = await logoResp.blob();
           const oldLogo = logoBlobRef.current;
@@ -80,10 +82,10 @@ export function SettingProvider({ children }: { children: React.ReactNode }) {
         }
       } catch {}
 
-      // Fetch wallpaper blob (only if aktifkan=Yes)
       if (res.data.aktifkan === "Yes") {
         try {
-          const wallResp = await fetch("/api/setting/wallpaper" + cacheBust);
+          const url = "/api/setting/wallpaper" + cacheBust;
+          const wallResp = await fetch(url, fetchOpts);
           if (wallResp.ok) {
             const blob = await wallResp.blob();
             const oldWall = wallpaperBlobRef.current;
