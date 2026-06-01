@@ -134,7 +134,7 @@ export default function DataTableMulti({
                   key={id}
                   onClick={() => { toggleRow(id); if (onRowClick) onRowClick(row); }}
                   className={`border-b border-slate-100 cursor-pointer transition-all duration-200 dark:border-slate-700
-                    ${isSelected ? "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)] dark:bg-slate-700" : i % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/80 dark:bg-slate-900"} 
+                    ${isSelected ? "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)] text-slate-700 dark:bg-slate-700 dark:text-slate-100" : i % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/80 dark:bg-slate-900"} 
                     hover:bg-brand-50 hover:shadow-[inset_4px_0_0_0_var(--color-brand-500)] dark:hover:bg-slate-700`}
                 >
                     <td className="py-2 px-3 text-center border-r border-slate-100 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>

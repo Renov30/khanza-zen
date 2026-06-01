@@ -6,24 +6,24 @@ export type RowClassFn = (
 
 const COLORS = {
   /** Pasien sudah pulang (tgl_keluar terisi) */
-  discharged: "bg-green-100 text-slate-700",
+  discharged: "bg-green-100 text-slate-700 dark:bg-green-900/50 dark:text-green-300",
   /** Pasien meninggal */
-  meninggal: "bg-slate-300 text-white",
+  meninggal: "bg-slate-300 text-white dark:bg-slate-600 dark:text-slate-200",
   /** Pasien pindah kamar */
-  pindahKamar: "bg-amber-100 text-slate-700",
+  pindahKamar: "bg-amber-100 text-slate-700 dark:bg-amber-900/50 dark:text-amber-300",
   /** Pasien pulang paksa */
-  pulangPaksa: "bg-orange-100 text-slate-700",
+  pulangPaksa: "bg-orange-100 text-slate-700 dark:bg-orange-900/50 dark:text-orange-300",
   /** Pasien APS / Atas Permintaan Sendiri */
-  aps: "bg-green-100 text-slate-700",
+  aps: "bg-green-100 text-slate-700 dark:bg-green-900/50 dark:text-green-300",
   /** Baris sedang dipilih/diklik (non-meninggal) */
   selected:
-    "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)] text-slate-700",
+    "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)] text-slate-700 dark:bg-slate-700 dark:text-slate-100",
   /** Baris sedang dipilih dengan status meninggal */
   selectedMeninggal:
-    "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)] text-red-600",
+    "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)] text-red-600 dark:bg-slate-700 dark:text-red-400",
 };
 
-const DEFAULT = "text-slate-700";
+const DEFAULT = "text-slate-700 dark:text-slate-200";
 
 export const ranapRowClass: RowClassFn = (row, i, isSelected) => {
   const { stts_pulang, tgl_keluar } = row;

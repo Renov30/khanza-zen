@@ -103,7 +103,7 @@ export default function DataTableSingle({
               const rowClass = getRowClass
                 ? getRowClass(row, i, isSelected)
                 : isSelected
-                  ? "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)] dark:bg-slate-700"
+                  ? "bg-brand-50 shadow-[inset_4px_0_0_0_var(--color-brand-500)] text-slate-700 dark:bg-slate-700 dark:text-slate-100"
                   : "text-slate-700 dark:text-slate-200";
               return (
                 <tr
