@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   FaSave,
@@ -61,17 +61,51 @@ export default function BottomActionPanel({
 }: BottomActionPanelProps) {
   const router = useRouter();
 
+  const onSaveRef = useRef(onSave);
+  const onNewRef = useRef(onNew);
+  const onReplaceRef = useRef(onReplace);
+  const onDeleteRef = useRef(onDelete);
+  const onPrintRef = useRef(onPrint);
+  const onAllRef = useRef(onAll);
+  const onExitRef = useRef(onExit);
+  const onSearchRef = useRef(onSearch);
+  onSaveRef.current = onSave;
+  onNewRef.current = onNew;
+  onReplaceRef.current = onReplace;
+  onDeleteRef.current = onDelete;
+  onPrintRef.current = onPrint;
+  onAllRef.current = onAll;
+  onExitRef.current = onExit;
+  onSearchRef.current = onSearch;
+
   const handleExit = () => {
-    if (onExit) {
-      onExit();
+    if (onExitRef.current) {
+      onExitRef.current();
     } else {
       router.push("/");
     }
   };
 
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (!e.ctrlKey) return;
+      switch (e.key.toLowerCase()) {
+        case 's': e.preventDefault(); onSaveRef.current?.(); break;
+        case 'n': e.preventDefault(); onNewRef.current?.(); break;
+        case 'r': e.preventDefault(); onReplaceRef.current?.(); break;
+        case 'd': e.preventDefault(); onDeleteRef.current?.(); break;
+        case 'p': e.preventDefault(); onPrintRef.current?.(); break;
+        case 'l': e.preventDefault(); onAllRef.current?.(); break;
+        case 'q': e.preventDefault(); handleExit(); break;
+      }
+    };
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && onSearch) {
-      onSearch();
+    if (e.key === "Enter" && onSearchRef.current) {
+      onSearchRef.current();
     }
   };
 
@@ -118,12 +152,14 @@ export default function BottomActionPanel({
             <div className="flex border-l border-slate-200 dark:border-slate-600">
               <button
                 onClick={onSearch}
+                title="Cari"
                 className="px-2 text-brand-500 hover:bg-brand-50 transition-colors dark:hover:bg-slate-700"
               >
                 <FaCheck className="text-[10px]" />
               </button>
               <button
                 onClick={onSearch}
+                title="Cari (Enter)"
                 className="px-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-colors border-l border-slate-100 dark:text-slate-500 dark:hover:text-brand-400 dark:hover:bg-slate-700 dark:border-slate-700"
               >
                 <FaSearch className="text-[10px]" />
@@ -144,32 +180,38 @@ export default function BottomActionPanel({
                 icon={<FaSave className="text-white drop-shadow-sm" />}
                 label="Simpan"
                 variant="primary"
+                title="Simpan (Ctrl+S)"
               />
               <ActionButton
                 onClick={onNew}
                 icon={<FaFileAlt className="text-brand-600 drop-shadow-sm" />}
                 label="Baru"
+                title="Baru (Ctrl+N)"
               />
               <ActionButton
                 onClick={onReplace}
                 icon={<FaEdit className="text-orange-500 drop-shadow-sm" />}
                 label="Ganti"
+                title="Ganti (Ctrl+R)"
               />
               <ActionButton
                 onClick={onDelete}
                 icon={<FaTrash className="text-red-500 drop-shadow-sm" />}
                 label="Hapus"
                 variant="danger"
+                title="Hapus (Ctrl+D)"
               />
               <ActionButton
                 onClick={onPrint}
                 icon={<FaPrint className="text-indigo-600 drop-shadow-sm" />}
                 label="Cetak"
+                title="Cetak (Ctrl+P)"
               />
               <ActionButton
                 onClick={onAll}
                 icon={<FaList className="text-slate-600 drop-shadow-sm" />}
                 label="Semua"
+                title="Semua (Ctrl+L)"
               />
             </>
           )}
@@ -185,6 +227,7 @@ export default function BottomActionPanel({
             icon={<FaTimes className="text-red-500 drop-shadow-sm" />}
             label="Keluar"
             isExit
+            title="Keluar (Ctrl+Q)"
             onClick={handleExit}
           />
         </div>
@@ -197,6 +240,7 @@ export default function BottomActionPanel({
 export function ActionButton({
   icon,
   label,
+  title,
   isExit,
   variant,
   className = "",
@@ -204,6 +248,7 @@ export function ActionButton({
 }: {
   icon: React.ReactNode;
   label: string;
+  title?: string;
   isExit?: boolean;
   variant?: "primary" | "danger";
   className?: string;
@@ -213,6 +258,7 @@ export function ActionButton({
     <Button
       variant={variant === "primary" ? "default" : "outline"}
       size="sm"
+      title={title}
       onClick={onClick}
       className={cn(
         "h-7.5 font-bold text-[11px] transition-all active:scale-95",
