@@ -92,7 +92,7 @@ export default function BottomActionPanel({
       switch (e.key.toLowerCase()) {
         case 's': e.preventDefault(); onSaveRef.current?.(); break;
         case 'n': e.preventDefault(); onNewRef.current?.(); break;
-        case 'r': e.preventDefault(); onReplaceRef.current?.(); break;
+        case 'e': e.preventDefault(); onReplaceRef.current?.(); break;
         case 'd': e.preventDefault(); onDeleteRef.current?.(); break;
         case 'p': e.preventDefault(); onPrintRef.current?.(); break;
         case 'l': e.preventDefault(); onAllRef.current?.(); break;
@@ -192,7 +192,7 @@ export default function BottomActionPanel({
                 onClick={onReplace}
                 icon={<FaEdit className="text-orange-500 drop-shadow-sm" />}
                 label="Ganti"
-                title="Ganti (Ctrl+R)"
+                title="Ganti (Ctrl+E)"
               />
               <ActionButton
                 onClick={onDelete}
