@@ -198,8 +198,8 @@ export async function getLoggedInPegawai() {
 
 /**
  * Mengambil data asuhan gizi pasien rawat inap.
- * Saat ini masih menggunakan demo data karena tabel asuhan_gizi
- * belum tersedia di database.
+ * Query dari RMDataAsuhanGizi.java (tampil method).
+ * Tabel: asuhan_gizi
  */
 export async function getAsuhanGiziRanap(
   noRawat: string,
@@ -208,36 +208,103 @@ export async function getAsuhanGiziRanap(
   tglAkhir: string = "",
 ) {
   try {
-    // TODO: Implement query ke tabel asuhan_gizi setelah tabel tersedia
-    const demoData = [
-      {
-        id: "1",
-        no_rawat: noRawat,
-        no_rkm_medis: "617244",
-        nm_pasien: "Tn. Sukarji",
-        jk: "L",
-        tgl_lahir: "1959-06-22",
-        tgl_asuhan: "2025-10-23",
-        bb: 55, tb: 155, imt: 22.9,
-        lla: 0, tl: 0, ulna: 0, lla_u: 0,
-        bb_ideal: 0, bb_u: 0, tku: 0, bb_tb: 0, lla_u_persen: 0,
-        subjektif: "A p51.1.b Leukosit : 13.5 10^3/...",
-        fisik_klinis: "Status Gizi : normal. Mual dan nyeri...",
-        telur: false, susu_sapi: false, kacang: false, gluten: false,
-        udang: false, ikan: false, hazelnut: false,
-        pola_makan: "3x makan utama, porsi habis",
-        riwayat_personal: "",
-        diagnosa_gizi: "",
-        intervensi_gizi: "",
-        instruksi: "",
-        monitoring_evaluasi: "",
-        nip: "",
-        nm_pegawai: "Ukhuwwatun Hasanah Pristari Rahayu, S.Gz",
-        jabatan: "Ahli Gizi",
-      },
-    ];
+    const params: any[] = [];
 
-    return { success: true, data: demoData };
+    if (tglAwal && tglAkhir) {
+      params.push(tglAwal + " 00:00:00", tglAkhir + " 23:59:59");
+    }
+
+    let searchClause = "";
+    if (keyword.trim()) {
+      searchClause = `
+        AND (
+          reg_periksa.no_rawat LIKE ? OR
+          pasien.no_rkm_medis LIKE ? OR
+          pasien.nm_pasien LIKE ? OR
+          asuhan_gizi.diagnosis LIKE ? OR
+          asuhan_gizi.instruksi LIKE ? OR
+          asuhan_gizi.nip LIKE ? OR
+          petugas.nama LIKE ?
+        )
+      `;
+      const searchKey = `%${keyword.trim()}%`;
+      for (let i = 0; i < 7; i++) params.push(searchKey);
+    }
+
+    const query = `
+      SELECT
+        reg_periksa.no_rawat,
+        pasien.no_rkm_medis,
+        pasien.nm_pasien,
+        pasien.jk,
+        pasien.tgl_lahir,
+        asuhan_gizi.tanggal AS tgl_asuhan,
+        asuhan_gizi.antropometri_bb AS bb,
+        asuhan_gizi.antropometri_tb AS tb,
+        asuhan_gizi.antropometri_imt AS imt,
+        asuhan_gizi.antropometri_lla AS lla,
+        asuhan_gizi.antropometri_tl AS tl,
+        asuhan_gizi.antropometri_ulna AS ulna,
+        asuhan_gizi.antropometri_bbideal AS bb_ideal,
+        asuhan_gizi.antropometri_bbperu AS bb_u,
+        asuhan_gizi.antropometri_tbperu AS tku,
+        asuhan_gizi.antropometri_bbpertb AS bb_tb,
+        asuhan_gizi.antropometri_llaperu AS lla_u,
+        asuhan_gizi.antropometri_llaperu AS lla_u_persen,
+        asuhan_gizi.biokimia,
+        asuhan_gizi.fisik_klinis AS fisik_klinis,
+        asuhan_gizi.alergi_telur AS telur,
+        asuhan_gizi.alergi_susu_sapi AS susu_sapi,
+        asuhan_gizi.alergi_kacang AS kacang,
+        asuhan_gizi.alergi_gluten AS gluten,
+        asuhan_gizi.alergi_udang AS udang,
+        asuhan_gizi.alergi_ikan AS ikan,
+        asuhan_gizi.alergi_hazelnut AS hazelnut,
+        asuhan_gizi.pola_makan,
+        asuhan_gizi.riwayat_personal,
+        asuhan_gizi.diagnosis AS diagnosa_gizi,
+        asuhan_gizi.intervensi_gizi,
+        asuhan_gizi.instruksi,
+        asuhan_gizi.monitoring_evaluasi,
+        asuhan_gizi.nip,
+        petugas.nama AS nm_pegawai,
+        '' AS jabatan
+      FROM reg_periksa
+      INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+      INNER JOIN asuhan_gizi ON reg_periksa.no_rawat = asuhan_gizi.no_rawat
+      INNER JOIN petugas ON asuhan_gizi.nip = petugas.nip
+      WHERE reg_periksa.no_rawat = ?
+        ${tglAwal && tglAkhir ? "AND asuhan_gizi.tanggal BETWEEN ? AND ?" : ""}
+        ${searchClause}
+      ORDER BY asuhan_gizi.tanggal DESC
+    `;
+
+    const [rows]: any = await db.execute(query, [noRawat, ...params]);
+
+    const formattedRows = rows.map((row: any) => ({
+      ...row,
+      telur: row.telur === "Ya" || row.telur === true || row.telur === 1,
+      susu_sapi: row.susu_sapi === "Ya" || row.susu_sapi === true || row.susu_sapi === 1,
+      kacang: row.kacang === "Ya" || row.kacang === true || row.kacang === 1,
+      gluten: row.gluten === "Ya" || row.gluten === true || row.gluten === 1,
+      udang: row.udang === "Ya" || row.udang === true || row.udang === 1,
+      ikan: row.ikan === "Ya" || row.ikan === true || row.ikan === 1,
+      hazelnut: row.hazelnut === "Ya" || row.hazelnut === true || row.hazelnut === 1,
+      bb: Number(row.bb) || 0,
+      tb: Number(row.tb) || 0,
+      imt: Number(row.imt) || 0,
+      lla: Number(row.lla) || 0,
+      tl: Number(row.tl) || 0,
+      ulna: Number(row.ulna) || 0,
+      lla_u: Number(row.lla_u) || 0,
+      bb_ideal: Number(row.bb_ideal) || 0,
+      bb_u: Number(row.bb_u) || 0,
+      tku: Number(row.tku) || 0,
+      bb_tb: Number(row.bb_tb) || 0,
+      lla_u_persen: Number(row.lla_u_persen) || 0,
+    }));
+
+    return { success: true, data: formattedRows };
   } catch (error: any) {
     console.error("Error fetching asuhan gizi:", error);
     return {
@@ -246,6 +313,132 @@ export async function getAsuhanGiziRanap(
       error: error.message,
       data: [],
     };
+  }
+}
+
+/**
+ * Menyimpan data asuhan gizi baru (Simpan).
+ * INSERT ke tabel asuhan_gizi.
+ */
+export async function simpanAsuhanGiziRanap(data: {
+  no_rawat: string; tanggal: string;
+  bb: string; tb: string; imt: string; lla: string; tl: string; ulna: string;
+  bb_ideal: string; bb_u: string; tku: string; bb_tb: string; lla_u: string;
+  biokimia: string; fisik_klinis: string;
+  alergi_telur: string; alergi_susu_sapi: string; alergi_kacang: string;
+  alergi_gluten: string; alergi_udang: string; alergi_ikan: string; alergi_hazelnut: string;
+  pola_makan: string; riwayat_personal: string; diagnosis: string;
+  intervensi_gizi: string; instruksi: string; monitoring_evaluasi: string;
+  nip: string;
+}) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      INSERT INTO asuhan_gizi (no_rawat, tanggal, antropometri_bb, antropometri_tb, antropometri_imt, antropometri_lla, antropometri_tl, antropometri_ulna, antropometri_bbideal, antropometri_bbperu, antropometri_tbperu, antropometri_bbpertb, antropometri_llaperu, biokimia, fisik_klinis, alergi_telur, alergi_susu_sapi, alergi_kacang, alergi_gluten, alergi_udang, alergi_ikan, alergi_hazelnut, pola_makan, riwayat_personal, diagnosis, intervensi_gizi, instruksi, monitoring_evaluasi, nip)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      data.no_rawat, data.tanggal,
+      data.bb || "0", data.tb || "0", data.imt || "0",
+      data.lla || "0", data.tl || "0", data.ulna || "0",
+      data.bb_ideal || "0", data.bb_u || "0", data.tku || "0", data.bb_tb || "0", data.lla_u || "0",
+      data.biokimia || "", data.fisik_klinis || "",
+      data.alergi_telur || "Tidak", data.alergi_susu_sapi || "Tidak",
+      data.alergi_kacang || "Tidak", data.alergi_gluten || "Tidak",
+      data.alergi_udang || "Tidak", data.alergi_ikan || "Tidak", data.alergi_hazelnut || "Tidak",
+      data.pola_makan || "", data.riwayat_personal || "", data.diagnosis || "",
+      data.intervensi_gizi || "", data.instruksi || "", data.monitoring_evaluasi || "",
+      data.nip,
+    ]);
+
+    return { success: true, message: "Data asuhan gizi berhasil disimpan" };
+  } catch (error: any) {
+    console.error("Error saving asuhan gizi:", error);
+    return { success: false, message: "Gagal menyimpan data asuhan gizi", error: error.message };
+  }
+}
+
+/**
+ * Mengedit data asuhan gizi (Ganti).
+ * UPDATE tabel asuhan_gizi WHERE no_rawat=? AND tanggal=?.
+ */
+export async function editAsuhanGiziRanap(
+  oldNoRawat: string,
+  oldTanggal: string,
+  newData: {
+    no_rawat: string; tanggal: string;
+    bb: string; tb: string; imt: string; lla: string; tl: string; ulna: string;
+    bb_ideal: string; bb_u: string; tku: string; bb_tb: string; lla_u: string;
+    biokimia: string; fisik_klinis: string;
+    alergi_telur: string; alergi_susu_sapi: string; alergi_kacang: string;
+    alergi_gluten: string; alergi_udang: string; alergi_ikan: string; alergi_hazelnut: string;
+    pola_makan: string; riwayat_personal: string; diagnosis: string;
+    intervensi_gizi: string; instruksi: string; monitoring_evaluasi: string;
+    nip: string;
+  },
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      UPDATE asuhan_gizi SET
+        no_rawat=?, tanggal=?, antropometri_bb=?, antropometri_tb=?, antropometri_imt=?,
+        antropometri_lla=?, antropometri_tl=?, antropometri_ulna=?, antropometri_bbideal=?,
+        antropometri_bbperu=?, antropometri_tbperu=?, antropometri_bbpertb=?, antropometri_llaperu=?,
+        biokimia=?, fisik_klinis=?, alergi_telur=?, alergi_susu_sapi=?, alergi_kacang=?,
+        alergi_gluten=?, alergi_udang=?, alergi_ikan=?, alergi_hazelnut=?, pola_makan=?,
+        riwayat_personal=?, diagnosis=?, intervensi_gizi=?, instruksi=?, monitoring_evaluasi=?, nip=?
+      WHERE no_rawat=? AND tanggal=?
+    `, [
+      newData.no_rawat, newData.tanggal,
+      newData.bb || "0", newData.tb || "0", newData.imt || "0",
+      newData.lla || "0", newData.tl || "0", newData.ulna || "0",
+      newData.bb_ideal || "0", newData.bb_u || "0", newData.tku || "0",
+      newData.bb_tb || "0", newData.lla_u || "0",
+      newData.biokimia || "", newData.fisik_klinis || "",
+      newData.alergi_telur || "Tidak", newData.alergi_susu_sapi || "Tidak",
+      newData.alergi_kacang || "Tidak", newData.alergi_gluten || "Tidak",
+      newData.alergi_udang || "Tidak", newData.alergi_ikan || "Tidak",
+      newData.alergi_hazelnut || "Tidak",
+      newData.pola_makan || "", newData.riwayat_personal || "", newData.diagnosis || "",
+      newData.intervensi_gizi || "", newData.instruksi || "", newData.monitoring_evaluasi || "",
+      newData.nip,
+      oldNoRawat, oldTanggal,
+    ]);
+
+    return { success: true, message: "Data asuhan gizi berhasil diubah" };
+  } catch (error: any) {
+    console.error("Error editing asuhan gizi:", error);
+    return { success: false, message: "Gagal mengubah data asuhan gizi", error: error.message };
+  }
+}
+
+/**
+ * Menghapus data asuhan gizi (Hapus).
+ * DELETE dari tabel asuhan_gizi WHERE no_rawat=? AND tanggal=?.
+ */
+export async function hapusAsuhanGiziRanap(noRawat: string, tanggal: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute("DELETE FROM asuhan_gizi WHERE no_rawat=? AND tanggal=?", [noRawat, tanggal]);
+
+    return { success: true, message: "Data asuhan gizi berhasil dihapus" };
+  } catch (error: any) {
+    console.error("Error deleting asuhan gizi:", error);
+    return { success: false, message: "Gagal menghapus data asuhan gizi", error: error.message };
   }
 }
 
