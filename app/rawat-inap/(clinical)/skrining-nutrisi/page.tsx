@@ -179,6 +179,39 @@ const tabs: { id: TabId; label: string }[] = [
   { id: 'gizilanjut', label: 'Lanjutan' },
 ];
 
+function FormField({ label, value, onChange, unit, placeholder, className = "", onKeyDown }: {
+  label: string; value: string; onChange?: (v: string) => void; unit?: string; placeholder?: string; className?: string; onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
+}) {
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0 flex items-center gap-1">
+        {label}
+        {unit && <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal lowercase">({unit})</span>}
+      </label>
+      <input type="text"
+        value={value} onChange={e => onChange?.(e.target.value)}
+        onKeyDown={onKeyDown}
+        placeholder={placeholder}
+        className="flex-1 min-w-0 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors bg-white dark:bg-slate-700 dark:text-slate-100"
+      />
+    </div>
+  );
+}
+
+function SelectField({ label, value, onChange, options, className = "" }: {
+  label: string; value: string; onChange: (v: string) => void; options: string[]; className?: string
+}) {
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">{label}</label>
+      <select value={value} onChange={e => onChange(e.target.value)}
+        className="flex-1 min-w-0 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors bg-white dark:bg-slate-700 dark:text-slate-100">
+        {options.map(o => <option key={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
 function SkriningNutrisiContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -426,39 +459,22 @@ function SkriningNutrisiContent() {
 
   const handleBottomSearch = () => fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
 
-  const FormField = ({ label, value, onChange, unit, placeholder, className = "" }: {
-    label: string; value: string; onChange?: (v: string) => void; unit?: string; placeholder?: string; className?: string
-  }) => (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0 flex items-center gap-1">
-        {label}
-        {unit && <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal lowercase">({unit})</span>}
-      </label>
-      <input type="text"
-        value={value} onChange={e => onChange?.(e.target.value)}
-        placeholder={placeholder}
-        className="flex-1 min-w-0 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors bg-white dark:bg-slate-700 dark:text-slate-100"
-      />
-    </div>
-  );
-
-  const SelectField = ({ label, value, onChange, options, className = "" }: {
-    label: string; value: string; onChange: (v: string) => void; options: string[]; className?: string
-  }) => (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">{label}</label>
-      <select value={value} onChange={e => onChange(e.target.value)}
-        className="flex-1 min-w-0 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors bg-white dark:bg-slate-700 dark:text-slate-100">
-        {options.map(o => <option key={o}>{o}</option>)}
-      </select>
-    </div>
-  );
+  const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const form = e.currentTarget.closest('[data-form]');
+    if (!form) return;
+    const inputs = form.querySelectorAll<HTMLInputElement>('input:not([readonly])');
+    const idx = Array.from(inputs).indexOf(e.currentTarget);
+    const next = inputs[idx + 1];
+    if (next) next.focus();
+  };
 
   const renderForm = () => {
     switch (activeTab) {
       case 'dewasa': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Dewasa (MST)" isOpen={formOpen}>
-          <div className="flex flex-col gap-5">
+          <div data-form="skrining" className="flex flex-col gap-5">
             <FormSection className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-2">
                 <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
@@ -476,15 +492,15 @@ function SkriningNutrisiContent() {
             <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
               <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                <FormField label="BB" value={dBB} onChange={setDBB} unit="Kg" placeholder="0" />
-                <FormField label="LILA" value={dLILA} onChange={setDLILA} unit="Cm" placeholder="0" />
-                <FormField label="TB/PB" value={dTBPB} onChange={setDTBPB} unit="Cm" placeholder="0" />
-                <FormField label="TD" value={dTD} onChange={setDTD} unit="mmHg" placeholder="0" />
-                <FormField label="HR" value={dHR} onChange={setDHR} unit="/mnt" placeholder="0" />
-                <FormField label="RR" value={dRR} onChange={setDRR} unit="/mnt" placeholder="0" />
-                <FormField label="Suhu" value={dSuhu} onChange={setDSuhu} unit="°C" placeholder="0" />
-                <FormField label="SpO2" value={dSpO2} onChange={setDSpO2} unit="%" placeholder="0" />
-                <FormField label="Alergi" value={dAlergi} onChange={setDAlergi} placeholder="Alergi..." className="lg:col-span-2" />
+                <FormField label="BB" value={dBB} onChange={setDBB} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="LILA" value={dLILA} onChange={setDLILA} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="TB/PB" value={dTBPB} onChange={setDTBPB} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="TD" value={dTD} onChange={setDTD} unit="mmHg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="HR" value={dHR} onChange={setDHR} unit="/mnt" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="RR" value={dRR} onChange={setDRR} unit="/mnt" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="Suhu" value={dSuhu} onChange={setDSuhu} unit="°C" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="SpO2" value={dSpO2} onChange={setDSpO2} unit="%" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="Alergi" value={dAlergi} onChange={setDAlergi} placeholder="Alergi..." className="lg:col-span-2" onKeyDown={handleEnterKeyDown} />
               </div>
             </div>
             <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -492,15 +508,15 @@ function SkriningNutrisiContent() {
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">Penurunan BB</label>
-                  <input type="text" value={dSG1} onChange={e => setDSG1(e.target.value)} placeholder="tidak tahu/tidak=0, 0.5-5kg=1, 5-10kg=2, >10kg=3" className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
+                  <input type="text" value={dSG1} onChange={e => setDSG1(e.target.value)} onKeyDown={handleEnterKeyDown} placeholder="tidak tahu/tidak=0, 0.5-5kg=1, 5-10kg=2, >10kg=3" className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
                   <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0 ml-2">Nilai 1</label>
-                  <input type="text" value={dNilai1} onChange={e => setDNilai1(e.target.value)} className="w-16 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 text-center" />
+                  <input type="text" value={dNilai1} onChange={e => setDNilai1(e.target.value)} onKeyDown={handleEnterKeyDown} className="w-16 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 text-center" />
                 </div>
                 <div className="flex items-center gap-2">
                   <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">Asupan Makanan</label>
-                  <input type="text" value={dSG2} onChange={e => setDSG2(e.target.value)} placeholder="berkurang=1, tidak=0" className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
+                  <input type="text" value={dSG2} onChange={e => setDSG2(e.target.value)} onKeyDown={handleEnterKeyDown} placeholder="berkurang=1, tidak=0" className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
                   <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0 ml-2">Nilai 2</label>
-                  <input type="text" value={dNilai2} onChange={e => setDNilai2(e.target.value)} className="w-16 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 text-center" />
+                  <input type="text" value={dNilai2} onChange={e => setDNilai2(e.target.value)} onKeyDown={handleEnterKeyDown} className="w-16 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 text-center" />
                 </div>
                 <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
                   <label className="text-xs font-bold text-brand-700 dark:text-brand-400 w-28 shrink-0">Total Skor</label>
@@ -523,7 +539,7 @@ function SkriningNutrisiContent() {
       );
       case 'anak': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Anak (StrongKids)" isOpen={formOpen}>
-          <div className="flex flex-col gap-5">
+          <div data-form="skrining" className="flex flex-col gap-5">
             <FormSection className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-2">
                 <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
@@ -541,14 +557,14 @@ function SkriningNutrisiContent() {
             <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
               <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                <FormField label="BB" value={aBB} onChange={setABB} unit="Kg" placeholder="0" />
-                <FormField label="TB/PB" value={aTBPB} onChange={setATBPB} unit="Cm" placeholder="0" />
-                <FormField label="TD" value={aTD} onChange={setATD} unit="mmHg" placeholder="0" />
-                <FormField label="HR" value={aHR} onChange={setAHR} unit="/mnt" placeholder="0" />
-                <FormField label="RR" value={aRR} onChange={setARR} unit="/mnt" placeholder="0" />
-                <FormField label="Suhu" value={aSuhu} onChange={setASuhu} unit="°C" placeholder="0" />
-                <FormField label="SpO2" value={aSpO2} onChange={setASpO2} unit="%" placeholder="0" />
-                <FormField label="Alergi" value={aAlergi} onChange={setAAlergi} placeholder="Alergi..." className="lg:col-span-2" />
+                <FormField label="BB" value={aBB} onChange={setABB} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="TB/PB" value={aTBPB} onChange={setATBPB} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="TD" value={aTD} onChange={setATD} unit="mmHg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="HR" value={aHR} onChange={setAHR} unit="/mnt" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="RR" value={aRR} onChange={setARR} unit="/mnt" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="Suhu" value={aSuhu} onChange={setASuhu} unit="°C" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="SpO2" value={aSpO2} onChange={setASpO2} unit="%" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="Alergi" value={aAlergi} onChange={setAAlergi} placeholder="Alergi..." className="lg:col-span-2" onKeyDown={handleEnterKeyDown} />
               </div>
             </div>
             <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -582,7 +598,7 @@ function SkriningNutrisiContent() {
                 </div>
                 <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
                   <SelectField label="Diketahui Dietisien" value={aDiketahui} onChange={setADiketahui} options={['Tidak', 'Ya']} className="flex-1" />
-                  <FormField label="Jam/Dokter" value={aKetDiketahui} onChange={setAKetDiketahui} placeholder="Jam dilaporkan / nama dokter..." className="flex-1" />
+                  <FormField label="Jam/Dokter" value={aKetDiketahui} onChange={setAKetDiketahui} placeholder="Jam dilaporkan / nama dokter..." className="flex-1" onKeyDown={handleEnterKeyDown} />
                 </div>
               </div>
             </div>
@@ -601,7 +617,7 @@ function SkriningNutrisiContent() {
       );
       case 'lansia': return (
         <TopFormContainer title="Form Input Skrining Nutrisi Lansia (MNA)" isOpen={formOpen}>
-          <div className="flex flex-col gap-5">
+          <div data-form="skrining" className="flex flex-col gap-5">
             <FormSection className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-2">
                 <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
@@ -619,14 +635,14 @@ function SkriningNutrisiContent() {
             <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
               <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                <FormField label="BB" value={lBB} onChange={setLBB} unit="Kg" placeholder="0" />
-                <FormField label="TB/PB" value={lTBPB} onChange={setLTBPB} unit="Cm" placeholder="0" />
-                <FormField label="TD" value={lTD} onChange={setLTD} unit="mmHg" placeholder="0" />
-                <FormField label="HR" value={lHR} onChange={setLHR} unit="/mnt" placeholder="0" />
-                <FormField label="RR" value={lRR} onChange={setLRR} unit="/mnt" placeholder="0" />
-                <FormField label="Suhu" value={lSuhu} onChange={setLSuhu} unit="°C" placeholder="0" />
-                <FormField label="SpO2" value={lSpO2} onChange={setLSpO2} unit="%" placeholder="0" />
-                <FormField label="Alergi" value={lAlergi} onChange={setLAlergi} placeholder="Alergi..." className="lg:col-span-2" />
+                <FormField label="BB" value={lBB} onChange={setLBB} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="TB/PB" value={lTBPB} onChange={setLTBPB} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="TD" value={lTD} onChange={setLTD} unit="mmHg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="HR" value={lHR} onChange={setLHR} unit="/mnt" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="RR" value={lRR} onChange={setLRR} unit="/mnt" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="Suhu" value={lSuhu} onChange={setLSuhu} unit="°C" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="SpO2" value={lSpO2} onChange={setLSpO2} unit="%" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                <FormField label="Alergi" value={lAlergi} onChange={setLAlergi} placeholder="Alergi..." className="lg:col-span-2" onKeyDown={handleEnterKeyDown} />
               </div>
             </div>
             <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -672,7 +688,7 @@ function SkriningNutrisiContent() {
       );
       case 'gizilanjut': return (
         <TopFormContainer title="Form Input Skrining Gizi Lanjutan" isOpen={formOpen}>
-          <div className="flex flex-col gap-5">
+          <div data-form="skrining" className="flex flex-col gap-5">
             <FormSection className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-2">
                 <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
@@ -691,18 +707,18 @@ function SkriningNutrisiContent() {
               <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-4 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">Data Skrining Gizi</h3>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">BB</label>
-                <input type="text" value={gBB} onChange={e => setGBB(e.target.value)}
+                <input type="text" value={gBB} onChange={e => setGBB(e.target.value)} onKeyDown={handleEnterKeyDown}
                   className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
                 <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-6">Kg</span>
                 <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 shrink-0">TB</label>
-                <input type="text" value={gTB} onChange={e => setGTB(e.target.value)}
+                <input type="text" value={gTB} onChange={e => setGTB(e.target.value)} onKeyDown={handleEnterKeyDown}
                   className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
                 <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-6">Cm</span>
                 <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 shrink-0">IMT</label>
                 <input type="text" value={gIMT} readOnly
                   className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500 w-20" />
                 <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0">Alergi</label>
-                <input type="text" value={gAlergi} onChange={e => setGAlergi(e.target.value)}
+                <input type="text" value={gAlergi} onChange={e => setGAlergi(e.target.value)} onKeyDown={handleEnterKeyDown}
                   className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[120px]" placeholder="Alergi makanan/obat..." />
               </div>
             </div>

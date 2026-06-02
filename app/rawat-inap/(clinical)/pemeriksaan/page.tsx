@@ -385,6 +385,19 @@ function PemeriksaanContent() {
     if (noRawat) fetchPemeriksaan(noRawat, searchKeyword, tglAwal, tglAkhir);
   }, [noRawat, searchKeyword, tglAwal, tglAkhir]);
 
+  const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const form = (e.currentTarget as HTMLElement).closest('[data-form]');
+      if (!form) return;
+      const inputs = form.querySelectorAll<HTMLInputElement>('input:not([readonly])');
+      const currentIdx = Array.from(inputs).indexOf(e.currentTarget as HTMLInputElement);
+      if (currentIdx >= 0 && currentIdx < inputs.length - 1) {
+        inputs[currentIdx + 1].focus();
+      }
+    }
+  };
+
   const resetForm = () => {
     setFormKeluhan("");
     setFormPemeriksaan("");
@@ -833,7 +846,7 @@ function PemeriksaanContent() {
                   <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-3 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">
                     Tanda-Tanda Vital (TTV)
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div data-form="pemeriksaan" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div className="flex items-center gap-2">
                        <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">
                         Suhu (°C)
@@ -843,6 +856,7 @@ function PemeriksaanContent() {
                         className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formSuhu}
                         onChange={(e) => setFormSuhu(e.target.value)}
+                        onKeyDown={handleEnterKeyDown}
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -854,6 +868,7 @@ function PemeriksaanContent() {
                         className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formTensi}
                         onChange={(e) => setFormTensi(e.target.value)}
+                        onKeyDown={handleEnterKeyDown}
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -865,6 +880,7 @@ function PemeriksaanContent() {
                         className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formBerat}
                         onChange={(e) => setFormBerat(e.target.value)}
+                        onKeyDown={handleEnterKeyDown}
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -876,6 +892,7 @@ function PemeriksaanContent() {
                         className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formTinggi}
                         onChange={(e) => setFormTinggi(e.target.value)}
+                        onKeyDown={handleEnterKeyDown}
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -887,6 +904,7 @@ function PemeriksaanContent() {
                         className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formRespirasi}
                         onChange={(e) => setFormRespirasi(e.target.value)}
+                        onKeyDown={handleEnterKeyDown}
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -898,6 +916,7 @@ function PemeriksaanContent() {
                         className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formNadi}
                         onChange={(e) => setFormNadi(e.target.value)}
+                        onKeyDown={handleEnterKeyDown}
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -909,6 +928,7 @@ function PemeriksaanContent() {
                         className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formSpo2}
                         onChange={(e) => setFormSpo2(e.target.value)}
+                        onKeyDown={handleEnterKeyDown}
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -920,6 +940,7 @@ function PemeriksaanContent() {
                         className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                         value={formGcs}
                         onChange={(e) => setFormGcs(e.target.value)}
+                        onKeyDown={handleEnterKeyDown}
                       />
                     </div>
                     <div className="flex items-center gap-2">

@@ -182,7 +182,64 @@ Form yang kompleks **harus** dikelompokkan dalam section/card terpisah:
 
 ---
 
-## 4. Desain Tab (Tab Navigation)
+## 4. Enter-to-Next-Field Navigation
+
+Navigasi Enter digunakan di form input aktif untuk memindahkan fokus ke field berikutnya, agar pengguna tidak perlu menekan Tab atau klik manual.
+
+### 4.1 Handler Function
+
+Semua halaman form menggunakan satu pola `handleEnterKeyDown` yang didefinisikan sebagai **fungsi biasa** di dalam komponen (bukan `useCallback` — karena dependency-nya nol).
+
+```tsx
+const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const form = (e.currentTarget as HTMLElement).closest('[data-form]');
+    if (!form) return;
+    const inputs = form.querySelectorAll<HTMLInputElement>('input:not([readonly])');
+    const currentIdx = Array.from(inputs).indexOf(e.currentTarget as HTMLInputElement);
+    if (currentIdx >= 0 && currentIdx < inputs.length - 1) {
+      inputs[currentIdx + 1].focus();
+    }
+  }
+};
+```
+
+### 4.2 Container
+
+Setiap tab/section form yang menerapkan Enter navigation harus memiliki **wrapper `div` dengan atribut `data-form`** sebagai batas pencarian field.
+
+```tsx
+<div data-form="nama-form" className="flex flex-col gap-5">
+  {/* ... field-field ... */}
+</div>
+```
+
+Nilai `data-form` bisa berupa `"gizi"`, `"skrining"`, `"diet"`, atau identifier lain sesuai halaman.
+
+### 4.3 Pemasangan pada Input
+
+Setter `onKeyDown={handleEnterKeyDown}` dipasang pada setiap **single-line `<input>`** yang:
+- Tidak `readOnly`
+- Bukan `<textarea>` (multi-line tidak pakai Enter nav karena Enter digunakan untuk newline)
+- Bukan `<select>`
+
+```tsx
+<FormField label="BB" value={bb} onChange={setBB} unit="Kg" onKeyDown={handleEnterKeyDown} />
+<input type="text" value={...} onChange={...} onKeyDown={handleEnterKeyDown} />
+```
+
+### 4.4 Aturan
+
+- ❌ **Jangan** pasang `handleEnterKeyDown` pada `<textarea>` — Enter di textarea digunakan untuk baris baru.
+- ❌ **Jangan** pasang `handleEnterKeyDown` pada input `readOnly` — tidak berguna dan membingungkan.
+- ✅ **Pastikan** semua `<input>` dalam satu form punya `onKeyDown={handleEnterKeyDown}` agar navigasi konsisten.
+- ✅ **Pastikan** container dengan `data-form` mencakup semua input dalam satu logical form (satu tab/satu panel).
+- ✅ Jika tab memiliki beberapa section terpisah, cukup satu `data-form` per tab.
+
+---
+
+## 5. Desain Tab (Tab Navigation)
 
 ### Gaya Standar: Underline Tab (Modern Minimalis)
 
@@ -206,7 +263,7 @@ Form yang kompleks **harus** dikelompokkan dalam section/card terpisah:
 
 ---
 
-## 5. Hierarki Tombol Aksi (Button Hierarchy)
+## 6. Hierarki Tombol Aksi (Button Hierarchy)
 
 ### 5.1 Tombol Primer (Primary) — Tindakan Utama (Simpan)
 ```tsx
@@ -263,7 +320,7 @@ import { ActionButton } from "@/components/BottomActionPanel";
 
 ---
 
-## 6. Tabel Data
+## 7. Tabel Data
 
 ### 6.1 Header Sticky
 Semua tabel data **harus** memiliki header `sticky top-0` agar kolom tetap terlihat saat di-scroll.
@@ -295,7 +352,7 @@ Data yang bisa diklik (seperti No. Rawat) harus menggunakan `<Link>` dengan styl
 
 ---
 
-## 7. Sidebar (Collapsible)
+## 8. Sidebar (Collapsible)
 
 Sidebar pada halaman detail (seperti Pemeriksaan Rawat Inap) harus bisa dilipat (*collapse*):
 
@@ -306,7 +363,7 @@ Sidebar pada halaman detail (seperti Pemeriksaan Rawat Inap) harus bisa dilipat 
 
 ---
 
-## 8. Halaman Page Header
+## 9. Halaman Page Header
 
 Setiap halaman konten memiliki header:
 
@@ -322,7 +379,7 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 9. Bottom Action Panel (`BottomActionPanel`)
+## 10. Bottom Action Panel (`BottomActionPanel`)
 
 ### Struktur:
 1. **Baris Filter** — Periode tanggal + Pencarian search (atas).
@@ -336,7 +393,7 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 10. Responsive Design
+## 11. Responsive Design
 
 ### Breakpoints (Tailwind CSS default):
 | Breakpoint | Lebar     | Target Device   |
@@ -354,7 +411,7 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 11. Animasi & Transisi
+## 12. Animasi & Transisi
 
 - **Page enter:** `framer-motion` scale + opacity.
 - **Sidebar toggle:** `motion.div` animate width.
@@ -363,7 +420,7 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 12. Spacing & Typography
+## 13. Spacing & Typography
 
 | Elemen             | Font Size        | Weight     |
 |--------------------|------------------|------------|
@@ -382,13 +439,15 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 13. Checklist Review UI
+## 14. Checklist Review UI
 
 Sebelum menyelesaikan halaman baru, pastikan:
 
 - [ ] Menggunakan `brand-*` untuk semua warna utama
 - [ ] Label form berada di **atas** input, bukan di samping
 - [ ] Input waktu menggunakan `<input type="time">`
+- [ ] Enter-to-next-field navigation aktif di semua single-line `<input>` (kecuali `readOnly`)
+- [ ] Setiap tab/section form memiliki `data-form` container untuk Enter navigation
 - [ ] Tab menggunakan gaya *underline*, bukan kotak
 - [ ] Hanya ada **1 tombol primer** per section
 - [ ] Tabel memiliki header sticky dan zebra striping

@@ -154,6 +154,43 @@ function AllergyItem({ label, value, onChange }: { label: string; value: boolean
   );
 }
 
+function FormField({ label, value, onChange, unit, placeholder, type = 'text', readOnly = false, className = "", onKeyDown }: {
+  label: string; value: string; onChange?: (v: string) => void; unit?: string; placeholder?: string; type?: string; readOnly?: boolean; className?: string; onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
+}) {
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 flex items-center gap-1">
+        {label}
+        {unit && <span className="text-[10px] text-slate-400 font-normal lowercase">({unit})</span>}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={e => onChange?.(e.target.value)}
+        onKeyDown={onKeyDown}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        className={`flex-1 min-w-0 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors ${readOnly ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
+      />
+    </div>
+  );
+}
+
+function FormTextarea({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  return (
+    <div className="flex items-start gap-2">
+      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 pt-2">{label}</label>
+      <textarea
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        rows={3}
+        placeholder={placeholder}
+        className="flex-1 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]"
+      />
+    </div>
+  );
+}
+
 function AsuhanGiziContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -442,6 +479,18 @@ function AsuhanGiziContent() {
     setSkriningGiziKesimpulan(calcKesimpulan(total));
   }, [skriningGiziSkor1, skriningGiziSkor2, skriningGiziSkor3, calcSkor1, calcSkor2, calcSkor3, calcTotal, calcKesimpulan]);
 
+  // Auto-calc IMT for Asuhan Gizi tab (matches Java isBMI())
+  useEffect(() => {
+    const bbNum = parseFloat(bb);
+    const tbNum = parseFloat(tb);
+    if (bbNum > 0 && tbNum > 0) {
+      const bmi = bbNum / ((tbNum / 100) * (tbNum / 100));
+      setImt(bmi.toFixed(1));
+    } else {
+      setImt('');
+    }
+  }, [bb, tb]);
+
   if (!mounted) return null;
 
   const handleBottomSearch = () => {
@@ -451,37 +500,16 @@ function AsuhanGiziContent() {
     fetchDataADIME(noRawat, searchKeyword, tglAwal, tglAkhir);
   };
 
-  const FormField = ({ label, value, onChange, unit, placeholder, type = 'text', readOnly = false, className = "" }: {
-    label: string; value: string; onChange?: (v: string) => void; unit?: string; placeholder?: string; type?: string; readOnly?: boolean; className?: string
-  }) => (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 flex items-center gap-1">
-        {label}
-        {unit && <span className="text-[10px] text-slate-400 font-normal lowercase">({unit})</span>}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={e => onChange?.(e.target.value)}
-        placeholder={placeholder}
-        readOnly={readOnly}
-        className={`flex-1 min-w-0 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors ${readOnly ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
-      />
-    </div>
-  );
-
-  const FormTextarea = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) => (
-    <div className="flex items-start gap-2">
-      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 pt-2">{label}</label>
-      <textarea
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        rows={3}
-        placeholder={placeholder}
-        className="flex-1 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]"
-      />
-    </div>
-  );
+  const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const form = e.currentTarget.closest('[data-form]');
+    if (!form) return;
+    const inputs = form.querySelectorAll<HTMLInputElement>('input:not([readonly])');
+    const idx = Array.from(inputs).indexOf(e.currentTarget);
+    const next = inputs[idx + 1];
+    if (next) next.focus();
+  };
 
   const tabs = [
     'Asuhan Gizi',
@@ -512,7 +540,7 @@ function AsuhanGiziContent() {
         {activeTab === 'asuhangizi' && (
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Asuhan Gizi" isOpen={formOpen}>
-              <div className="flex flex-col gap-5">
+              <div data-form="gizi" className="flex flex-col gap-5">
                 {/* Info Pasien & Tanggal */}
                 <FormSection className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2">
@@ -534,17 +562,17 @@ function AsuhanGiziContent() {
                     Pengukuran Antropometri
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                    <FormField label="BB" value={bb} onChange={setBb} unit="Kg" placeholder="0" />
-                    <FormField label="TB" value={tb} onChange={setTb} unit="Cm" placeholder="0" />
-                    <FormField label="IMT" value={imt} onChange={setImt} unit="Kg/m²" placeholder="0" />
-                    <FormField label="LLA" value={lla} onChange={setLla} unit="Cm" placeholder="0" />
-                    <FormField label="TL" value={tl} onChange={setTl} unit="Cm" placeholder="0" />
-                    <FormField label="ULNA" value={ulna} onChange={setUlna} unit="Cm" placeholder="0" />
-                    <FormField label="BB Ideal" value={bbIdeal} onChange={setBbIdeal} unit="Kg" placeholder="0" />
-                    <FormField label="BB/U" value={bbU} onChange={setBbU} unit="SD" placeholder="0" />
-                    <FormField label="TKU" value={tku} onChange={setTku} unit="SD" placeholder="0" />
-                    <FormField label="BB/TB" value={bbTb} onChange={setBbTb} unit="SD" placeholder="0" />
-                    <FormField label="LLA/U" value={llaUPersen} onChange={setLlaUPersen} unit="SD" placeholder="0" />
+                    <FormField label="BB" value={bb} onChange={setBb} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="TB" value={tb} onChange={setTb} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="IMT" value={imt} onChange={setImt} unit="Kg/m²" placeholder="0" readOnly onKeyDown={handleEnterKeyDown} />
+                    <FormField label="LLA" value={lla} onChange={setLla} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="TL" value={tl} onChange={setTl} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="ULNA" value={ulna} onChange={setUlna} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="BB Ideal" value={bbIdeal} onChange={setBbIdeal} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="BB/U" value={bbU} onChange={setBbU} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="TKU" value={tku} onChange={setTku} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="BB/TB" value={bbTb} onChange={setBbTb} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    <FormField label="LLA/U" value={llaUPersen} onChange={setLlaUPersen} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
                   </div>
                 </div>
 
@@ -578,8 +606,8 @@ function AsuhanGiziContent() {
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-brand-100/30">
-                      <FormField label="Pola Makan" value={polaMakan} onChange={setPolaMakan} placeholder="Contoh: 3x makan utama, porsi habis" />
-                      <FormField label="Riwayat Personal" value={riwayatPersonal} onChange={setRiwayatPersonal} placeholder="Riwayat penyakit keluarga/personal..." />
+                      <FormField label="Pola Makan" value={polaMakan} onChange={setPolaMakan} placeholder="Contoh: 3x makan utama, porsi habis" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="Riwayat Personal" value={riwayatPersonal} onChange={setRiwayatPersonal} placeholder="Riwayat penyakit keluarga/personal..." onKeyDown={handleEnterKeyDown} />
                     </div>
                   </div>
                 </div>
@@ -739,7 +767,7 @@ function AsuhanGiziContent() {
         {activeTab === 'skrininggizilanjut' && (
           <div className="flex flex-col min-h-full w-full">
             <TopFormContainer title="Form Input Skrining Gizi Lanjut" isOpen={formOpen}>
-              <div className="flex flex-col gap-5">
+              <div data-form="skrining" className="flex flex-col gap-5">
                 {/* Info Pasien & Tanggal */}
                 <FormSection className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2">
@@ -760,11 +788,11 @@ function AsuhanGiziContent() {
                   {/* Baris BB + TB + IMT + Alergi */}
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
                     <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">BB</label>
-                    <input type="text" value={skriningGiziBB} onChange={e => setSkriningGiziBB(e.target.value)}
+                    <input type="text" value={skriningGiziBB} onChange={e => setSkriningGiziBB(e.target.value)} onKeyDown={handleEnterKeyDown}
                       className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
                     <span className="text-[10px] text-slate-400 -ml-2 w-6">Kg</span>
                     <label className="text-xs font-semibold text-slate-600 w-8 shrink-0">TB</label>
-                    <input type="text" value={skriningGiziTB} onChange={e => setSkriningGiziTB(e.target.value)}
+                    <input type="text" value={skriningGiziTB} onChange={e => setSkriningGiziTB(e.target.value)} onKeyDown={handleEnterKeyDown}
                       className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
                     <span className="text-[10px] text-slate-400 -ml-2 w-6">Cm</span>
                     <label className="text-xs font-semibold text-slate-600 w-8 shrink-0">IMT</label>
@@ -772,7 +800,7 @@ function AsuhanGiziContent() {
                       className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 focus:outline-none focus:border-brand-500 w-20" />
                     <span className="text-[10px] text-slate-400 -ml-2 w-14">Kg/Cm</span>
                     <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">Alergi</label>
-                    <input type="text" value={skriningGiziAlergi} onChange={e => setSkriningGiziAlergi(e.target.value)}
+                    <input type="text" value={skriningGiziAlergi} onChange={e => setSkriningGiziAlergi(e.target.value)} onKeyDown={handleEnterKeyDown}
                       className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[120px]" placeholder="Alergi makanan/obat..." />
                   </div>
                 </div>

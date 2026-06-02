@@ -166,6 +166,19 @@ function DietPasienContent() {
 
   const handleBottomSearch = () => fetchDiet(noRawat, searchKeyword, tglAwal, tglAkhir);
 
+  const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const form = (e.currentTarget as HTMLElement).closest('[data-form]');
+      if (!form) return;
+      const inputs = form.querySelectorAll<HTMLInputElement>('input:not([readonly])');
+      const currentIdx = Array.from(inputs).indexOf(e.currentTarget as HTMLInputElement);
+      if (currentIdx >= 0 && currentIdx < inputs.length - 1) {
+        inputs[currentIdx + 1].focus();
+      }
+    }
+  };
+
   const handleKdDietChange = (val: string) => {
     setFormKdDiet(val);
     const found = dietOptions.find(d => d.kd_diet === val);
@@ -177,27 +190,27 @@ function DietPasienContent() {
       <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 pt-0 pb-2 relative">
         <div className="flex flex-col min-h-full w-full">
           <TopFormContainer title="Form Input Diet Pasien" isOpen={formOpen}>
-            <div className="flex flex-col gap-5">
-              <FormSection className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
-                </div>
-                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
-                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
-                <div className="ml-auto flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
-                  <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                  <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                  <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
-                </div>
-              </FormSection>
+              <div data-form="diet" className="flex flex-col gap-5">
+                <FormSection className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                  </div>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+                  <div className="ml-auto flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  </div>
+                </FormSection>
               <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
                 <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Data Diet</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Tanggal</label>
-                    <input type="date" value={formTanggal} onChange={e => setFormTanggal(e.target.value)}
+                    <input type="date" value={formTanggal} onChange={e => setFormTanggal(e.target.value)} onKeyDown={handleEnterKeyDown}
                       className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
                   </div>
                   <div className="flex items-center gap-2">
@@ -212,7 +225,7 @@ function DietPasienContent() {
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Kode Diet</label>
-                    <input type="text" value={formKdDiet} onChange={e => handleKdDietChange(e.target.value)}
+                    <input type="text" value={formKdDiet} onChange={e => handleKdDietChange(e.target.value)} onKeyDown={handleEnterKeyDown}
                       list="diet-list"
                       className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="Ketik kode/nama diet" />
                     <datalist id="diet-list">
@@ -228,7 +241,7 @@ function DietPasienContent() {
                   </div>
                   <div className="flex items-center gap-2 lg:col-span-2 xl:col-span-2">
                     <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Keterangan</label>
-                    <input type="text" value={formKeterangan} onChange={e => setFormKeterangan(e.target.value)}
+                    <input type="text" value={formKeterangan} onChange={e => setFormKeterangan(e.target.value)} onKeyDown={handleEnterKeyDown}
                       className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="Keterangan diet..." />
                   </div>
                 </div>
