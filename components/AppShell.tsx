@@ -456,8 +456,8 @@ function ToolbarMenuItem({
       transition={{ duration: 0.1 }}
       className="flex items-center gap-1 px-2 md:px-2 py-0.5 lg:py-1 rounded-lg text-[10px] lg:text-xs font-medium transition-colors duration-150 hover:shadow-sm"
     >
-      <span className="text-sm md:text-xs drop-shadow-md">{icon}</span>
-      <span className="drop-shadow-sm hidden md:inline">{label}</span>
+      <span className="text-sm md:text-xs">{icon}</span>
+      <span className="hidden md:inline">{label}</span>
     </motion.button>
   );
 }
