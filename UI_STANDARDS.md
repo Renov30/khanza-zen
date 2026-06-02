@@ -98,6 +98,38 @@ Jangan gunakan pola ini untuk form input aktif — form input tetap harus label 
 - Gap label→field: `gap-2`
 - Input yang berdiri sendiri tanpa label: langsung `<input>` tanpa wrapper `<div>`
 
+### 2.3.1 Info Pasien Wajib di Dalam Panel Input
+
+Info bar pasien (no. rawat, RM, nama, tanggal) **harus** ditempatkan di dalam `TopFormContainer` (panel input yang bisa dilipat), **bukan** sebagai bar terpisah di atas tab navigasi.
+
+```
+✅ BENAR — info pasien di dalam form panel (seperti halaman Pemeriksaan/CPPT)
+┌─ Tabs ──────────────────────┐
+│ Tab1 │ Tab2 │ Tab3           │
+├──────────────────────────────┤
+│ ▼ Sembunyikan Form Input     │
+│ ┌──────────────────────────┐ │
+│ │ Nama Pasien [input] ...  │ │
+│ │ ... field input ...       │ │
+│ └──────────────────────────┘ │
+│ ┌─ Tabel Data ─────────────┐ │
+│ │ ...                       │ │
+└──────────────────────────────┘
+
+❌ SALAH — info pasien di bar terpisah di atas tab
+┌─ Info Pasien ────────────────┐
+│ Nama Pasien [input] ...      │
+├─ Tabs ───────────────────────┤
+│ Tab1 │ Tab2 │ Tab3           │
+├──────────────────────────────┤
+│ Form Input ...               │
+└──────────────────────────────┘
+```
+
+**Aturan:**
+- Info pasien ditempatkan sebagai `FormSection` pertama di dalam konten `TopFormContainer`
+- Dengan demikian, info pasien ikut terlipat saat form ditutup (konsisten dengan perilaku form)
+
 ### 2.4 Pengelompokan Logis (Logical Grouping)
 
 Form yang kompleks **harus** dikelompokkan dalam section/card terpisah:

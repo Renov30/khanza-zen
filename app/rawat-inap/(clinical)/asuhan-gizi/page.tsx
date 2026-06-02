@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaUtensils, FaEdit, FaCompress } from 'react-icons/fa';
+import { FaUtensils, FaEdit, FaCompress, FaHistory } from 'react-icons/fa';
+import FormSection from '@/components/FormSection';
+import { Button } from '@/components/ui/button';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import { getPatientInfoByNoRawat, getAsuhanGiziRanap, getMonitoringGiziRanap, getSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
@@ -159,6 +161,23 @@ function AsuhanGiziContent() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('asuhangizi');
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  const [formOpen, setFormOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("khanza_asuhan_gizi_form_open");
+      if (saved !== null) return JSON.parse(saved);
+    }
+    return true;
+  });
+
+  const toggleForm = useCallback(() => {
+    setFormOpen((prev: boolean) => {
+      const next = !prev;
+      if (typeof window !== "undefined")
+        localStorage.setItem("khanza_asuhan_gizi_form_open", JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
   const [noRawat] = useState(noRawatParam);
@@ -465,31 +484,6 @@ function AsuhanGiziContent() {
 
   return (
     <>
-      {/* Bar Info Pasien Atas */}
-      <div className="bg-white border-b border-slate-200 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
-        <div className="flex items-center gap-1 w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 shrink-0">Pasien :</label>
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-33 bg-slate-50 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
-        </div>
-        <div className="flex items-center gap-1 w-full sm:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-16 bg-slate-50 focus:outline-none focus:border-brand-500"
-            value={isLoadingPatient ? '...' : noRM} readOnly placeholder="No. RM" />
-        </div>
-        <div className="flex items-center gap-1 w-full md:w-auto">
-          <input type="text" className="border border-slate-300 rounded px-2 py-1 flex-1 lg:w-70 bg-slate-50 focus:outline-none focus:border-brand-500"
-            value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
-        </div>
-        <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
-          <label className="font-semibold text-slate-600">Tanggal :</label>
-          <input type="date" className="border border-slate-300 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500"
-            value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-          <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white"
-            value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-          <input type="checkbox" className="accent-brand-500 w-4 h-4 ml-2 opacity-60"
-            checked={isClockRunning} disabled title="Jam selalu real-time" />
-        </div>
-      </div>
-
       {/* Tab */}
       <div className="flex bg-white border-b border-slate-200 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {tabs.map(tab => {
@@ -509,8 +503,23 @@ function AsuhanGiziContent() {
       <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
         {activeTab === 'asuhangizi' && (
           <div className="flex flex-col min-h-full w-full">
-            <TopFormContainer title="Form Input Asuhan Gizi" persistenceKey="khanza_asuhan_gizi_form_open">
+            <TopFormContainer title="Form Input Asuhan Gizi" isOpen={formOpen}>
               <div className="flex flex-col gap-5">
+                {/* Info Pasien & Tanggal */}
+                <FormSection className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                  </div>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+                  <div className="ml-auto flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  </div>
+                </FormSection>
                 {/* Antropometri */}
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
@@ -575,25 +584,27 @@ function AsuhanGiziContent() {
                   <FormTextarea label="Monitoring & Evaluasi" value={monitoringEvaluasi} onChange={setMonitoringEvaluasi} placeholder="Monitoring dan evaluasi..." />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                <FormSection>
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
                       <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
                     </div>
                   </div>
-                </div>
+                </FormSection>
               </div>
             </TopFormContainer>
 
             {/* Tabel Inline */}
-            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Asuhan Gizi Pasien"
                 icon={<FaUtensils />}
                 onRefresh={handleBottomSearch}
+                onTitleClick={toggleForm}
+                titleChevronOpen={formOpen}
                 columns={columns}
                 data={dataGizi}
                 idKey="id"
@@ -636,31 +647,48 @@ function AsuhanGiziContent() {
 
         {activeTab === 'monitoringgizi' && (
           <div className="flex flex-col min-h-full w-full">
-            <TopFormContainer title="Form Input Monitoring & Evaluasi Gizi" persistenceKey="khanza_monitoring_gizi_form_open">
+            <TopFormContainer title="Form Input Monitoring & Evaluasi Gizi" isOpen={formOpen}>
               <div className="flex flex-col gap-5">
+                {/* Info Pasien & Tanggal */}
+                <FormSection className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                  </div>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+                  <div className="ml-auto flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  </div>
+                </FormSection>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <FormTextarea label="Monitoring" value={monitoringText} onChange={setMonitoringText} placeholder="Catatan monitoring asuhan gizi..." />
                   <FormTextarea label="Evaluasi" value={evaluasiText} onChange={setEvaluasiText} placeholder="Catatan evaluasi asuhan gizi..." />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                <FormSection>
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
                       <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
                     </div>
                   </div>
-                </div>
+                </FormSection>
               </div>
             </TopFormContainer>
 
-            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Monitoring & Evaluasi Asuhan Gizi"
                 icon={<FaUtensils />}
                 onRefresh={handleBottomSearch}
+                onTitleClick={toggleForm}
+                titleChevronOpen={formOpen}
                 columns={monitoringColumns}
                 data={dataMonitoring}
                 idKey="id"
@@ -702,8 +730,23 @@ function AsuhanGiziContent() {
 
         {activeTab === 'skrininggizilanjut' && (
           <div className="flex flex-col min-h-full w-full">
-            <TopFormContainer title="Form Input Skrining Gizi Lanjut" persistenceKey="khanza_skrining_gizi_form_open">
+            <TopFormContainer title="Form Input Skrining Gizi Lanjut" isOpen={formOpen}>
               <div className="flex flex-col gap-5">
+                {/* Info Pasien & Tanggal */}
+                <FormSection className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                  </div>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+                  <div className="ml-auto flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  </div>
+                </FormSection>
                 <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
                   <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Gizi</h3>
                   {/* Baris BB + TB + IMT + Alergi */}
@@ -787,24 +830,26 @@ function AsuhanGiziContent() {
                 </div>
 
                 {/* Petugas (Dilakukan Oleh) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                <FormSection>
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
                       <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
                     </div>
                   </div>
-                </div>
+                </FormSection>
               </div>
             </TopFormContainer>
 
-            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Skrining Gizi Lanjut"
                 icon={<FaUtensils />}
                 onRefresh={handleBottomSearch}
+                onTitleClick={toggleForm}
+                titleChevronOpen={formOpen}
                 columns={skriningGiziLanjutColumns}
                 data={dataSkriningGizi}
                 idKey="id"
@@ -846,8 +891,23 @@ function AsuhanGiziContent() {
 
         {activeTab === 'catatanadimegizi' && (
           <div className="flex flex-col min-h-full w-full">
-            <TopFormContainer title="Form Input Catatan ADIME Gizi" persistenceKey="khanza_adime_gizi_form_open">
+            <TopFormContainer title="Form Input Catatan ADIME Gizi" isOpen={formOpen}>
               <div className="flex flex-col gap-5">
+                {/* Info Pasien & Tanggal */}
+                <FormSection className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                  </div>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+                  <div className="ml-auto flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  </div>
+                </FormSection>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <FormTextarea label="Asesmen (A)" value={adimeAsesmen} onChange={setAdimeAsesmen} placeholder="Hasil asesmen gizi..." />
                   <FormTextarea label="Diagnosis (D)" value={adimeDiagnosis} onChange={setAdimeDiagnosis} placeholder="Diagnosis gizi..." />
@@ -857,24 +917,26 @@ function AsuhanGiziContent() {
                   <FormTextarea label="Instruksi" value={adimeInstruksi} onChange={setAdimeInstruksi} placeholder="Instruksi medis/diet..." />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                <FormSection>
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
                       <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
                     </div>
                   </div>
-                </div>
+                </FormSection>
               </div>
             </TopFormContainer>
 
-            <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
                 title="Data Catatan ADIME Gizi"
                 icon={<FaUtensils />}
                 onRefresh={handleBottomSearch}
+                onTitleClick={toggleForm}
+                titleChevronOpen={formOpen}
                 columns={catatanADIMEColumns}
                 data={dataADIME}
                 idKey="id"
