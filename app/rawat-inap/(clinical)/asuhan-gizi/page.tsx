@@ -8,7 +8,7 @@ import FormSection from '@/components/FormSection';
 import { Button } from '@/components/ui/button';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
-import { getPatientInfoByNoRawat, getAsuhanGiziRanap, simpanAsuhanGiziRanap, editAsuhanGiziRanap, hapusAsuhanGiziRanap, getMonitoringGiziRanap, simpanMonitoringGiziRanap, editMonitoringGiziRanap, hapusMonitoringGiziRanap, getSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getAsuhanGiziRanap, simpanAsuhanGiziRanap, editAsuhanGiziRanap, hapusAsuhanGiziRanap, getMonitoringGiziRanap, simpanMonitoringGiziRanap, editMonitoringGiziRanap, hapusMonitoringGiziRanap, getSkriningGiziLanjutRanap, simpanSkriningGiziLanjutRanap, editSkriningGiziLanjutRanap, hapusSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import DialogPilihPegawai from '@/components/DialogPilihPegawai';
 import { TableColumn } from '@/components/TableTypes';
@@ -21,7 +21,7 @@ interface MonitoringGiziRow {
 }
 
 interface SkriningGiziLanjutRow {
-  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   umurdaftar: string; sttsumur: string; jk: string;
   tanggal: string; bb: string; tb: string; alergi: string;
   parameter_imt: string; skor_imt: string;
@@ -281,6 +281,8 @@ function AsuhanGiziContent() {
   const [skriningGiziSkor3Val, setSkriningGiziSkor3Val] = useState("0");
   const [skriningGiziTotal, setSkriningGiziTotal] = useState("0");
   const [skriningGiziKesimpulan, setSkriningGiziKesimpulan] = useState("Beresiko rendah, ulangi 7 hari");
+  const [isEditModeSkrining, setIsEditModeSkrining] = useState(false);
+  const [selectedRowIdxSkrining, setSelectedRowIdxSkrining] = useState<number | null>(null);
 
   // Catatan ADIME Gizi state
   const [dataADIME, setDataADIME] = useState<CatatanADIMERow[]>([]);
@@ -729,6 +731,120 @@ function AsuhanGiziContent() {
     await handleSimpanMonitoring();
   };
 
+  // === Skrining Gizi Lanjut CRUD ===
+  const resetFormSkrining = () => {
+    setSkriningGiziBB('');
+    setSkriningGiziTB('');
+    setSkriningGiziAlergi('');
+    setSkriningGiziIMT('');
+    setSkriningGiziSkor1("IMT > 20/z score > 2");
+    setSkriningGiziSkor2("BB Hilang < 5%");
+    setSkriningGiziSkor3("Ada asupan nutrisi > 5 hari");
+    setSkriningGiziSkor1Val("0");
+    setSkriningGiziSkor2Val("0");
+    setSkriningGiziSkor3Val("0");
+    setSkriningGiziTotal("0");
+    setSkriningGiziKesimpulan("Beresiko rendah, ulangi 7 hari");
+    setIsEditModeSkrining(false);
+    setSelectedRowIdxSkrining(null);
+    setSelectedRows([]);
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+  };
+
+  const populateFormSkrining = (row: any, idx: number) => {
+    setSkriningGiziBB(row.bb ?? '');
+    setSkriningGiziTB(row.tb ?? '');
+    setSkriningGiziAlergi(row.alergi ?? '');
+    setSkriningGiziSkor1(row.parameter_imt ?? "IMT > 20/z score > 2");
+    setSkriningGiziSkor2(row.parameter_bb ?? "BB Hilang < 5%");
+    setSkriningGiziSkor3(row.parameter_penyakit ?? "Ada asupan nutrisi > 5 hari");
+    setSkriningGiziSkor1Val(row.skor_imt ?? "0");
+    setSkriningGiziSkor2Val(row.skor_bb ?? "0");
+    setSkriningGiziSkor3Val(row.skor_penyakit ?? "0");
+    setSkriningGiziTotal(row.skor_total ?? "0");
+    setSkriningGiziKesimpulan(row.kesimpulan ?? "");
+    if (row.tanggal) {
+      const parts = row.tanggal.split(' ');
+      setCurrentDate(parts[0] || currentDate);
+      setCurrentTime(parts[1] || currentTime);
+    }
+    setIsEditModeSkrining(true);
+    setSelectedRowIdxSkrining(idx);
+  };
+
+  const handleSimpanSkrining = async () => {
+    if (!noRawat) return;
+    const payload = {
+      no_rawat: noRawat,
+      tanggal: `${currentDate} ${currentTime}`,
+      skrining_bb: skriningGiziBB,
+      skrining_tb: skriningGiziTB,
+      alergi: skriningGiziAlergi,
+      parameter_imt: skriningGiziSkor1,
+      skor_imt: skriningGiziSkor1Val,
+      parameter_bb: skriningGiziSkor2,
+      skor_bb: skriningGiziSkor2Val,
+      parameter_penyakit: skriningGiziSkor3,
+      skor_penyakit: skriningGiziSkor3Val,
+      skor_total: skriningGiziTotal,
+      parameter_total: skriningGiziKesimpulan,
+      nip: pegawaiNik,
+    };
+
+    let result;
+    if (isEditModeSkrining && selectedRowIdxSkrining !== null) {
+      const oldRow = dataSkriningGizi[selectedRowIdxSkrining];
+      result = await editSkriningGiziLanjutRanap(oldRow.tanggal, oldRow.no_rawat, payload);
+    } else {
+      result = await simpanSkriningGiziLanjutRanap(payload);
+    }
+
+    if (result.success) {
+      resetFormSkrining();
+      fetchDataSkriningGizi(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menyimpan data');
+    }
+  };
+
+  const handleBaruSkrining = () => {
+    resetFormSkrining();
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+    setFormOpen(true);
+  };
+
+  const handleHapusSkrining = async () => {
+    if (selectedRowIdxSkrining === null || selectedRowIdxSkrining < 0 || selectedRowIdxSkrining >= dataSkriningGizi.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    if (!confirm('Yakin akan menghapus data skrining gizi lanjut ini?')) return;
+    const row = dataSkriningGizi[selectedRowIdxSkrining];
+    const result = await hapusSkriningGiziLanjutRanap(row.tanggal, row.no_rawat);
+    if (result.success) {
+      resetFormSkrining();
+      fetchDataSkriningGizi(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menghapus data');
+    }
+  };
+
+  const handleGantiSkrining = async () => {
+    if (!isEditModeSkrining || selectedRowIdxSkrining === null) {
+      alert('Silakan pilih data yang akan diganti terlebih dahulu.');
+      return;
+    }
+    await handleSimpanSkrining();
+  };
+
   const tabs = [
     'Asuhan Gizi',
     'Monitoring Gizi',
@@ -1125,6 +1241,10 @@ function AsuhanGiziContent() {
                 idKey="id"
                 selectedIds={selectedRows}
                 onSelectionChange={setSelectedRows}
+                onRowClick={(row: any) => {
+                  const idx = dataSkriningGizi.findIndex(r => r.id === row.id);
+                  if (idx >= 0) populateFormSkrining(row, idx);
+                }}
                 isLoading={isLoadingSkriningGizi}
                 emptyMessage="Tidak ada data skrining gizi lanjut yang ditemukan."
               />
@@ -1150,6 +1270,10 @@ function AsuhanGiziContent() {
                       idKey="id"
                       selectedIds={selectedRows}
                       onSelectionChange={setSelectedRows}
+                      onRowClick={(row: any) => {
+                        const idx = dataSkriningGizi.findIndex(r => r.id === row.id);
+                        if (idx >= 0) populateFormSkrining(row, idx);
+                      }}
                       isLoading={isLoadingSkriningGizi}
                     />
                   </div>
@@ -1262,10 +1386,10 @@ function AsuhanGiziContent() {
 
       {/* Bottom Panel */}
       <BottomActionPanel
-        onSave={activeTab === 'asuhangizi' ? handleSimpanAsuhanGizi : activeTab === 'monitoringgizi' ? handleSimpanMonitoring : undefined}
-        onNew={activeTab === 'asuhangizi' ? handleBaruAsuhanGizi : activeTab === 'monitoringgizi' ? handleBaruMonitoring : undefined}
-        onReplace={activeTab === 'asuhangizi' ? handleGantiAsuhanGizi : activeTab === 'monitoringgizi' ? handleGantiMonitoring : undefined}
-        onDelete={activeTab === 'asuhangizi' ? handleHapusAsuhanGizi : activeTab === 'monitoringgizi' ? handleHapusMonitoring : undefined}
+        onSave={activeTab === 'asuhangizi' ? handleSimpanAsuhanGizi : activeTab === 'monitoringgizi' ? handleSimpanMonitoring : activeTab === 'skrininggizilanjut' ? handleSimpanSkrining : undefined}
+        onNew={activeTab === 'asuhangizi' ? handleBaruAsuhanGizi : activeTab === 'monitoringgizi' ? handleBaruMonitoring : activeTab === 'skrininggizilanjut' ? handleBaruSkrining : undefined}
+        onReplace={activeTab === 'asuhangizi' ? handleGantiAsuhanGizi : activeTab === 'monitoringgizi' ? handleGantiMonitoring : activeTab === 'skrininggizilanjut' ? handleGantiSkrining : undefined}
+        onDelete={activeTab === 'asuhangizi' ? handleHapusAsuhanGizi : activeTab === 'monitoringgizi' ? handleHapusMonitoring : activeTab === 'skrininggizilanjut' ? handleHapusSkrining : undefined}
         recordCount={
           activeTab === 'monitoringgizi' ? dataMonitoring.length :
           activeTab === 'skrininggizilanjut' ? dataSkriningGizi.length :

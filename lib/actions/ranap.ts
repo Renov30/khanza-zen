@@ -697,6 +697,124 @@ export async function getSkriningGiziLanjutRanap(
 }
 
 /**
+ * Menyimpan data skrining gizi lanjut (INSERT).
+ * Tabel: skrining_gizi
+ * Primary key: no_rawat + tanggal
+ */
+export async function simpanSkriningGiziLanjutRanap(payload: {
+  no_rawat: string;
+  tanggal: string;
+  skrining_bb: string;
+  skrining_tb: string;
+  alergi: string;
+  parameter_imt: string;
+  skor_imt: string;
+  parameter_bb: string;
+  skor_bb: string;
+  parameter_penyakit: string;
+  skor_penyakit: string;
+  skor_total: string;
+  parameter_total: string;
+  nip: string;
+}) {
+  try {
+    const query = `INSERT INTO skrining_gizi (no_rawat, tanggal, skrining_bb, skrining_tb, alergi, parameter_imt, skor_imt, parameter_bb, skor_bb, parameter_penyakit, skor_penyakit, skor_total, parameter_total, nip) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+    await db.execute(query, [
+      payload.no_rawat,
+      payload.tanggal,
+      payload.skrining_bb,
+      payload.skrining_tb,
+      payload.alergi,
+      payload.parameter_imt,
+      payload.skor_imt,
+      payload.parameter_bb,
+      payload.skor_bb,
+      payload.parameter_penyakit,
+      payload.skor_penyakit,
+      payload.skor_total,
+      payload.parameter_total,
+      payload.nip,
+    ]);
+    return { success: true, message: "Data skrining gizi lanjut berhasil disimpan" };
+  } catch (error: any) {
+    console.error("Error simpan skrining gizi lanjut:", error);
+    return { success: false, message: "Gagal menyimpan data skrining gizi lanjut", error: error.message };
+  }
+}
+
+/**
+ * Mengedit data skrining gizi lanjut (UPDATE).
+ * Tabel: skrining_gizi WHERE tanggal=? AND no_rawat=?
+ */
+export async function editSkriningGiziLanjutRanap(
+  tanggalLama: string,
+  noRawat: string,
+  payload: {
+    no_rawat: string;
+    tanggal: string;
+    skrining_bb: string;
+    skrining_tb: string;
+    alergi: string;
+    parameter_imt: string;
+    skor_imt: string;
+    parameter_bb: string;
+    skor_bb: string;
+    parameter_penyakit: string;
+    skor_penyakit: string;
+    skor_total: string;
+    parameter_total: string;
+    nip: string;
+  }
+) {
+  try {
+    const query = `
+      UPDATE skrining_gizi SET
+        no_rawat=?, tanggal=?, skrining_bb=?, skrining_tb=?, alergi=?,
+        parameter_imt=?, skor_imt=?, parameter_bb=?, skor_bb=?,
+        parameter_penyakit=?, skor_penyakit=?, skor_total=?, parameter_total=?, nip=?
+      WHERE tanggal=? AND no_rawat=?
+    `;
+    await db.execute(query, [
+      payload.no_rawat,
+      payload.tanggal,
+      payload.skrining_bb,
+      payload.skrining_tb,
+      payload.alergi,
+      payload.parameter_imt,
+      payload.skor_imt,
+      payload.parameter_bb,
+      payload.skor_bb,
+      payload.parameter_penyakit,
+      payload.skor_penyakit,
+      payload.skor_total,
+      payload.parameter_total,
+      payload.nip,
+      tanggalLama,
+      noRawat,
+    ]);
+    return { success: true, message: "Data skrining gizi lanjut berhasil diupdate" };
+  } catch (error: any) {
+    console.error("Error edit skrining gizi lanjut:", error);
+    return { success: false, message: "Gagal mengupdate data skrining gizi lanjut", error: error.message };
+  }
+}
+
+/**
+ * Menghapus data skrining gizi lanjut (DELETE).
+ * Tabel: skrining_gizi WHERE tanggal=? AND no_rawat=?
+ */
+export async function hapusSkriningGiziLanjutRanap(tanggal: string, noRawat: string) {
+  try {
+    const query = `DELETE FROM skrining_gizi WHERE tanggal=? AND no_rawat=?`;
+    await db.execute(query, [tanggal, noRawat]);
+    return { success: true, message: "Data skrining gizi lanjut berhasil dihapus" };
+  } catch (error: any) {
+    console.error("Error hapus skrining gizi lanjut:", error);
+    return { success: false, message: "Gagal menghapus data skrining gizi lanjut", error: error.message };
+  }
+}
+
+/**
  * Mengambil data catatan ADIME gizi pasien rawat inap.
  * Tabel: catatan_adime_gizi
  */
