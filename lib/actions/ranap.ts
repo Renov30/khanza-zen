@@ -523,6 +523,93 @@ export async function getMonitoringGiziRanap(
 }
 
 /**
+ * Menyimpan data monitoring asuhan gizi baru (Simpan).
+ * INSERT ke tabel monitoring_asuhan_gizi.
+ * Tabel: monitoring_asuhan_gizi (5 kolom: no_rawat, tanggal, monitoring, evaluasi, nip)
+ */
+export async function simpanMonitoringGiziRanap(data: {
+  no_rawat: string; tanggal: string;
+  monitoring: string; evaluasi: string; nip: string;
+}) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      INSERT INTO monitoring_asuhan_gizi (no_rawat, tanggal, monitoring, evaluasi, nip)
+      VALUES (?, ?, ?, ?, ?)
+    `, [
+      data.no_rawat, data.tanggal, data.monitoring || "", data.evaluasi || "", data.nip,
+    ]);
+
+    return { success: true, message: "Data monitoring gizi berhasil disimpan" };
+  } catch (error: any) {
+    console.error("Error saving monitoring gizi:", error);
+    return { success: false, message: "Gagal menyimpan data monitoring gizi", error: error.message };
+  }
+}
+
+/**
+ * Mengedit data monitoring asuhan gizi (Ganti).
+ * UPDATE tabel monitoring_asuhan_gizi WHERE tanggal=? AND no_rawat=?.
+ */
+export async function editMonitoringGiziRanap(
+  oldTanggal: string,
+  oldNoRawat: string,
+  newData: {
+    no_rawat: string; tanggal: string;
+    monitoring: string; evaluasi: string; nip: string;
+  },
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      UPDATE monitoring_asuhan_gizi SET
+        no_rawat=?, tanggal=?, monitoring=?, evaluasi=?, nip=?
+      WHERE tanggal=? AND no_rawat=?
+    `, [
+      newData.no_rawat, newData.tanggal,
+      newData.monitoring || "", newData.evaluasi || "", newData.nip,
+      oldTanggal, oldNoRawat,
+    ]);
+
+    return { success: true, message: "Data monitoring gizi berhasil diubah" };
+  } catch (error: any) {
+    console.error("Error editing monitoring gizi:", error);
+    return { success: false, message: "Gagal mengubah data monitoring gizi", error: error.message };
+  }
+}
+
+/**
+ * Menghapus data monitoring asuhan gizi (Hapus).
+ * DELETE dari tabel monitoring_asuhan_gizi WHERE tanggal=? AND no_rawat=?.
+ */
+export async function hapusMonitoringGiziRanap(tanggal: string, noRawat: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute("DELETE FROM monitoring_asuhan_gizi WHERE tanggal=? AND no_rawat=?", [tanggal, noRawat]);
+
+    return { success: true, message: "Data monitoring gizi berhasil dihapus" };
+  } catch (error: any) {
+    console.error("Error deleting monitoring gizi:", error);
+    return { success: false, message: "Gagal menghapus data monitoring gizi", error: error.message };
+  }
+}
+
+/**
  * Mengambil data skrining gizi lanjut pasien rawat inap.
  * Tabel: skrining_gizi
  */

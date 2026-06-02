@@ -8,13 +8,13 @@ import FormSection from '@/components/FormSection';
 import { Button } from '@/components/ui/button';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
-import { getPatientInfoByNoRawat, getAsuhanGiziRanap, simpanAsuhanGiziRanap, editAsuhanGiziRanap, hapusAsuhanGiziRanap, getMonitoringGiziRanap, getSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getAsuhanGiziRanap, simpanAsuhanGiziRanap, editAsuhanGiziRanap, hapusAsuhanGiziRanap, getMonitoringGiziRanap, simpanMonitoringGiziRanap, editMonitoringGiziRanap, hapusMonitoringGiziRanap, getSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import DialogPilihPegawai from '@/components/DialogPilihPegawai';
 import { TableColumn } from '@/components/TableTypes';
 
 interface MonitoringGiziRow {
-  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   umurdaftar: string; sttsumur: string; jk: string;
   tanggal: string; monitoring: string; evaluasi: string;
   nip: string; nm_petugas: string;
@@ -263,6 +263,8 @@ function AsuhanGiziContent() {
   const [isLoadingMonitoring, setIsLoadingMonitoring] = useState(false);
   const [monitoringText, setMonitoringText] = useState('');
   const [evaluasiText, setEvaluasiText] = useState('');
+  const [isEditModeMonitoring, setIsEditModeMonitoring] = useState(false);
+  const [selectedRowIdxMonitoring, setSelectedRowIdxMonitoring] = useState<number | null>(null);
 
   // Skrining Gizi Lanjut state
   const [dataSkriningGizi, setDataSkriningGizi] = useState<SkriningGiziLanjutRow[]>([]);
@@ -641,6 +643,92 @@ function AsuhanGiziContent() {
     await handleSimpanAsuhanGizi();
   };
 
+  // === Monitoring Gizi CRUD ===
+  const resetFormMonitoring = () => {
+    setMonitoringText('');
+    setEvaluasiText('');
+    setIsEditModeMonitoring(false);
+    setSelectedRowIdxMonitoring(null);
+    setSelectedRows([]);
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+  };
+
+  const populateFormMonitoring = (row: any, idx: number) => {
+    setMonitoringText(row.monitoring ?? '');
+    setEvaluasiText(row.evaluasi ?? '');
+    if (row.tanggal) {
+      const parts = row.tanggal.split(' ');
+      setCurrentDate(parts[0] || currentDate);
+      setCurrentTime(parts[1] || currentTime);
+    }
+    setIsEditModeMonitoring(true);
+    setSelectedRowIdxMonitoring(idx);
+  };
+
+  const handleSimpanMonitoring = async () => {
+    if (!noRawat) return;
+    const payload = {
+      no_rawat: noRawat,
+      tanggal: `${currentDate} ${currentTime}`,
+      monitoring: monitoringText,
+      evaluasi: evaluasiText,
+      nip: pegawaiNik,
+    };
+
+    let result;
+    if (isEditModeMonitoring && selectedRowIdxMonitoring !== null) {
+      const oldRow = dataMonitoring[selectedRowIdxMonitoring];
+      result = await editMonitoringGiziRanap(oldRow.tanggal, oldRow.no_rawat, payload);
+    } else {
+      result = await simpanMonitoringGiziRanap(payload);
+    }
+
+    if (result.success) {
+      resetFormMonitoring();
+      fetchDataMonitoring(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menyimpan data');
+    }
+  };
+
+  const handleBaruMonitoring = () => {
+    resetFormMonitoring();
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+    setFormOpen(true);
+  };
+
+  const handleHapusMonitoring = async () => {
+    if (selectedRowIdxMonitoring === null || selectedRowIdxMonitoring < 0 || selectedRowIdxMonitoring >= dataMonitoring.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    if (!confirm('Yakin akan menghapus data monitoring gizi ini?')) return;
+    const row = dataMonitoring[selectedRowIdxMonitoring];
+    const result = await hapusMonitoringGiziRanap(row.tanggal, row.no_rawat);
+    if (result.success) {
+      resetFormMonitoring();
+      fetchDataMonitoring(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menghapus data');
+    }
+  };
+
+  const handleGantiMonitoring = async () => {
+    if (!isEditModeMonitoring || selectedRowIdxMonitoring === null) {
+      alert('Silakan pilih data yang akan diganti terlebih dahulu.');
+      return;
+    }
+    await handleSimpanMonitoring();
+  };
+
   const tabs = [
     'Asuhan Gizi',
     'Monitoring Gizi',
@@ -857,20 +945,24 @@ function AsuhanGiziContent() {
             </TopFormContainer>
 
             <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <DataTableMulti
-                title="Data Monitoring & Evaluasi Asuhan Gizi"
-                icon={<FaUtensils />}
-                onRefresh={handleBottomSearch}
-                onTitleClick={toggleForm}
-                titleChevronOpen={formOpen}
-                columns={monitoringColumns}
-                data={dataMonitoring}
-                idKey="id"
-                selectedIds={selectedRows}
-                onSelectionChange={setSelectedRows}
-                isLoading={isLoadingMonitoring}
-                emptyMessage="Tidak ada data monitoring gizi yang ditemukan."
-              />
+                <DataTableMulti
+                  title="Data Monitoring & Evaluasi Asuhan Gizi"
+                  icon={<FaUtensils />}
+                  onRefresh={handleBottomSearch}
+                  onTitleClick={toggleForm}
+                  titleChevronOpen={formOpen}
+                  columns={monitoringColumns}
+                  data={dataMonitoring}
+                  idKey="id"
+                  selectedIds={selectedRows}
+                  onSelectionChange={setSelectedRows}
+                  onRowClick={(row: any) => {
+                    const idx = dataMonitoring.findIndex(r => r.id === row.id);
+                    if (idx >= 0) populateFormMonitoring(row, idx);
+                  }}
+                  isLoading={isLoadingMonitoring}
+                  emptyMessage="Tidak ada data monitoring gizi yang ditemukan."
+                />
             </div>
 
             <AnimatePresence>
@@ -893,6 +985,10 @@ function AsuhanGiziContent() {
                       idKey="id"
                       selectedIds={selectedRows}
                       onSelectionChange={setSelectedRows}
+                      onRowClick={(row: any) => {
+                        const idx = dataMonitoring.findIndex(r => r.id === row.id);
+                        if (idx >= 0) populateFormMonitoring(row, idx);
+                      }}
                       isLoading={isLoadingMonitoring}
                     />
                   </div>
@@ -1166,10 +1262,10 @@ function AsuhanGiziContent() {
 
       {/* Bottom Panel */}
       <BottomActionPanel
-        onSave={activeTab === 'asuhangizi' ? handleSimpanAsuhanGizi : undefined}
-        onNew={activeTab === 'asuhangizi' ? handleBaruAsuhanGizi : undefined}
-        onReplace={activeTab === 'asuhangizi' ? handleGantiAsuhanGizi : undefined}
-        onDelete={activeTab === 'asuhangizi' ? handleHapusAsuhanGizi : undefined}
+        onSave={activeTab === 'asuhangizi' ? handleSimpanAsuhanGizi : activeTab === 'monitoringgizi' ? handleSimpanMonitoring : undefined}
+        onNew={activeTab === 'asuhangizi' ? handleBaruAsuhanGizi : activeTab === 'monitoringgizi' ? handleBaruMonitoring : undefined}
+        onReplace={activeTab === 'asuhangizi' ? handleGantiAsuhanGizi : activeTab === 'monitoringgizi' ? handleGantiMonitoring : undefined}
+        onDelete={activeTab === 'asuhangizi' ? handleHapusAsuhanGizi : activeTab === 'monitoringgizi' ? handleHapusMonitoring : undefined}
         recordCount={
           activeTab === 'monitoringgizi' ? dataMonitoring.length :
           activeTab === 'skrininggizilanjut' ? dataSkriningGizi.length :
