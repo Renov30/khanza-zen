@@ -22,6 +22,9 @@ interface SettingContextValue {
   wallpaperUrl: string;
   version: number;
   refresh: () => void;
+  layoutMode: "classic" | "zen";
+  toggleLayoutMode: () => void;
+  setLayoutMode: (mode: "classic" | "zen") => void;
 }
 
 const SettingContext = createContext<SettingContextValue>({
@@ -30,6 +33,9 @@ const SettingContext = createContext<SettingContextValue>({
   wallpaperUrl: "/img/background.png",
   version: 0,
   refresh: () => {},
+  layoutMode: "classic",
+  toggleLayoutMode: () => {},
+  setLayoutMode: () => {},
 });
 
 export function useSetting() {
@@ -41,10 +47,31 @@ export function SettingProvider({ children }: { children: React.ReactNode }) {
   const [logoUrl, setLogoUrl] = useState("/img/logo-rs.svg");
   const [wallpaperUrl, setWallpaperUrl] = useState("/img/background.png");
   const [version, setVersion] = useState(0);
+  const [layoutMode, setLayoutModeState] = useState<"classic" | "zen">("classic");
   const logoBlobRef = useRef<string | null>(null);
   const wallpaperBlobRef = useRef<string | null>(null);
   const fetchIdRef = useRef(0);
   const mountedRef = useRef(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("layoutMode");
+    if (stored === "zen" || stored === "classic") {
+      setLayoutModeState(stored);
+    }
+  }, []);
+
+  const setLayoutMode = useCallback((mode: "classic" | "zen") => {
+    setLayoutModeState(mode);
+    localStorage.setItem("layoutMode", mode);
+  }, []);
+
+  const toggleLayoutMode = useCallback(() => {
+    setLayoutModeState((prev) => {
+      const next = prev === "classic" ? "zen" : "classic";
+      localStorage.setItem("layoutMode", next);
+      return next;
+    });
+  }, []);
 
   const doFetch = useCallback(async (fetchId: number) => {
     const res = await getSettingRs();
@@ -119,7 +146,18 @@ export function SettingProvider({ children }: { children: React.ReactNode }) {
   }, [doFetch]);
 
   return (
-    <SettingContext.Provider value={{ instansi, logoUrl, wallpaperUrl, version, refresh }}>
+    <SettingContext.Provider
+      value={{
+        instansi,
+        logoUrl,
+        wallpaperUrl,
+        version,
+        refresh,
+        layoutMode,
+        toggleLayoutMode,
+        setLayoutMode,
+      }}
+    >
       {children}
     </SettingContext.Provider>
   );

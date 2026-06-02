@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { SettingProvider } from "@/components/SettingContext";
+import React, { useState, useEffect, useCallback } from "react";
+import { SettingProvider, useSetting } from "@/components/SettingContext";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -35,11 +35,26 @@ import {
   FaCommentDots,
   FaMoon,
   FaSun,
+  FaChevronDown,
+  FaSearch,
+  FaBars,
+  FaRobot,
 } from "react-icons/fa";
 import { loginAction, logoutAction } from "@/lib/actions/auth";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider>
+      <SettingProvider>
+        <AppShellContent>{children}</AppShellContent>
+      </SettingProvider>
+    </ThemeProvider>
+  );
+}
+
+function AppShellContent({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
+  const { instansi, logoUrl, layoutMode, toggleLayoutMode } = useSetting();
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
   const pathname = usePathname();
   const router = useRouter();
@@ -126,12 +141,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (!mounted) return null;
 
   return (
-    <ThemeProvider>
-      <SettingProvider>
-        <div
-          className="flex flex-col h-screen w-full overflow-hidden bg-slate-50 dark:bg-slate-900 dark:text-slate-100 font-sans relative"
-          onContextMenu={handleContextMenu}
-        >
+    <div
+      className={`flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-slate-900 dark:text-slate-100 font-sans relative ${
+        layoutMode === "classic" ? "flex-col" : "flex-row"
+      }`}
+      onContextMenu={handleContextMenu}
+    >
+      {layoutMode === "classic" ? (
+        <>
           {/* Toolbar */}
           <motion.nav
             initial={{ opacity: 0 }}
@@ -274,170 +291,320 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <main className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30 dark:bg-slate-900">
             <div className="absolute inset-0 w-full h-full">{children}</div>
           </main>
-
-          {/* Menu Konteks */}
-          <AnimatePresence>
-            {contextMenu.show && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="absolute z-50 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-brand-100 dark:border-slate-700 shadow-2xl rounded-xl py-2 min-w-[220px] flex flex-col text-sm font-medium overflow-hidden"
-                style={{ top: contextMenu.y, left: contextMenu.x }}
-              >
-                <div className="px-4 py-1.5 mb-1 border-b border-brand-50/50 dark:border-slate-700 flex items-center gap-2 bg-brand-50/30 dark:bg-slate-800">
-                  <FaLaptopMedical className="text-brand-600 text-lg" />
-                  <span className="text-[10px] font-extrabold text-brand-700 dark:text-brand-300 uppercase tracking-widest">
-                    Tindakan Cepat
+        </>
+      ) : (
+        <>
+          {/* Zen Left Sidebar */}
+          <aside className="w-64 bg-white dark:bg-slate-800 border-r border-slate-100 dark:border-slate-700/80 flex flex-col justify-between h-full z-30 shrink-0 shadow-[4px_0_12px_-5px_rgba(0,0,0,0.03)] transition-all duration-300">
+            {/* Logo Header */}
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700/50">
+              <Link href="/" className="flex items-center gap-3">
+                <img
+                  src={logoUrl}
+                  alt="Logo RS"
+                  className="h-10 w-10 rounded-full object-cover border border-slate-100 dark:border-slate-600 shadow-sm shrink-0 bg-white"
+                />
+                <div className="flex flex-col min-w-0">
+                  <span className="font-extrabold text-teal-600 dark:text-teal-400 text-sm tracking-tight leading-tight uppercase">
+                    SIMRS-ZEN
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate max-w-[130px]">
+                    {instansi?.namaInstansi || "RS SIMRS KHANZA"}
                   </span>
                 </div>
-                <ContextMenuItem
-                  icon={<FaReact className="text-sky-500" />}
-                  label="Tentang Aplikasi"
+              </Link>
+            </div>
+
+            {/* Sidebar Navigation */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {/* Group 1: PENDAFTARAN & PASIEN */}
+              <div className="space-y-1">
+                <span className="px-3 text-[10px] font-extrabold tracking-wider text-slate-400 dark:text-slate-500 uppercase block mb-1">
+                  Pendaftaran & Pasien
+                </span>
+                <SidebarLink href="/" icon={<FaHome />} label="Beranda" active={pathname === "/"} />
+                <SidebarLink href="/registrasi" icon={<FaIdCard />} label="Registrasi" active={pathname === "/registrasi"} />
+                <SidebarLink href="#" icon={<FaAmbulance />} label="IGD/UGD" />
+                <SidebarLink href="/rawat-inap" icon={<FaBed />} label="Rawat Inap" active={pathname === "/rawat-inap"} />
+                <SidebarLink href="#" icon={<FaWheelchair />} label="Rawat Jalan" />
+              </div>
+
+              {/* Group 2: LAYANAN MEDIS */}
+              <div className="space-y-1">
+                <span className="px-3 text-[10px] font-extrabold tracking-wider text-slate-400 dark:text-slate-500 uppercase block mb-1">
+                  Layanan Medis
+                </span>
+                <SidebarLink href="#" icon={<FaFlask />} label="Laboratorium" />
+                <SidebarLink href="#" icon={<FaRadiation />} label="Radiologi" />
+                <SidebarLink href="#" icon={<FaPills />} label="Farmasi" />
+                <SidebarLink href="#" icon={<FaLaptopMedical />} label="Rawat Intensif" />
+              </div>
+
+              {/* Group 3: LAINNYA */}
+              <div className="space-y-1">
+                <span className="px-3 text-[10px] font-extrabold tracking-wider text-slate-400 dark:text-slate-500 uppercase block mb-1">
+                  Lainnya
+                </span>
+                <SidebarLink href="#" icon={<FaDesktop />} label="Antrian" />
+                <SidebarLink href="#" icon={<FaInfoCircle />} label="Informasi" />
+                <SidebarLink href="#" icon={<FaBell />} label="Notifikasi" />
+                <SidebarLink href="/daftar-menu" icon={<FaThLarge />} label="Laporan" active={pathname === "/daftar-menu"} />
+                <SidebarLink href="/setting" icon={<FaCog />} label="Pengaturan" active={pathname === "/setting"} />
+              </div>
+            </div>
+
+            {/* Sidebar Footer Card */}
+            <div className="p-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/20">
+              <div className="bg-[#e6f4f1] dark:bg-slate-700/30 p-3 rounded-2xl flex items-center gap-3 border border-teal-100/50 dark:border-slate-700/50 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-teal-500/5 rounded-full blur-xl group-hover:scale-125 transition-transform" />
+                <img
+                  src="/img/medical_robot.png"
+                  alt="Assistant Robot"
+                  className="h-10 w-10 shrink-0 object-contain drop-shadow-md"
                 />
-                <ContextMenuItem
-                  icon={<FaCog className="text-slate-500" />}
-                  label="Pengaturan"
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-bold text-teal-800 dark:text-teal-400 leading-tight">
+                    SIMRS-ZEN
+                  </span>
+                  <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400 leading-normal truncate">
+                    Sistem Informasi Manajemen
+                  </span>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Zen Right Area */}
+          <div className="flex-1 flex flex-col h-full overflow-hidden">
+            {/* Topbar */}
+            <header className="h-16 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between px-6 z-20 shrink-0 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+              {/* Topbar Left */}
+              <div className="flex items-center gap-4">
+                <button className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <FaBars className="text-base" />
+                </button>
+                <h1 className="text-sm font-extrabold text-slate-800 dark:text-slate-100 tracking-tight capitalize">
+                  {getPageTitle(pathname)}
+                </h1>
+              </div>
+
+              {/* Topbar Middle (Search Mock) */}
+              <div className="hidden md:flex items-center relative w-96 max-w-md">
+                <FaSearch className="absolute left-3 text-slate-400 dark:text-slate-500 text-xs" />
+                <input
+                  type="text"
+                  placeholder="Cari menu atau data..."
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full pl-9 pr-14 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200"
                 />
-                <div className="w-full h-px bg-slate-100 dark:bg-slate-700 my-1"></div>
-                <ContextMenuItem
-                  icon={<FaSync className="text-brand-500" />}
-                  label="Muat Ulang (Refresh)"
-                  onClick={() => window.location.reload()}
-                />
+                <span className="absolute right-3 bg-slate-200/80 dark:bg-slate-700 text-[9px] font-bold text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded border border-slate-300/40 dark:border-slate-600/40">
+                  Ctrl + K
+                </span>
+              </div>
+
+              {/* Topbar Right */}
+              <div className="flex items-center gap-4">
+                {/* Notification Button */}
+                <button className="relative text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <FaBell className="text-base" />
+                  <span className="absolute top-1 right-1 bg-red-500 text-[8px] font-black text-white w-4 h-4 rounded-full flex items-center justify-center border border-white dark:border-slate-800">
+                    3
+                  </span>
+                </button>
+
+                {/* Profile Dropdown */}
                 {!isLoggedIn ? (
-                  <ContextMenuItem
-                    icon={<FaSignInAlt className="text-blue-500" />}
-                    label="Buka Halaman Login"
+                  <button
                     onClick={() => setIsLoginModalOpen(true)}
-                  />
+                    className="flex items-center gap-2 bg-teal-50 hover:bg-teal-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-teal-800 dark:text-slate-200 px-3 py-1.5 rounded-full text-xs font-bold transition-all border border-teal-100/50 dark:border-slate-600 shadow-sm"
+                  >
+                    <FaSignInAlt />
+                    Masuk
+                  </button>
                 ) : (
-                  <ContextMenuItem
-                    icon={<FaKey className="text-yellow-600" />}
-                    label="Log Out"
-                    onClick={handleLogout}
+                  <ProfileMenuZen
+                    username={username}
+                    isOpen={isAccountMenuOpen}
+                    onToggle={setIsAccountMenuOpen}
+                    onLogout={handleLogout}
+                    layoutMode={layoutMode}
+                    onToggleLayout={toggleLayoutMode}
                   />
                 )}
-                <div className="w-full h-px bg-slate-100 dark:bg-slate-700 my-1"></div>
-                <ContextMenuItem
-                  icon={<FaTimes className="text-red-500" />}
-                  label="Tutup Menu"
-                  isRed
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
+            </header>
 
-          {/* Modal Login */}
-          <AnimatePresence>
-            {isLoginModalOpen && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+            {/* Area Konten Utama */}
+            <main className="flex-1 relative w-full h-full overflow-hidden bg-slate-50/10 dark:bg-slate-900/10 shadow-inner">
+              <div className="absolute inset-0 w-full h-full">{children}</div>
+            </main>
+          </div>
+        </>
+      )}
+
+      {/* PERSISTENT FLOATING LAYOUT SWITCHER */}
+      <LayoutSwitcherFAB layoutMode={layoutMode} onToggle={toggleLayoutMode} />
+
+      {/* Menu Konteks */}
+      <AnimatePresence>
+        {contextMenu.show && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute z-50 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-brand-100 dark:border-slate-700 shadow-2xl rounded-xl py-2 min-w-[220px] flex flex-col text-sm font-medium overflow-hidden"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+          >
+            <div className="px-4 py-1.5 mb-1 border-b border-brand-50/50 dark:border-slate-700 flex items-center gap-2 bg-brand-50/30 dark:bg-slate-800">
+              <FaLaptopMedical className="text-brand-600 dark:text-teal-400 text-lg" />
+              <span className="text-[10px] font-extrabold text-brand-700 dark:text-brand-300 uppercase tracking-widest">
+                Tindakan Cepat
+              </span>
+            </div>
+            <ContextMenuItem
+              icon={<FaReact className="text-sky-500" />}
+              label="Tentang Aplikasi"
+            />
+            <ContextMenuItem
+              icon={<FaCog className="text-slate-500" />}
+              label="Pengaturan"
+            />
+            <div className="w-full h-px bg-slate-100 dark:bg-slate-700 my-1"></div>
+            <ContextMenuItem
+              icon={<FaSync className="text-brand-500" />}
+              label="Muat Ulang (Refresh)"
+              onClick={() => window.location.reload()}
+            />
+            {!isLoggedIn ? (
+              <ContextMenuItem
+                icon={<FaSignInAlt className="text-blue-500" />}
+                label="Buka Halaman Login"
+                onClick={() => setIsLoginModalOpen(true)}
+              />
+            ) : (
+              <ContextMenuItem
+                icon={<FaKey className="text-yellow-600" />}
+                label="Log Out"
+                onClick={handleLogout}
+              />
+            )}
+            <div className="w-full h-px bg-slate-100 dark:bg-slate-700 my-1"></div>
+            <ContextMenuItem
+              icon={<FaTimes className="text-red-500" />}
+              label="Tutup Menu"
+              isRed
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal Login */}
+      <AnimatePresence>
+        {isLoginModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.15 }}
+              className="bg-white dark:bg-slate-800 w-[380px] flex flex-col rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/50 dark:border-slate-700"
+            >
+              {/* Header Login */}
+              <div className="bg-gradient-to-r from-brand-600 to-brand-700 dark:from-slate-700 dark:to-slate-800 px-6 py-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                  <FaLock className="text-white text-lg" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg leading-tight">
+                    LOGIN
+                  </h3>
+                  <p className="text-white/70 text-[10px] font-medium tracking-wider">
+                    SILAHKAN MASUK UNTUK MELANJUTKAN
+                  </p>
+                </div>
+              </div>
+
+              {/* Area Form */}
+              <form
+                action={async (formData) => {
+                  setLoginError("");
+                  setIsLoading(true);
+                  const result = await loginAction(formData);
+                  setIsLoading(false);
+
+                  if (result.success && result.user) {
+                    setIsLoggedIn(true);
+                    setUsername(result.user.nama || username);
+                    setIsLoginModalOpen(false);
+                    setPassword("");
+                  } else {
+                    setLoginError(result.message || "Login failed");
+                  }
+                }}
               >
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  transition={{ duration: 0.15 }}
-                  className="bg-white dark:bg-slate-800 w-[380px] flex flex-col rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/50 dark:border-slate-700"
-                >
-                  {/* Header Login */}
-                  <div className="bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
-                      <FaLock className="text-white text-lg" />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-bold text-lg leading-tight">
-                        LOGIN
-                      </h3>
-                      <p className="text-white/70 text-[10px] font-medium tracking-wider">
-                        SILAHKAN MASUK UNTUK MELANJUTKAN
-                      </p>
-                    </div>
+                <div className="bg-[#cbdceb] dark:bg-slate-700 px-6 py-6 flex flex-col gap-5 border-y border-slate-300 dark:border-slate-600 shadow-inner">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200 w-24">
+                      Username :
+                    </label>
+                    <input
+                      name="username"
+                      type="text"
+                      className="flex-1 bg-gradient-to-b from-slate-50 to-slate-200 dark:from-slate-600 dark:to-slate-700 border border-slate-400 dark:border-slate-500 rounded-full px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-inner text-slate-700 dark:text-slate-200 font-medium"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      autoFocus
+                      required
+                    />
                   </div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200 w-24">
+                      Password :
+                    </label>
+                    <input
+                      name="password"
+                      type="password"
+                      className="flex-1 bg-gradient-to-b from-slate-50 to-slate-200 dark:from-slate-600 dark:to-slate-700 border border-slate-400 dark:border-slate-500 rounded-full px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-inner text-slate-700 dark:text-slate-200 font-medium"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  {loginError && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-[10px] text-red-600 font-bold text-center bg-red-50 dark:bg-red-900/50 py-1 rounded border border-red-200 dark:border-red-800"
+                    >
+                      {loginError}
+                    </motion.p>
+                  )}
+                </div>
 
-                  {/* Area Form */}
-                  <form
-                    action={async (formData) => {
-                      setLoginError("");
-                      setIsLoading(true);
-                      const result = await loginAction(formData);
-                      setIsLoading(false);
-
-                      if (result.success && result.user) {
-                        setIsLoggedIn(true);
-                        setUsername(result.user.nama || username);
-                        setIsLoginModalOpen(false);
-                        setPassword("");
-                      } else {
-                        setLoginError(result.message || "Login failed");
-                      }
-                    }}
+                <div className="bg-white dark:bg-slate-800 px-6 py-4 flex items-center justify-center">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full flex justify-center items-center gap-3 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 dark:from-slate-700 dark:to-slate-600 text-white rounded-full py-2.5 px-6 transition-all shadow-md text-sm font-bold active:scale-95 disabled:opacity-50"
                   >
-                    <div className="bg-[#cbdceb] dark:bg-slate-700 px-6 py-6 flex flex-col gap-5 border-y border-slate-300 dark:border-slate-600 shadow-inner">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-200 w-24">
-                          Username :
-                        </label>
-                        <input
-                          name="username"
-                          type="text"
-                          className="flex-1 bg-gradient-to-b from-slate-50 to-slate-200 dark:from-slate-600 dark:to-slate-700 border border-slate-400 dark:border-slate-500 rounded-full px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-inner text-slate-700 dark:text-slate-200 font-medium"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                          autoFocus
-                          required
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-200 w-24">
-                          Password :
-                        </label>
-                        <input
-                          name="password"
-                          type="password"
-                          className="flex-1 bg-gradient-to-b from-slate-50 to-slate-200 dark:from-slate-600 dark:to-slate-700 border border-slate-400 dark:border-slate-500 rounded-full px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-inner text-slate-700 dark:text-slate-200 font-medium"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                      {loginError && (
-                        <motion.p
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="text-[10px] text-red-600 font-bold text-center bg-red-50 dark:bg-red-900/50 py-1 rounded border border-red-200 dark:border-red-800"
-                        >
-                          {loginError}
-                        </motion.p>
-                      )}
-                    </div>
-
-                    <div className="bg-white dark:bg-slate-800 px-6 py-4 flex items-center justify-center">
-                      <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full flex justify-center items-center gap-3 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white rounded-full py-2.5 px-6 transition-all shadow-md text-sm font-bold active:scale-95 disabled:opacity-50"
-                      >
-                        <FaLock
-                          className={`text-white/80 text-base ${isLoading ? "animate-pulse" : ""}`}
-                        />
-                        {isLoading ? "Memproses..." : "Masuk"}
-                      </button>
-                    </div>
-                  </form>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </SettingProvider>
-    </ThemeProvider>
+                    <FaLock
+                      className={`text-white/80 text-base ${isLoading ? "animate-pulse" : ""}`}
+                    />
+                    {isLoading ? "Memproses..." : "Masuk"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -618,5 +785,204 @@ function ContextMenuItem({
       </span>
       <span className="font-semibold">{label}</span>
     </button>
+  );
+}
+
+// ==========================================
+// ZEN LAYOUT SUBCOMPONENTS
+// ==========================================
+
+function getPageTitle(pathname: string) {
+  if (pathname === "/") return "Beranda";
+  if (pathname === "/registrasi") return "Registrasi";
+  if (pathname === "/rawat-inap") return "Rawat Inap";
+  if (pathname === "/setting") return "Pengaturan";
+  if (pathname === "/daftar-menu") return "Daftar Menu";
+  return "Beranda";
+}
+
+function SidebarLink({
+  href,
+  icon,
+  label,
+  active,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+}) {
+  const content = (
+    <div
+      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
+        active
+          ? "bg-teal-50 border-teal-100 text-teal-700 dark:bg-teal-950/40 dark:border-teal-900/60 dark:text-teal-400"
+          : "border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-slate-800 dark:hover:text-slate-100"
+      }`}
+    >
+      <span className={`text-base ${active ? "text-teal-600 dark:text-teal-400" : "text-slate-400"}`}>
+        {icon}
+      </span>
+      <span>{label}</span>
+    </div>
+  );
+
+  if (href === "#") {
+    return <div className="cursor-not-allowed opacity-80">{content}</div>;
+  }
+
+  return <Link href={href}>{content}</Link>;
+}
+
+function ProfileMenuZen({
+  username,
+  isOpen,
+  onToggle,
+  onLogout,
+  layoutMode,
+  onToggleLayout,
+}: {
+  username: string;
+  isOpen: boolean;
+  onToggle: (open: boolean) => void;
+  onLogout: () => void;
+  layoutMode: "classic" | "zen";
+  onToggleLayout: () => void;
+}) {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const router = useRouter();
+
+  // Get initials from username
+  const initials = username
+    ? username.split(" ").map(n => n[0]).join("").substring(0, 3).toUpperCase()
+    : "SPV";
+
+  return (
+    <div className="relative">
+      <div
+        className="flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 rounded-full transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-600"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle(!isOpen);
+        }}
+      >
+        <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center text-[9px] font-black shadow-sm border border-teal-500/20 uppercase">
+          {initials}
+        </div>
+        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 hidden sm:inline max-w-[100px] truncate">
+          {username || "Supervisor"}
+        </span>
+        <FaChevronDown className="text-[10px] text-slate-400 hidden sm:inline shrink-0" />
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            onClick={(e) => e.stopPropagation()}
+            className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 py-2.5 z-[100] overflow-hidden"
+          >
+            <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-700 mb-1 flex flex-col">
+              <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 truncate block">
+                {username}
+              </span>
+              <span className="text-[9px] text-emerald-500 font-bold flex items-center gap-1.5 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Online
+              </span>
+            </div>
+
+            <button className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-3 transition-colors font-bold">
+              <FaUser className="text-slate-400" />
+              <span>Profile</span>
+            </button>
+
+            <button
+              onClick={() => {
+                router.push("/setting");
+                onToggle(false);
+              }}
+              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-3 transition-colors font-bold"
+            >
+              <FaCog className="text-slate-400" />
+              <span>Settings</span>
+            </button>
+
+            {/* Layout Toggle Option */}
+            <button
+              onClick={() => {
+                onToggleLayout();
+                onToggle(false);
+              }}
+              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-3 transition-colors font-bold"
+            >
+              <FaDesktop className="text-teal-500" />
+              <span>Tampilan Klasik</span>
+            </button>
+
+            <button
+              onClick={toggleDarkMode}
+              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-3 transition-colors font-bold"
+            >
+              {isDarkMode ? <FaMoon className="text-indigo-400" /> : <FaSun className="text-amber-400" />}
+              <span className="flex-1">Dark Mode</span>
+              <div className={`w-8 h-4.5 rounded-full transition-colors relative ${isDarkMode ? "bg-teal-600" : "bg-slate-300"}`}>
+                <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[2px] transition-transform ${isDarkMode ? "translate-x-[14px]" : "translate-x-[2px]"}`} />
+              </div>
+            </button>
+
+            <div className="h-px bg-slate-100 dark:bg-slate-700 my-1 mx-2"></div>
+            <button
+              onClick={onLogout}
+              className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-3 transition-colors font-extrabold"
+            >
+              <FaSignInAlt className="text-red-400 rotate-180" />
+              <span>Log Out</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function LayoutSwitcherFAB({
+  layoutMode,
+  onToggle,
+}: {
+  layoutMode: "classic" | "zen";
+  onToggle: () => void;
+}) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+      <AnimatePresence>
+        {showTooltip && (
+          <motion.div
+            initial={{ opacity: 0, x: 10, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 10, scale: 0.95 }}
+            className="bg-slate-900/90 dark:bg-slate-800/95 backdrop-blur text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-lg border border-slate-700/50 whitespace-nowrap"
+          >
+            Ganti ke {layoutMode === "classic" ? "Tampilan Zen (Baru)" : "Tampilan Klasik (Lama)"}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        onClick={onToggle}
+        className="w-12 h-12 rounded-full bg-gradient-to-tr from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white flex items-center justify-center shadow-[0_4px_20px_rgba(13,148,136,0.4)] border border-teal-400/30 transition-all cursor-pointer relative group"
+      >
+        <span className="absolute inset-0 rounded-full bg-teal-400 animate-ping opacity-15 group-hover:opacity-0 transition-opacity" />
+        <FaSync className="text-lg animate-spin [animation-duration:10s] group-hover:rotate-180 transition-transform duration-500" />
+      </motion.button>
+    </div>
   );
 }
