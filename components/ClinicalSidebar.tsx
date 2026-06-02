@@ -109,7 +109,12 @@ export default function ClinicalSidebar({
     const handleClickOutside = (e: MouseEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node) &&
           sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-        setPopoverParent(null);
+        setPopoverParent(prev => {
+          if (prev !== null) {
+            setExpandedItems(items => ({ ...items, [prev]: false }));
+          }
+          return null;
+        });
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
