@@ -231,10 +231,32 @@ Form yang kompleks **harus** dikelompokkan dalam section/card terpisah:
 </Button>
 ```
 
-### 5.4 Tombol Keluar — Terpisah ke Kanan
-Tombol "Keluar" selalu ditempatkan di pojok kanan, terpisah secara visual.
+### 5.4 Tombol Keluar — Wajib Gaya Exit
 
-**Aturan Penting:**
+Tombol "Keluar" **harus** menggunakan gaya exit/merah konsisten di seluruh aplikasi:
+
+```tsx
+// ✅ BENAR — pakai ActionButton dengan isExit (recommended)
+import { ActionButton } from "@/components/BottomActionPanel";
+
+<ActionButton icon={<FaTimes />} label="Keluar" isExit onClick={handleClose} />
+
+// ✅ BENAR — atau manual dengan class yang sama
+<Button variant="outline"
+  className="bg-white border-red-200 hover:border-red-400 hover:bg-red-50 text-red-700 font-bold">
+  <FaTimes /> Keluar
+</Button>
+```
+
+```tsx
+// ❌ SALAH — pakai warna netral/brand untuk tombol keluar
+<Button className="bg-brand-600 text-white">Keluar</Button>
+```
+
+**Aturan:**
+- Tombol "Keluar" selalu ditempatkan di pojok kanan, terpisah secara visual.
+- Gunakan `ActionButton` dari `BottomActionPanel` dengan prop `isExit` jika tersedia.
+- Warna merah konsisten: `border-red-200`, `hover:border-red-400`, `hover:bg-red-50`, `text-red-700`.
 - Hanya **satu** tombol primer per section.
 - Tombol yang sering dipakai (Simpan) = warna solid mencolok.
 - Tombol yang jarang dipakai (Hapus, Keluar) = outline/subtle.

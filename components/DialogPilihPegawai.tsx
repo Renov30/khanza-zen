@@ -146,12 +146,12 @@ export default function DialogPilihPegawai({ open, onClose, onSelect }: DialogPi
                 placeholder="Cari NIP, Nama, Jabatan, Departemen..."
                 className="flex-1 min-w-[200px] border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white"
               />
-              <button
+              <ActionButton
+                icon={<FaSearch />}
+                label="Cari"
+                variant="primary"
                 onClick={handleSearch}
-                className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm"
-              >
-                <FaSearch className="text-[10px]" /> Cari
-              </button>
+              />
             </div>
           </motion.div>
         </>
