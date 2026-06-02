@@ -10,6 +10,7 @@ import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import { getPatientInfoByNoRawat, getAsuhanGiziRanap, getMonitoringGiziRanap, getSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
+import DialogPilihPegawai from '@/components/DialogPilihPegawai';
 import { TableColumn } from '@/components/TableTypes';
 
 interface MonitoringGiziRow {
@@ -195,6 +196,7 @@ function AsuhanGiziContent() {
 
   const [pegawaiNik, setPegawaiNik] = useState('');
   const [pegawaiNama, setPegawaiNama] = useState('');
+  const [dialogPegawaiOpen, setDialogPegawaiOpen] = useState(false);
 
   // Form state
   const [bb, setBb] = useState('');
@@ -357,6 +359,12 @@ function AsuhanGiziContent() {
     } catch (e) { console.error('fetchDataADIME error:', e); setDataADIME([]); }
     setIsLoadingADIME(false);
   }, []);
+
+  const handlePilihPegawai = (nik: string, nama: string) => {
+    setPegawaiNik(nik);
+    setPegawaiNama(nama);
+    setDialogPegawaiOpen(false);
+  };
 
   const fetchPegawaiInfo = useCallback(async () => {
     try {
@@ -590,7 +598,7 @@ function AsuhanGiziContent() {
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                      <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                     </div>
                   </div>
                 </FormSection>
@@ -675,7 +683,7 @@ function AsuhanGiziContent() {
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                      <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                     </div>
                   </div>
                 </FormSection>
@@ -836,7 +844,7 @@ function AsuhanGiziContent() {
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                      <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                     </div>
                   </div>
                 </FormSection>
@@ -923,7 +931,7 @@ function AsuhanGiziContent() {
                     <div className="flex gap-1 flex-1">
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
                       <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                      <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                      <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                     </div>
                   </div>
                 </FormSection>
@@ -982,6 +990,13 @@ function AsuhanGiziContent() {
           </div>
         )}
       </div>
+
+      {/* Dialog Pilih Pegawai */}
+      <DialogPilihPegawai
+        open={dialogPegawaiOpen}
+        onClose={() => setDialogPegawaiOpen(false)}
+        onSelect={handlePilihPegawai}
+      />
 
       {/* Bottom Panel */}
       <BottomActionPanel

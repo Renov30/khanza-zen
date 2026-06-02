@@ -2440,3 +2440,45 @@ export async function hapusBulkVerifikasiSoapRanap(noRawat: string, tglPerawatan
     return { success: false, message: "Gagal menghapus verifikasi massal", error: error.message };
   }
 }
+
+/**
+ * Mencari pegawai berdasarkan keyword (NIP, Nama, Jabatan, Departemen, Bidang).
+ * Meniru Java: DlgCariPegawai.tampil() + tampil2()
+ */
+export async function cariPegawai(keyword: string = "") {
+  try {
+    let query = `
+      SELECT nik, nama, jk, jbtn, jnj_jabatan, departemen, bidang, stts_aktif
+      FROM pegawai
+      WHERE stts_aktif <> 'KELUAR'
+    `;
+    const params: any[] = [];
+
+    if (keyword.trim()) {
+      query += ` AND (nik LIKE ? OR nama LIKE ? OR jbtn LIKE ? OR departemen LIKE ? OR bidang LIKE ?)`;
+      const kw = `%${keyword.trim()}%`;
+      params.push(kw, kw, kw, kw, kw);
+    }
+
+    query += ` ORDER BY id ASC LIMIT 500`;
+
+    const [rows]: any = await db.execute(query, params);
+
+    return {
+      success: true,
+      data: rows.map((row: any) => ({
+        nik: row.nik,
+        nama: row.nama,
+        jk: row.jk,
+        jabatan: row.jbtn,
+        kode_jenjang: row.jnj_jabatan,
+        departemen: row.departemen,
+        bidang: row.bidang,
+        stts_aktif: row.stts_aktif,
+      })),
+    };
+  } catch (error: any) {
+    console.error("Error cari pegawai:", error);
+    return { success: false, message: "Gagal mencari pegawai", error: error.message, data: [] };
+  }
+}

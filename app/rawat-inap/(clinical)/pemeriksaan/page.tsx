@@ -15,6 +15,7 @@ import {
   FaCompress,
   FaExclamationTriangle,
   FaHistory,
+  FaEdit,
 } from "react-icons/fa";
 import FormSection from "@/components/FormSection";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ import {
   get5SoapTerakhir,
 } from "@/lib/actions/ranap";
 import DataTableMulti from "@/components/DataTableMulti";
+import DialogPilihPegawai from "@/components/DialogPilihPegawai";
 import { TableColumn } from "@/components/TableTypes";
 
 interface PemeriksaanRow {
@@ -189,6 +191,15 @@ function PemeriksaanContent() {
     mode: "ganti" | "hapus";
   }>({ open: false, mode: "ganti" });
   const [alasanText, setAlasanText] = useState("");
+
+  // Dialog pilih pegawai
+  const [dialogPegawaiOpen, setDialogPegawaiOpen] = useState(false);
+
+  const handlePilihPegawai = (nik: string, nama: string) => {
+    setPegawaiNik(nik);
+    setPegawaiNama(nama);
+    setDialogPegawaiOpen(false);
+  };
 
   // Form state — SOAPIE + TTV
   const [formKeluhan, setFormKeluhan] = useState("");
@@ -948,6 +959,13 @@ function PemeriksaanContent() {
                         value={pegawaiNama}
                         readOnly
                       />
+                      <button
+                        onClick={() => setDialogPegawaiOpen(true)}
+                        className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"
+                        title="Pilih Petugas"
+                      >
+                        <FaEdit />
+                      </button>
                       <Button
                         variant="outline"
                         size="xs"
@@ -1196,6 +1214,13 @@ function PemeriksaanContent() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Dialog Pilih Pegawai */}
+      <DialogPilihPegawai
+        open={dialogPegawaiOpen}
+        onClose={() => setDialogPegawaiOpen(false)}
+        onSelect={handlePilihPegawai}
+      />
 
       {/* Fitur 1 & 2: BottomPanel dengan filter periode + pencarian */}
       <BottomActionPanel
