@@ -64,6 +64,7 @@ export default function DialogPilihPegawai({ open, onClose, onSelect }: DialogPi
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
             className="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-sm"
             onClick={onClose}
           />
@@ -71,6 +72,7 @@ export default function DialogPilihPegawai({ open, onClose, onSelect }: DialogPi
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.1 }}
             className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-white shadow-2xl rounded-xl border border-slate-300 flex flex-col"
           >
             {/* Header */}

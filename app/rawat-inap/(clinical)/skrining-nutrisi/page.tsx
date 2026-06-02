@@ -6,6 +6,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { FaBed, FaCompress, FaEdit } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
+import FormSection from '@/components/FormSection';
+import DialogPilihPegawai from '@/components/DialogPilihPegawai';
 import { getPatientInfoByNoRawat, getSkriningNutrisiRanap, getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap, getSkriningGiziLanjutRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
@@ -186,6 +188,27 @@ function SkriningNutrisiContent() {
   const [activeTab, setActiveTab] = useState<TabId>('dewasa');
   const [isTableExpanded, setIsTableExpanded] = useState(false);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [formOpen, setFormOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("khanza_skrining_nutrisi_form_open");
+      if (saved !== null) return JSON.parse(saved);
+    }
+    return true;
+  });
+  const toggleForm = useCallback(() => {
+    setFormOpen((prev: boolean) => {
+      const next = !prev;
+      if (typeof window !== "undefined")
+        localStorage.setItem("khanza_skrining_nutrisi_form_open", JSON.stringify(next));
+      return next;
+    });
+  }, []);
+  const [dialogPegawaiOpen, setDialogPegawaiOpen] = useState(false);
+  const handlePilihPegawai = (nik: string, nama: string) => {
+    setPegawaiNik(nik);
+    setPegawaiNama(nama);
+    setDialogPegawaiOpen(false);
+  };
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
   const [currentTime, setCurrentTime] = useState(new Date().toTimeString().slice(0, 8));
   const [isClockRunning, setIsClockRunning] = useState(true);
@@ -434,8 +457,22 @@ function SkriningNutrisiContent() {
   const renderForm = () => {
     switch (activeTab) {
       case 'dewasa': return (
-        <TopFormContainer title="Form Input Skrining Nutrisi Dewasa (MST)" persistenceKey="khanza_skrining_nutrisi_form_open">
+        <TopFormContainer title="Form Input Skrining Nutrisi Dewasa (MST)" isOpen={formOpen}>
           <div className="flex flex-col gap-5">
+            <FormSection className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+              </div>
+              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+              <div className="ml-auto flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+              </div>
+            </FormSection>
             <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
               <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
@@ -471,22 +508,36 @@ function SkriningNutrisiContent() {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+            <FormSection>
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                 <div className="flex gap-1 flex-1">
-                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNama} readOnly />
-                  <button className="px-2 text-brand-500 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 rounded border border-transparent hover:border-brand-200 dark:hover:border-slate-600 transition-colors"><FaEdit /></button>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                  <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                 </div>
               </div>
-            </div>
+            </FormSection>
           </div>
         </TopFormContainer>
       );
       case 'anak': return (
-        <TopFormContainer title="Form Input Skrining Nutrisi Anak (StrongKids)" persistenceKey="khanza_skrining_nutrisi_anak_form_open">
+        <TopFormContainer title="Form Input Skrining Nutrisi Anak (StrongKids)" isOpen={formOpen}>
           <div className="flex flex-col gap-5">
+            <FormSection className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+              </div>
+              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+              <div className="ml-auto flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+              </div>
+            </FormSection>
             <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
               <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -535,22 +586,36 @@ function SkriningNutrisiContent() {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+            <FormSection>
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                 <div className="flex gap-1 flex-1">
-                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNama} readOnly />
-                  <button className="px-2 text-brand-500 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 rounded border border-transparent hover:border-brand-200 dark:hover:border-slate-600 transition-colors"><FaEdit /></button>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                  <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                 </div>
               </div>
-            </div>
+            </FormSection>
           </div>
         </TopFormContainer>
       );
       case 'lansia': return (
-        <TopFormContainer title="Form Input Skrining Nutrisi Lansia (MNA)" persistenceKey="khanza_skrining_nutrisi_lansia_form_open">
+        <TopFormContainer title="Form Input Skrining Nutrisi Lansia (MNA)" isOpen={formOpen}>
           <div className="flex flex-col gap-5">
+            <FormSection className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+              </div>
+              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+              <div className="ml-auto flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+              </div>
+            </FormSection>
             <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
               <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Antropometri & TTV</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -592,22 +657,36 @@ function SkriningNutrisiContent() {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+            <FormSection>
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                 <div className="flex gap-1 flex-1">
-                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700" value={pegawaiNama} readOnly />
-                  <button className="px-2 text-brand-500 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 rounded border border-transparent hover:border-brand-200 dark:hover:border-slate-600 transition-colors"><FaEdit /></button>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                  <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                 </div>
               </div>
-            </div>
+            </FormSection>
           </div>
         </TopFormContainer>
       );
       case 'gizilanjut': return (
-        <TopFormContainer title="Form Input Skrining Gizi Lanjutan" persistenceKey="khanza_skrining_gizi_lanjut_form_open">
+        <TopFormContainer title="Form Input Skrining Gizi Lanjutan" isOpen={formOpen}>
           <div className="flex flex-col gap-5">
+            <FormSection className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
+                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+              </div>
+              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+              <div className="ml-auto flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
+                <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+              </div>
+            </FormSection>
             <div className="bg-brand-50/40 dark:bg-slate-700/40 p-4 rounded-lg border border-brand-100/50 dark:border-slate-600">
               <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-4 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">Data Skrining Gizi</h3>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -678,16 +757,16 @@ function SkriningNutrisiContent() {
                 </div>
               </div>
             </div>
-            <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+            <FormSection>
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                 <div className="flex gap-1 flex-1">
                   <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 flex-1 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                  <button className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"><FaEdit /></button>
+                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                  <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                 </div>
               </div>
-            </div>
+            </FormSection>
           </div>
         </TopFormContainer>
       );
@@ -696,30 +775,6 @@ function SkriningNutrisiContent() {
 
   return (
     <>
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
-        <div className="flex items-center gap-1 w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 dark:text-slate-300 shrink-0">Pasien :</label>
-          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-33 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
-        </div>
-        <div className="flex items-center gap-1 w-full sm:w-auto">
-          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-16 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500"
-            value={isLoadingPatient ? '...' : noRM} readOnly placeholder="No. RM" />
-        </div>
-        <div className="flex items-center gap-1 w-full md:w-auto">
-          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-70 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500"
-            value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama Pasien" />
-        </div>
-        <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 dark:text-slate-300">Tanggal :</label>
-          <input type="date" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 mr-1 focus:outline-none sm:w-27 focus:border-brand-500 bg-white dark:bg-slate-700"
-            value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-          <input type="time" step="1" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
-            value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-          <input type="checkbox" className="accent-brand-500 w-4 h-4 ml-2 opacity-60"
-            checked={isClockRunning} disabled title="Jam selalu real-time" />
-        </div>
-      </div>
-
       {/* Tab Navigation */}
       <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {tabs.map(t => {
@@ -738,11 +793,13 @@ function SkriningNutrisiContent() {
         <div className="flex flex-col min-h-full w-full">
           {renderForm()}
 
-          <div className={`flex flex-col transition-all duration-150 h-[1500px] ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <DataTableMulti
               title={`Data ${tabs.find(t => t.id === activeTab)?.label || 'Skrining Nutrisi'}`}
               icon={<FaBed />}
               onRefresh={handleBottomSearch}
+              onTitleClick={toggleForm}
+              titleChevronOpen={formOpen}
               columns={currentColumns}
               data={currentData}
               idKey="id"
@@ -782,6 +839,11 @@ function SkriningNutrisiContent() {
         </div>
       </div>
 
+      <DialogPilihPegawai
+        open={dialogPegawaiOpen}
+        onClose={() => setDialogPegawaiOpen(false)}
+        onSelect={handlePilihPegawai}
+      />
       <BottomActionPanel
         recordCount={currentData.length}
         onExit={() => router.push('/rawat-inap')}
