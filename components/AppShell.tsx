@@ -178,7 +178,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 label="Bantuan"
               />
               <ToolbarMenuItem
-                icon={<FaCommentDots className="text-teal-300" />}
+                icon={<FaCommentDots className="text-brand-300" />}
                 label="Tanya AI"
               />
               <ToolbarMenuItem
@@ -305,7 +305,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                   className="h-10 w-10 rounded-full object-cover border border-slate-100 dark:border-slate-600 shadow-sm shrink-0 bg-white"
                 />
                 <div className="flex flex-col min-w-0">
-                  <span className="font-extrabold text-teal-600 dark:text-teal-400 text-sm tracking-tight leading-tight uppercase">
+                  <span className="font-extrabold text-brand-600 dark:text-brand-400 text-sm tracking-tight leading-tight uppercase">
                     SIMRS-ZEN
                   </span>
                   <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate max-w-[130px]">
@@ -355,15 +355,15 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
             {/* Sidebar Footer Card */}
             <div className="p-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/20">
-              <div className="bg-[#e6f4f1] dark:bg-slate-700/30 p-3 rounded-2xl flex items-center gap-3 border border-teal-100/50 dark:border-slate-700/50 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-teal-500/5 rounded-full blur-xl group-hover:scale-125 transition-transform" />
+              <div className="bg-brand-50 dark:bg-slate-700/30 p-3 rounded-2xl flex items-center gap-3 border border-brand-100/50 dark:border-slate-700/50 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-brand-500/5 rounded-full blur-xl group-hover:scale-125 transition-transform" />
                 <img
                   src="/img/medical_robot.png"
                   alt="Assistant Robot"
                   className="h-10 w-10 shrink-0 object-contain drop-shadow-md"
                 />
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-bold text-teal-800 dark:text-teal-400 leading-tight">
+                  <span className="text-xs font-bold text-brand-800 dark:text-brand-400 leading-tight">
                     SIMRS-ZEN
                   </span>
                   <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400 leading-normal truncate">
@@ -394,7 +394,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 <input
                   type="text"
                   placeholder="Cari menu atau data..."
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full pl-9 pr-14 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full pl-9 pr-14 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-slate-800 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200"
                 />
                 <span className="absolute right-3 bg-slate-200/80 dark:bg-slate-700 text-[9px] font-bold text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded border border-slate-300/40 dark:border-slate-600/40">
                   Ctrl + K
@@ -415,7 +415,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 {!isLoggedIn ? (
                   <button
                     onClick={() => setIsLoginModalOpen(true)}
-                    className="flex items-center gap-2 bg-teal-50 hover:bg-teal-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-teal-800 dark:text-slate-200 px-3 py-1.5 rounded-full text-xs font-bold transition-all border border-teal-100/50 dark:border-slate-600 shadow-sm"
+                    className="flex items-center gap-2 bg-brand-50 hover:bg-brand-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-brand-800 dark:text-slate-200 px-3 py-1.5 rounded-full text-xs font-bold transition-all border border-brand-100/50 dark:border-slate-600 shadow-sm"
                   >
                     <FaSignInAlt />
                     Masuk
@@ -453,7 +453,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             style={{ top: contextMenu.y, left: contextMenu.x }}
           >
             <div className="px-4 py-1.5 mb-1 border-b border-brand-50/50 dark:border-slate-700 flex items-center gap-2 bg-brand-50/30 dark:bg-slate-800">
-              <FaLaptopMedical className="text-brand-600 dark:text-teal-400 text-lg" />
+              <FaLaptopMedical className="text-brand-600 dark:text-brand-400 text-lg" />
               <span className="text-[10px] font-extrabold text-brand-700 dark:text-brand-300 uppercase tracking-widest">
                 Tindakan Cepat
               </span>
@@ -813,11 +813,11 @@ function SidebarLink({
     <div
       className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
         active
-          ? "bg-teal-50 border-teal-100 text-teal-700 dark:bg-teal-950/40 dark:border-teal-900/60 dark:text-teal-400"
+          ? "bg-brand-50 border-brand-100 text-brand-700 dark:bg-brand-950/40 dark:border-brand-900/60 dark:text-brand-400"
           : "border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-slate-800 dark:hover:text-slate-100"
       }`}
     >
-      <span className={`text-base ${active ? "text-teal-600 dark:text-teal-400" : "text-slate-400"}`}>
+      <span className={`text-base ${active ? "text-brand-600 dark:text-brand-400" : "text-slate-400"}`}>
         {icon}
       </span>
       <span>{label}</span>
@@ -863,7 +863,7 @@ function ProfileMenuZen({
           onToggle(!isOpen);
         }}
       >
-        <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center text-[9px] font-black shadow-sm border border-teal-500/20 uppercase">
+        <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center text-[9px] font-black shadow-sm border border-brand-500/20 uppercase">
           {initials}
         </div>
         <span className="text-xs font-bold text-slate-700 dark:text-slate-200 hidden sm:inline max-w-[100px] truncate">
@@ -891,7 +891,7 @@ function ProfileMenuZen({
               </span>
             </div>
 
-            <button className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-3 transition-colors font-bold">
+            <button className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-bold">
               <FaUser className="text-slate-400" />
               <span>Profile</span>
             </button>
@@ -901,7 +901,7 @@ function ProfileMenuZen({
                 router.push("/setting");
                 onToggle(false);
               }}
-              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-3 transition-colors font-bold"
+              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-bold"
             >
               <FaCog className="text-slate-400" />
               <span>Settings</span>
@@ -913,19 +913,19 @@ function ProfileMenuZen({
                 onToggleLayout();
                 onToggle(false);
               }}
-              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-3 transition-colors font-bold"
+              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-bold"
             >
-              <FaDesktop className="text-teal-500" />
+              <FaDesktop className="text-brand-500" />
               <span>Tampilan Klasik</span>
             </button>
 
             <button
               onClick={toggleDarkMode}
-              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-3 transition-colors font-bold"
+              className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-bold"
             >
               {isDarkMode ? <FaMoon className="text-indigo-400" /> : <FaSun className="text-amber-400" />}
               <span className="flex-1">Dark Mode</span>
-              <div className={`w-8 h-4.5 rounded-full transition-colors relative ${isDarkMode ? "bg-teal-600" : "bg-slate-300"}`}>
+              <div className={`w-8 h-4.5 rounded-full transition-colors relative ${isDarkMode ? "bg-brand-600" : "bg-slate-300"}`}>
                 <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[2px] transition-transform ${isDarkMode ? "translate-x-[14px]" : "translate-x-[2px]"}`} />
               </div>
             </button>

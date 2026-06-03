@@ -97,11 +97,11 @@ export default function Home() {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-gradient-to-r from-teal-50/70 to-cyan-50/50 dark:from-slate-800 dark:to-slate-700/60 rounded-3xl overflow-hidden border border-teal-100/30 dark:border-slate-700 p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative shadow-sm min-h-[180px] w-full"
+        className="bg-gradient-to-r from-brand-50/70 to-brand-100/20 dark:from-slate-800 dark:to-slate-700/60 rounded-3xl overflow-hidden border border-brand-100/30 dark:border-slate-700 p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative shadow-sm min-h-[180px] w-full"
       >
         {/* Hospital Glass image on the right with a gradient overlay */}
         <div className="absolute right-0 top-0 bottom-0 w-full md:w-3/5 hidden md:block z-0 pointer-events-none rounded-r-3xl overflow-hidden">
-          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-teal-50/90 dark:from-slate-800 to-transparent z-10" />
+          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-brand-50/90 dark:from-slate-800 to-transparent z-10" />
           <img
             src="/img/hospital_banner.png"
             alt="Hospital Banner"
@@ -113,12 +113,12 @@ export default function Home() {
         <div className="relative z-10 flex flex-col items-start max-w-lg">
           <h2 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight leading-tight">
             Selamat Datang, <br className="sm:hidden" />
-            <span className="text-teal-600 dark:text-teal-400">{username}</span>
+            <span className="text-brand-600 dark:text-brand-400">{username}</span>
           </h2>
           <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 mt-1 max-w-sm sm:max-w-md leading-relaxed">
             Kelola data dan layanan rumah sakit dengan cepat, akurat, dan terintegrasi.
           </p>
-          <button className="mt-5 px-4.5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold transition-all shadow-[0_4px_14px_rgba(13,148,136,0.35)] hover:shadow-[0_4px_18px_rgba(13,148,136,0.45)] hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 cursor-pointer">
+          <button className="mt-5 px-4.5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 cursor-pointer">
             <span>Lihat Dashboard</span>
             <FaArrowRight className="text-xs transition-transform group-hover:translate-x-1" />
           </button>
@@ -133,7 +133,7 @@ export default function Home() {
           trend="12% dari kemarin"
           isUp={true}
           icon={<FaUsers />}
-          colorClass="bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400 border-teal-100/50"
+          colorClass="bg-brand-50 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400 border-brand-100/50"
         />
         <MetricCard
           title="Rawat Inap"
@@ -177,7 +177,7 @@ export default function Home() {
             <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
               Ringkasan Layanan
             </h3>
-            <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-[10px] font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-1 focus:ring-teal-500">
+            <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-[10px] font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-1 focus:ring-brand-500">
               <option>Hari Ini</option>
               <option>Minggu Ini</option>
               <option>Bulan Ini</option>
@@ -252,7 +252,7 @@ export default function Home() {
 
           {/* Legend Items */}
           <div className="grid grid-cols-4 gap-2 pt-4 border-t border-slate-100 dark:border-slate-700/50 mt-2 z-10 shrink-0">
-            <LegendBox label="Pendaftaran" value="142" colorClass="bg-teal-500" />
+            <LegendBox label="Pendaftaran" value="142" colorClass="bg-brand-500" />
             <LegendBox label="IGD/UGD" value="32" colorClass="bg-red-500" />
             <LegendBox label="Rawat Jalan" value="96" colorClass="bg-purple-500" />
             <LegendBox label="Rawat Inap" value="128" colorClass="bg-blue-500" />
@@ -265,14 +265,14 @@ export default function Home() {
             <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
               Antrian Terbaru
             </h3>
-            <span className="text-[10px] font-extrabold text-teal-600 dark:text-teal-400 cursor-pointer hover:underline">
+            <span className="text-[10px] font-extrabold text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">
               Lihat Semua
             </span>
           </div>
 
           <div className="flex-1 overflow-y-auto py-2 space-y-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <QueueItem queueNo="A-023" poliName="Poli Umum" time="09:45" status="Menunggu" statusColor="text-slate-400 bg-slate-50 dark:bg-slate-900 border-slate-100" />
-            <QueueItem queueNo="B-015" poliName="Poli Anak" time="09:42" status="Dipanggil" statusColor="text-teal-600 bg-teal-50 dark:bg-teal-950/30 border-teal-100 animate-pulse font-black" />
+            <QueueItem queueNo="B-015" poliName="Poli Anak" time="09:42" status="Dipanggil" statusColor="text-brand-600 bg-brand-50 dark:bg-brand-950/30 border-brand-100 animate-pulse font-black" />
             <QueueItem queueNo="C-008" poliName="Poli Gigi" time="09:40" status="Menunggu" statusColor="text-slate-400 bg-slate-50 dark:bg-slate-900 border-slate-100" />
             <QueueItem queueNo="D-012" poliName="Poli Kandungan" time="09:37" status="Selesai" statusColor="text-slate-500 bg-slate-100 dark:bg-slate-700/50 border-slate-200" />
             <QueueItem queueNo="E-006" poliName="Poli Jantung" time="09:35" status="Menunggu" statusColor="text-slate-400 bg-slate-50 dark:bg-slate-900 border-slate-100" />
@@ -285,7 +285,7 @@ export default function Home() {
             <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
               Pengumuman
             </h3>
-            <span className="text-[10px] font-extrabold text-teal-600 dark:text-teal-400 cursor-pointer hover:underline">
+            <span className="text-[10px] font-extrabold text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">
               Lihat Semua
             </span>
           </div>
@@ -293,7 +293,7 @@ export default function Home() {
           <div className="flex-1 overflow-y-auto py-2 space-y-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <AnnouncementItem
               icon={<FaInfoCircle />}
-              iconColor="bg-teal-50 text-teal-600 dark:bg-teal-950/30 dark:text-teal-400"
+              iconColor="bg-brand-50 text-brand-600 dark:bg-brand-950/30 dark:text-brand-400"
               title="Jadwal Maintenance Sistem"
               desc="Sistem akan menjalani maintenance pada 25 Mei 2024 pukul 22:00 - 02:00 WIB."
               date="22 Mei 2024"
@@ -359,7 +359,7 @@ function MetricCard({
         </span>
         <span
           className={`text-[9px] font-bold mt-1.5 flex items-center gap-1 leading-none ${
-            isUp ? "text-teal-600 dark:text-teal-400" : "text-red-500"
+            isUp ? "text-brand-600 dark:text-brand-400" : "text-red-500"
           }`}
         >
           {isUp ? <FaArrowUp /> : <FaArrowDown />}
@@ -414,7 +414,7 @@ function QueueItem({
   // Color code based on alphabet
   const getBadgeColor = (char: string) => {
     switch (char) {
-      case "A": return "bg-teal-50 border-teal-100 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400 dark:border-teal-900/40";
+      case "A": return "bg-brand-50 border-brand-100 text-brand-700 dark:bg-brand-950/40 dark:text-brand-400 dark:border-brand-900/40";
       case "B": return "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/40";
       case "C": return "bg-purple-50 border-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-900/40";
       case "D": return "bg-orange-50 border-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-900/40";

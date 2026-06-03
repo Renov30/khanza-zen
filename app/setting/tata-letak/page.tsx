@@ -137,17 +137,17 @@ export default function TataLetakPage() {
                 onClick={() => handlePreview("zen")}
                 className={`relative rounded-xl border-2 p-5 text-left transition-all cursor-pointer ${
                   layoutMode === "zen"
-                    ? "border-teal-500 bg-teal-50/60 dark:bg-teal-950/30 dark:border-teal-600 shadow-md"
-                    : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-sm"
+                    ? "border-brand-500 bg-brand-50/60 dark:bg-brand-950/30 dark:border-brand-600 shadow-md"
+                    : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-sm"
                 }`}
               >
                 {layoutMode === "zen" && (
-                  <span className="absolute top-3 right-3 w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-sm">
+                  <span className="absolute top-3 right-3 w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-sm">
                     <FaCheck className="text-[10px]" />
                   </span>
                 )}
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white shadow-sm">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-sm">
                     <FaMobileAlt className="text-lg" />
                   </div>
                   <div>
@@ -158,7 +158,7 @@ export default function TataLetakPage() {
 
                 <div className="flex gap-1.5">
                   <div className="w-10 shrink-0">
-                    <div className="h-2 w-full rounded bg-teal-400 mb-1" />
+                    <div className="h-2 w-full rounded bg-brand-400 mb-1" />
                     <div className="h-1.5 w-full rounded bg-slate-200 dark:bg-slate-700 mb-1" />
                     <div className="h-1.5 w-full rounded bg-slate-200 dark:bg-slate-700 mb-1" />
                     <div className="h-1.5 w-full rounded bg-slate-200 dark:bg-slate-700" />
@@ -177,15 +177,15 @@ export default function TataLetakPage() {
 
                 <ul className="mt-4 space-y-1.5 text-[11px] text-slate-600 dark:text-slate-300">
                   <li className="flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-teal-500 shrink-0" />
+                    <span className="w-1 h-1 rounded-full bg-brand-500 shrink-0" />
                     Sidebar kiri dengan grup menu
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-teal-500 shrink-0" />
+                    <span className="w-1 h-1 rounded-full bg-brand-500 shrink-0" />
                     Topbar minimalis + pencarian
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-teal-500 shrink-0" />
+                    <span className="w-1 h-1 rounded-full bg-brand-500 shrink-0" />
                     Tampilan horizontal (flex-row)
                   </li>
                 </ul>
@@ -203,7 +203,7 @@ export default function TataLetakPage() {
                   </span>
                   {" — "}
                   <span className="font-bold">Default global:</span>{" "}
-                  <span className="font-extrabold text-teal-700 dark:text-teal-400 uppercase">
+                  <span className="font-extrabold text-brand-700 dark:text-brand-400 uppercase">
                     {defaultMode}
                   </span>
                 </span>

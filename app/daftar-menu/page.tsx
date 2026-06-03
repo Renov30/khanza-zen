@@ -85,7 +85,7 @@ const MOCK_MENU_ITEMS = [
     label: "Booking Periksa",
     icon: FaAddressBook,
     link: "/",
-    color: "text-teal-500",
+    color: "text-brand-500",
     category: 0,
   },
   {
@@ -229,7 +229,7 @@ const MOCK_MENU_ITEMS = [
     label: "Tata Letak",
     icon: FaDesktop,
     link: "/setting/tata-letak",
-    color: "text-teal-600",
+    color: "text-brand-600",
     category: 8,
   },
   {
