@@ -8,7 +8,7 @@ import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import FormSection from '@/components/FormSection';
 import DialogPilihPegawai from '@/components/DialogPilihPegawai';
-import { getPatientInfoByNoRawat, getSkriningNutrisiRanap, getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap, getSkriningGiziLanjutRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getSkriningNutrisiRanap, getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
@@ -45,17 +45,6 @@ interface SkriningNutrisiLansiaRow {
   sg3: string; nilai3: string; sg4: string; nilai4: string;
   sg5: string; nilai5: string; sg6: string; nilai6: string;
   total_hasil: string; skor_nutrisi: string;
-  nip: string; nm_petugas: string;
-}
-
-interface SkriningGiziLanjutRow {
-  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
-  umurdaftar: string; sttsumur: string; jk: string;
-  tanggal: string; bb: string; tb: string; alergi: string;
-  parameter_imt: string; skor_imt: string;
-  parameter_bb: string; skor_bb: string;
-  parameter_penyakit: string; skor_penyakit: string;
-  skor_total: string; kesimpulan: string;
   nip: string; nm_petugas: string;
 }
 
@@ -149,34 +138,12 @@ const lansiaColumns: TableColumn[] = [
   { header: 'Petugas', key: 'nm_petugas', width: '180px' },
 ];
 
-const giziLanjutColumns: TableColumn[] = [
-  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold hover:underline', width: '140px' },
-  { header: 'No.RM', key: 'no_rkm_medis', className: 'text-brand-600 font-semibold', width: '70px' },
-  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
-  { header: 'JK', key: 'jk', width: '30px' },
-  { header: 'Tanggal', key: 'tanggal', width: '160px' },
-  { header: 'BB', key: 'bb', width: '40px' },
-  { header: 'TB', key: 'tb', width: '40px' },
-  { header: 'Alergi', key: 'alergi', width: '100px', className: 'truncate' },
-  { header: 'Skor IMT', key: 'parameter_imt', width: '120px', className: 'truncate' },
-  { header: 'S1', key: 'skor_imt', width: '40px' },
-  { header: 'Kehilangan BB', key: 'parameter_bb', width: '120px', className: 'truncate' },
-  { header: 'S2', key: 'skor_bb', width: '40px' },
-  { header: 'Efek Penyakit', key: 'parameter_penyakit', width: '160px', className: 'truncate' },
-  { header: 'S3', key: 'skor_penyakit', width: '40px' },
-  { header: 'Total', key: 'skor_total', width: '50px' },
-  { header: 'Kesimpulan', key: 'kesimpulan', width: '250px', className: 'truncate' },
-  { header: 'NIP', key: 'nip', width: '100px' },
-  { header: 'Petugas', key: 'nm_petugas', width: '180px' },
-];
-
-type TabId = 'dewasa' | 'anak' | 'lansia' | 'gizilanjut';
+type TabId = 'dewasa' | 'anak' | 'lansia';
 
 const tabs: { id: TabId; label: string }[] = [
   { id: 'dewasa', label: 'Dewasa' },
   { id: 'anak', label: 'Anak' },
   { id: 'lansia', label: 'Lansia' },
-  { id: 'gizilanjut', label: 'Lanjutan' },
 ];
 
 function FormField({ label, value, onChange, unit, placeholder, className = "", onKeyDown }: {
@@ -255,7 +222,6 @@ function SkriningNutrisiContent() {
   const [dataDewasa, setDataDewasa] = useState<SkriningNutrisiRow[]>([]);
   const [dataAnak, setDataAnak] = useState<SkriningNutrisiAnakRow[]>([]);
   const [dataLansia, setDataLansia] = useState<SkriningNutrisiLansiaRow[]>([]);
-  const [dataGiziLanjut, setDataGiziLanjut] = useState<SkriningGiziLanjutRow[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -304,19 +270,6 @@ function SkriningNutrisiContent() {
   const [lTotal, setLTotal] = useState('0');
   const [lSkorNutrisi, setLSkorNutrisi] = useState('');
 
-  // === Form state: Gizi Lanjut ===
-  const [gBB, setGBB] = useState(''); const [gTB, setGTB] = useState('');
-  const [gAlergi, setGAlergi] = useState('');
-  const [gIMT, setGIMT] = useState('');
-  const [gSkor1, setGSkor1] = useState('IMT > 20/z score > 2');
-  const [gSkor2, setGSkor2] = useState('BB Hilang < 5%');
-  const [gSkor3, setGSkor3] = useState('Ada asupan nutrisi > 5 hari');
-  const [gSkor1Val, setGSkor1Val] = useState('0');
-  const [gSkor2Val, setGSkor2Val] = useState('0');
-  const [gSkor3Val, setGSkor3Val] = useState('0');
-  const [gTotal, setGTotal] = useState('0');
-  const [gKesimpulan, setGKesimpulan] = useState('Beresiko rendah, ulangi 7 hari');
-
   // === Fetch helpers ===
   const fetchPatientInfo = useCallback(async (nrw: string) => {
     if (!nrw.trim()) return;
@@ -333,16 +286,14 @@ function SkriningNutrisiContent() {
     if (!nrw.trim()) return;
     setIsLoadingData(true);
     try {
-      const [r1, r2, r3, r4] = await Promise.all([
+      const [r1, r2, r3] = await Promise.all([
         getSkriningNutrisiRanap(nrw, kw, ta, tb),
         getSkriningNutrisiAnakRanap(nrw, kw, ta, tb),
         getSkriningNutrisiLansiaRanap(nrw, kw, ta, tb),
-        getSkriningGiziLanjutRanap(nrw, kw, ta, tb),
       ]);
       if (r1.success) setDataDewasa(r1.data.map((r: any) => ({ ...r, id: `${r.no_rawat}-${r.tanggal}-dewasa` })));
       if (r2.success) setDataAnak(r2.data.map((r: any) => ({ ...r, id: `${r.no_rawat}-${r.tanggal}-anak` })));
       if (r3.success) setDataLansia(r3.data.map((r: any) => ({ ...r, id: `${r.no_rawat}-${r.tanggal}-lansia` })));
-      if (r4.success) setDataGiziLanjut(r4.data.map((r: any) => ({ ...r, id: `${r.no_rawat}-${r.tanggal}-gizi` })));
     } catch (e) { console.error('fetch error:', e); }
     setIsLoadingData(false);
   }, []);
@@ -433,29 +384,10 @@ function SkriningNutrisiContent() {
     else setLSkorNutrisi('Malnutrisi');
   }, [lSG1, lSG2, lSG3, lSG4, lSG5, lSG6, lansiaSGIndex]);
 
-  // === Auto-score: Gizi Lanjut ===
-  const calcIMT = useCallback((bb: string, tb: string) => {
-    const bbNum = parseFloat(bb); const tbNum = parseFloat(tb);
-    if (bbNum > 0 && tbNum > 0) return (bbNum / ((tbNum / 100) * (tbNum / 100))).toFixed(1);
-    return '';
-  }, []);
-  useEffect(() => { setGIMT(calcIMT(gBB, gTB)); }, [gBB, gTB, calcIMT]);
-  useEffect(() => {
-    const s1 = gSkor1 === 'IMT 18,5-20/-2 =< z score =< 2' ? 1 : gSkor1 === 'IMT < 18,5/z score < -2' ? 2 : 0;
-    const s2 = gSkor2 === 'BB Hilang 5 - 10 %' ? 1 : gSkor2 === 'BB Hilang > 10 %' ? 2 : 0;
-    const s3 = gSkor3 === 'Tidak ada asupan nutrisi > 5 hari' ? 2 : 0;
-    setGSkor1Val(s1.toString()); setGSkor2Val(s2.toString()); setGSkor3Val(s3.toString());
-    const total = s1 + s2 + s3;
-    setGTotal(total.toString());
-    if (total === 0) setGKesimpulan('Beresiko rendah, ulangi 7 hari');
-    else if (total === 1) setGKesimpulan('Beresiko menengah, monitoring asupan selama 3 hari');
-    else setGKesimpulan('Beresiko tinggi, bekerja sama dengan tim dukungan gizi upayakan peningkatan asupan gizi dan memberikan makanan sesuai dengan daya terima');
-  }, [gSkor1, gSkor2, gSkor3]);
-
   if (!mounted) return null;
 
-  const currentData = activeTab === 'dewasa' ? dataDewasa : activeTab === 'anak' ? dataAnak : activeTab === 'lansia' ? dataLansia : dataGiziLanjut;
-  const currentColumns = activeTab === 'dewasa' ? dewasaColumns : activeTab === 'anak' ? anakColumns : activeTab === 'lansia' ? lansiaColumns : giziLanjutColumns;
+  const currentData = activeTab === 'dewasa' ? dataDewasa : activeTab === 'anak' ? dataAnak : dataLansia;
+  const currentColumns = activeTab === 'dewasa' ? dewasaColumns : activeTab === 'anak' ? anakColumns : lansiaColumns;
 
   const handleBottomSearch = () => fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
 
@@ -670,106 +602,6 @@ function SkriningNutrisiContent() {
                   <input type="text" value={lTotal} readOnly className="w-16 border border-brand-300 dark:border-brand-700 rounded px-2 py-1.5 text-xs bg-brand-50 dark:bg-slate-700 font-bold text-brand-700 dark:text-brand-400 text-center" />
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-200 ml-4 shrink-0">Skor Nutrisi</label>
                   <input type="text" value={lSkorNutrisi} readOnly className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 font-semibold text-slate-700 dark:text-slate-200" />
-                </div>
-              </div>
-            </div>
-            <FormSection>
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
-                <div className="flex gap-1 flex-1">
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                  <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
-                </div>
-              </div>
-            </FormSection>
-          </div>
-        </TopFormContainer>
-      );
-      case 'gizilanjut': return (
-        <TopFormContainer title="Form Input Skrining Gizi Lanjutan" isOpen={formOpen}>
-          <div data-form="skrining" className="flex flex-col gap-5">
-            <FormSection className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
-                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
-              </div>
-              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
-              <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
-              <div className="ml-auto flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
-                <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
-              </div>
-            </FormSection>
-            <div className="bg-brand-50/40 dark:bg-slate-700/40 p-4 rounded-lg border border-brand-100/50 dark:border-slate-600">
-              <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-4 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">Data Skrining Gizi</h3>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">BB</label>
-                <input type="text" value={gBB} onChange={e => setGBB(e.target.value)} onKeyDown={handleEnterKeyDown}
-                  className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-6">Kg</span>
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 shrink-0">TB</label>
-                <input type="text" value={gTB} onChange={e => setGTB(e.target.value)} onKeyDown={handleEnterKeyDown}
-                  className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-6">Cm</span>
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 shrink-0">IMT</label>
-                <input type="text" value={gIMT} readOnly
-                  className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500 w-20" />
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0">Alergi</label>
-                <input type="text" value={gAlergi} onChange={e => setGAlergi(e.target.value)} onKeyDown={handleEnterKeyDown}
-                  className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[120px]" placeholder="Alergi makanan/obat..." />
-              </div>
-            </div>
-            <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-              <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Penilaian Skrining</h3>
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 1</label>
-                  <span className="text-xs text-slate-700 dark:text-slate-200 w-[300px] shrink-0">1. Skor IMT /z Score</span>
-                  <select value={gSkor1} onChange={e => setGSkor1(e.target.value)}
-                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
-                    <option>IMT &gt; 20/z score &gt; 2</option>
-                    <option>IMT 18,5-20/-2 =&lt; z score =&lt; 2</option>
-                    <option>IMT &lt; 18,5/z score &lt; -2</option>
-                  </select>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
-                  <input type="text" value={gSkor1Val} readOnly
-                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold dark:text-slate-200" />
-                </div>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 2</label>
-                  <span className="text-xs text-slate-700 dark:text-slate-200 w-[300px] shrink-0">2. Skor kehilangan BB yang tidak direncanakan 3-6 bulan terakhir</span>
-                  <select value={gSkor2} onChange={e => setGSkor2(e.target.value)}
-                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
-                    <option>BB Hilang &lt; 5%</option>
-                    <option>BB Hilang 5 - 10 %</option>
-                    <option>BB Hilang &gt; 10 %</option>
-                  </select>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
-                  <input type="text" value={gSkor2Val} readOnly
-                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold dark:text-slate-200" />
-                </div>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 3</label>
-                  <span className="text-xs text-slate-700 dark:text-slate-200 w-[300px] shrink-0">3. Skor efek penyakit akut</span>
-                  <select value={gSkor3} onChange={e => setGSkor3(e.target.value)}
-                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
-                    <option>Ada asupan nutrisi &gt; 5 hari</option>
-                    <option>Tidak ada asupan nutrisi &gt; 5 hari</option>
-                  </select>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
-                  <input type="text" value={gSkor3Val} readOnly
-                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold dark:text-slate-200" />
-                </div>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 border-t border-brand-100/50 dark:border-slate-600 mt-1">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Total Skor</label>
-                  <input type="text" value={gTotal} readOnly
-                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold text-brand-700 dark:text-brand-400" />
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Kesimpulan</label>
-                  <input type="text" value={gKesimpulan} readOnly
-                    className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex-1 min-w-[200px]" />
                 </div>
               </div>
             </div>
