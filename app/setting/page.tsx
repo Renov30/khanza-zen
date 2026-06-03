@@ -102,7 +102,6 @@ export default function SettingPage() {
           <FaArrowLeft className="text-sm" />
         </button>
         <h2 className="text-brand-800 dark:text-slate-100 font-bold text-sm flex items-center gap-2 tracking-wide">
-          <FaCog className="text-brand-600 dark:text-slate-300" />
           Pengaturan Aplikasi
         </h2>
       </div>

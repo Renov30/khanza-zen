@@ -441,9 +441,6 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         </>
       )}
 
-      {/* PERSISTENT FLOATING LAYOUT SWITCHER */}
-      <LayoutSwitcherFAB layoutMode={layoutMode} onToggle={toggleLayoutMode} />
-
       {/* Menu Konteks */}
       <AnimatePresence>
         {contextMenu.show && (
@@ -948,41 +945,4 @@ function ProfileMenuZen({
   );
 }
 
-function LayoutSwitcherFAB({
-  layoutMode,
-  onToggle,
-}: {
-  layoutMode: "classic" | "zen";
-  onToggle: () => void;
-}) {
-  const [showTooltip, setShowTooltip] = useState(false);
 
-  return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
-      <AnimatePresence>
-        {showTooltip && (
-          <motion.div
-            initial={{ opacity: 0, x: 10, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 10, scale: 0.95 }}
-            className="bg-slate-900/90 dark:bg-slate-800/95 backdrop-blur text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-lg border border-slate-700/50 whitespace-nowrap"
-          >
-            Ganti ke {layoutMode === "classic" ? "Tampilan Zen (Baru)" : "Tampilan Klasik (Lama)"}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        onClick={onToggle}
-        className="w-12 h-12 rounded-full bg-gradient-to-tr from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white flex items-center justify-center shadow-[0_4px_20px_rgba(13,148,136,0.4)] border border-teal-400/30 transition-all cursor-pointer relative group"
-      >
-        <span className="absolute inset-0 rounded-full bg-teal-400 animate-ping opacity-15 group-hover:opacity-0 transition-opacity" />
-        <FaSync className="text-lg animate-spin [animation-duration:10s] group-hover:rotate-180 transition-transform duration-500" />
-      </motion.button>
-    </div>
-  );
-}

@@ -109,7 +109,6 @@ export default function TemaAplikasiPage() {
           <FaArrowLeft className="text-sm" />
         </button>
         <h2 className="text-brand-800 dark:text-brand-300 font-bold text-sm flex items-center gap-2 tracking-wide">
-          <FaPalette className="text-brand-600" />
           Tema Aplikasi
         </h2>
       </div>

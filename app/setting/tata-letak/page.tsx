@@ -61,7 +61,6 @@ export default function TataLetakPage() {
           <FaArrowLeft className="text-sm" />
         </button>
         <h2 className="text-brand-800 dark:text-slate-100 font-bold text-sm flex items-center gap-2 tracking-wide">
-          <FaDesktop className="text-brand-600 dark:text-slate-300" />
           Tata Letak Aplikasi
         </h2>
       </div>
