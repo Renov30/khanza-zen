@@ -115,10 +115,10 @@ export default function Home() {
             Selamat Datang, <br className="sm:hidden" />
             <span className="text-brand-600 dark:text-brand-400">{username}</span>
           </h2>
-          <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 mt-1 max-w-sm sm:max-w-md leading-relaxed">
+          <p className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-300 mt-1 max-w-sm sm:max-w-md leading-relaxed">
             Kelola data dan layanan rumah sakit dengan cepat, akurat, dan terintegrasi.
           </p>
-          <button className="mt-5 px-4.5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 cursor-pointer">
+          <button className="mt-5 px-4.5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 cursor-pointer">
             <span>Lihat Dashboard</span>
             <FaArrowRight className="text-xs transition-transform group-hover:translate-x-1" />
           </button>
@@ -177,7 +177,7 @@ export default function Home() {
             <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
               Ringkasan Layanan
             </h3>
-            <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-[10px] font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-1 focus:ring-brand-500">
+            <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-1 focus:ring-brand-500">
               <option>Hari Ini</option>
               <option>Minggu Ini</option>
               <option>Bulan Ini</option>
@@ -265,7 +265,7 @@ export default function Home() {
             <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
               Antrian Terbaru
             </h3>
-            <span className="text-[10px] font-extrabold text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">
+            <span className="text-xs font-extrabold text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">
               Lihat Semua
             </span>
           </div>
@@ -285,7 +285,7 @@ export default function Home() {
             <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
               Pengumuman
             </h3>
-            <span className="text-[10px] font-extrabold text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">
+            <span className="text-xs font-extrabold text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">
               Lihat Semua
             </span>
           </div>
@@ -317,7 +317,7 @@ export default function Home() {
       </div>
 
       {/* 4. FOOTER ROW */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-[11px] font-bold text-slate-400 dark:text-slate-500 pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 shrink-0">
+      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-500 pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 shrink-0">
         <span>&copy; 2024 RS SIMRS Khanza. All rights reserved.</span>
         <span>Versi 2.5.0</span>
       </footer>
@@ -351,14 +351,14 @@ function MetricCard({
       className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-4 rounded-2xl flex items-center justify-between shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-300"
     >
       <div className="flex flex-col min-w-0">
-        <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider truncate">
+        <span className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider truncate">
           {title}
         </span>
         <span className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight mt-1">
           {value}
         </span>
         <span
-          className={`text-[9px] font-bold mt-1.5 flex items-center gap-1 leading-none ${
+          className={`text-[10px] font-bold mt-1.5 flex items-center gap-1 leading-none ${
             isUp ? "text-brand-600 dark:text-brand-400" : "text-red-500"
           }`}
         >
@@ -387,7 +387,7 @@ function LegendBox({
 }) {
   return (
     <div className="flex flex-col items-start bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-2 rounded-xl">
-      <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 truncate max-w-full">
+      <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 truncate max-w-full">
         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${colorClass}`} />
         {label}
       </span>
@@ -432,15 +432,15 @@ function QueueItem({
         >
           {queueNo}
         </span>
-        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate">
+        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">
           {poliName}
         </span>
       </div>
 
       <div className="flex items-center gap-3 shrink-0">
-        <span className="text-[9px] font-bold text-slate-400">{time}</span>
+        <span className="text-[10px] font-bold text-slate-400">{time}</span>
         <span
-          className={`text-[8px] font-extrabold px-2 py-0.5 rounded border tracking-wider uppercase ${statusColor}`}
+          className={`text-[10px] font-extrabold px-2 py-0.5 rounded border tracking-wider uppercase ${statusColor}`}
         >
           {status}
         </span>
@@ -470,13 +470,13 @@ function AnnouncementItem({
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="text-[10px] font-black text-slate-700 dark:text-slate-200 leading-tight">
+        <h4 className="text-xs font-black text-slate-700 dark:text-slate-200 leading-tight">
           {title}
         </h4>
-        <p className="text-[9px] font-medium text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed line-clamp-2">
+        <p className="text-[10px] font-medium text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed line-clamp-2">
           {desc}
         </p>
-        <span className="text-[8px] font-extrabold text-slate-400 dark:text-slate-500 mt-2 block tracking-wide">
+        <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 mt-2 block tracking-wide">
           {date}
         </span>
       </div>

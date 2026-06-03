@@ -52,7 +52,7 @@ export default function RawatInap() {
         </Link>
       ),
     },
-    { header: "Nomor RM", key: "no_rkm_medis", className: "text-brand-600 font-semibold" },
+    { header: "Nomor RM", key: "no_rkm_medis", className: "text-slate-800 dark:text-slate-100 font-bold" },
     {
       header: "Nama Pasien",
       key: "nm_pasien",
