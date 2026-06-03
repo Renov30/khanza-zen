@@ -881,16 +881,6 @@ function ProfileMenuZen({
             onClick={(e) => e.stopPropagation()}
             className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 py-2.5 z-[100] overflow-hidden"
           >
-            <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-700 mb-1 flex flex-col">
-              <span className="text-sm font-extrabold text-slate-800 dark:text-slate-100 truncate block">
-                {username}
-              </span>
-              <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1.5 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Online
-              </span>
-            </div>
-
             <button className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-bold">
               <FaUser className="text-slate-400" />
               <span>Profile</span>
@@ -905,18 +895,6 @@ function ProfileMenuZen({
             >
               <FaCog className="text-slate-400" />
               <span>Settings</span>
-            </button>
-
-            {/* Layout Toggle Option */}
-            <button
-              onClick={() => {
-                onToggleLayout();
-                onToggle(false);
-              }}
-              className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-colors font-bold"
-            >
-              <FaDesktop className="text-brand-500" />
-              <span>Tampilan Klasik</span>
             </button>
 
             <button
