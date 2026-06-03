@@ -25,6 +25,7 @@ import {
   FaHospital,
   FaCog,
   FaPalette,
+  FaDesktop,
   FaHistory,
   FaUtensils,
 } from "react-icons/fa";
@@ -225,6 +226,14 @@ const MOCK_MENU_ITEMS = [
   },
   {
     id: 21,
+    label: "Tata Letak",
+    icon: FaDesktop,
+    link: "/setting/tata-letak",
+    color: "text-teal-600",
+    category: 8,
+  },
+  {
+    id: 22,
     label: "Log CPPT Ranap",
     icon: FaHistory,
     link: "/rawat-inap/audit-trail",

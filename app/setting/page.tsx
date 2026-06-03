@@ -10,7 +10,7 @@ import { getSettingRs, updateSetting } from "@/lib/actions/setting";
 import { useSetting } from "@/components/SettingContext";
 
 export default function SettingPage() {
-  const { instansi, refresh: refreshSettings, layoutMode, setLayoutMode } = useSetting();
+  const { instansi, refresh: refreshSettings } = useSetting();
   const [form, setForm] = useState({
     namaInstansi: instansi?.namaInstansi || "",
     alamatInstansi: instansi?.alamatInstansi || "",
@@ -214,24 +214,6 @@ export default function SettingPage() {
                   className="border border-slate-300 dark:border-slate-700 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-800 dark:text-slate-200 focus:outline-none focus:border-brand-500">
                   <option value="Yes">Ya</option>
                   <option value="No">Tidak</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Section Tampilan & Navigasi */}
-            <div className="bg-brand-50/40 dark:bg-slate-800/50 p-4 rounded-lg border border-brand-100/50 dark:border-slate-700">
-              <h3 className="text-[13px] font-bold text-brand-700 dark:text-slate-200 mb-3 flex items-center gap-2 border-b border-brand-100 dark:border-slate-700 pb-2">
-                <FaPalette className="text-brand-500 dark:text-slate-300" /> Tampilan & Navigasi
-              </h3>
-              <div className="flex items-center gap-3">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Layout Navigasi Utama</label>
-                <select
-                  value={layoutMode}
-                  onChange={(e) => setLayoutMode(e.target.value as "classic" | "zen")}
-                  className="border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 dark:text-slate-200 focus:outline-none focus:border-brand-500 font-semibold"
-                >
-                  <option value="classic">Classic (Tampilan Lama - Toolbar Atas)</option>
-                  <option value="zen">Zen (Tampilan Baru - Sidebar Kiri)</option>
                 </select>
               </div>
             </div>

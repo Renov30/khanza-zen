@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { getSettingRs } from "@/lib/actions/setting";
+import { getLayoutSetting } from "@/lib/actions/layout";
 
 interface InstansiData {
   namaInstansi: string;
@@ -57,6 +58,12 @@ export function SettingProvider({ children }: { children: React.ReactNode }) {
     const stored = localStorage.getItem("layoutMode");
     if (stored === "zen" || stored === "classic") {
       setLayoutModeState(stored);
+    } else {
+      getLayoutSetting().then((res) => {
+        if (res.success && res.data) {
+          setLayoutModeState(res.data.layoutMode);
+        }
+      });
     }
   }, []);
 

@@ -11,6 +11,7 @@ import {
   FaTimes,
   FaCheck,
   FaPaintBrush,
+  FaDesktop,
 } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import {
@@ -219,6 +220,17 @@ export default function TemaAplikasiPage() {
                 Keluar
               </Button>
             )}
+            <Link href="/setting/tata-letak">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-brand-200 hover:border-brand-400 hover:bg-brand-50 text-brand-600 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-800 dark:text-brand-400 shadow-sm transition-all font-bold text-[11px]"
+              >
+                <FaDesktop />
+                Atur Tata Letak
+              </Button>
+            </Link>
             <Button
               type="button"
               size="sm"
