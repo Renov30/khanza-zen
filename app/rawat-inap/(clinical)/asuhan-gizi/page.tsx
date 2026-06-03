@@ -8,7 +8,7 @@ import FormSection from '@/components/FormSection';
 import { Button } from '@/components/ui/button';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
-import { getPatientInfoByNoRawat, getAsuhanGiziRanap, simpanAsuhanGiziRanap, editAsuhanGiziRanap, hapusAsuhanGiziRanap, getMonitoringGiziRanap, simpanMonitoringGiziRanap, editMonitoringGiziRanap, hapusMonitoringGiziRanap, getSkriningGiziLanjutRanap, simpanSkriningGiziLanjutRanap, editSkriningGiziLanjutRanap, hapusSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getAsuhanGiziRanap, simpanAsuhanGiziRanap, editAsuhanGiziRanap, hapusAsuhanGiziRanap, getMonitoringGiziRanap, simpanMonitoringGiziRanap, editMonitoringGiziRanap, hapusMonitoringGiziRanap, getSkriningGiziLanjutRanap, simpanSkriningGiziLanjutRanap, editSkriningGiziLanjutRanap, hapusSkriningGiziLanjutRanap, getCatatanADIMEGiziRanap, simpanCatatanADIMEGiziRanap, editCatatanADIMEGiziRanap, hapusCatatanADIMEGiziRanap, getLoggedInPegawai } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import DialogPilihPegawai from '@/components/DialogPilihPegawai';
 import { TableColumn } from '@/components/TableTypes';
@@ -32,7 +32,7 @@ interface SkriningGiziLanjutRow {
 }
 
 interface CatatanADIMERow {
-  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  id: string; no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   umurdaftar: string; sttsumur: string; jk: string;
   tanggal: string; asesmen: string; diagnosis: string;
   intervensi: string; monitoring: string; evaluasi: string;
@@ -293,6 +293,8 @@ function AsuhanGiziContent() {
   const [adimeMonitoring, setAdimeMonitoring] = useState('');
   const [adimeEvaluasi, setAdimeEvaluasi] = useState('');
   const [adimeInstruksi, setAdimeInstruksi] = useState('');
+  const [isEditModeADIME, setIsEditModeADIME] = useState(false);
+  const [selectedRowIdxADIME, setSelectedRowIdxADIME] = useState<number | null>(null);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
@@ -845,6 +847,105 @@ function AsuhanGiziContent() {
     await handleSimpanSkrining();
   };
 
+  // === Catatan ADIME Gizi CRUD ===
+  const resetFormADIME = () => {
+    setAdimeAsesmen('');
+    setAdimeDiagnosis('');
+    setAdimeIntervensi('');
+    setAdimeMonitoring('');
+    setAdimeEvaluasi('');
+    setAdimeInstruksi('');
+    setIsEditModeADIME(false);
+    setSelectedRowIdxADIME(null);
+    setSelectedRows([]);
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+  };
+
+  const populateFormADIME = (row: CatatanADIMERow, idx: number) => {
+    setAdimeAsesmen(row.asesmen ?? '');
+    setAdimeDiagnosis(row.diagnosis ?? '');
+    setAdimeIntervensi(row.intervensi ?? '');
+    setAdimeMonitoring(row.monitoring ?? '');
+    setAdimeEvaluasi(row.evaluasi ?? '');
+    setAdimeInstruksi(row.instruksi ?? '');
+    if (row.tanggal) {
+      const parts = row.tanggal.split(' ');
+      setCurrentDate(parts[0] || currentDate);
+      setCurrentTime(parts[1] || currentTime);
+    }
+    setIsEditModeADIME(true);
+    setSelectedRowIdxADIME(idx);
+    setFormOpen(true);
+  };
+
+  const handleSimpanADIME = async () => {
+    if (!noRawat) return;
+    const payload = {
+      no_rawat: noRawat,
+      tanggal: `${currentDate} ${currentTime}`,
+      asesmen: adimeAsesmen,
+      diagnosis: adimeDiagnosis,
+      intervensi: adimeIntervensi,
+      monitoring: adimeMonitoring,
+      evaluasi: adimeEvaluasi,
+      instruksi: adimeInstruksi,
+      nip: pegawaiNik,
+    };
+
+    let result;
+    if (isEditModeADIME && selectedRowIdxADIME !== null) {
+      const oldRow = dataADIME[selectedRowIdxADIME];
+      result = await editCatatanADIMEGiziRanap(oldRow.tanggal, oldRow.no_rawat, payload);
+    } else {
+      result = await simpanCatatanADIMEGiziRanap(payload);
+    }
+
+    if (result.success) {
+      resetFormADIME();
+      fetchDataADIME(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menyimpan data');
+    }
+  };
+
+  const handleBaruADIME = () => {
+    resetFormADIME();
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+    setFormOpen(true);
+  };
+
+  const handleHapusADIME = async () => {
+    if (selectedRowIdxADIME === null || selectedRowIdxADIME < 0 || selectedRowIdxADIME >= dataADIME.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    if (!confirm('Yakin akan menghapus data catatan ADIME gizi ini?')) return;
+    const row = dataADIME[selectedRowIdxADIME];
+    const result = await hapusCatatanADIMEGiziRanap(row.tanggal, row.no_rawat);
+    if (result.success) {
+      resetFormADIME();
+      fetchDataADIME(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menghapus data');
+    }
+  };
+
+  const handleGantiADIME = async () => {
+    if (!isEditModeADIME || selectedRowIdxADIME === null) {
+      alert('Silakan pilih data yang akan diganti terlebih dahulu.');
+      return;
+    }
+    await handleSimpanADIME();
+  };
+
   const tabs = [
     'Asuhan Gizi',
     'Monitoring Gizi',
@@ -1336,6 +1437,10 @@ function AsuhanGiziContent() {
                 idKey="id"
                 selectedIds={selectedRows}
                 onSelectionChange={setSelectedRows}
+                onRowClick={(row: any) => {
+                  const idx = dataADIME.findIndex(r => r.id === row.id);
+                  if (idx >= 0) populateFormADIME(row, idx);
+                }}
                 isLoading={isLoadingADIME}
                 emptyMessage="Tidak ada data catatan ADIME gizi yang ditemukan."
               />
@@ -1361,6 +1466,10 @@ function AsuhanGiziContent() {
                       idKey="id"
                       selectedIds={selectedRows}
                       onSelectionChange={setSelectedRows}
+                      onRowClick={(row: any) => {
+                        const idx = dataADIME.findIndex(r => r.id === row.id);
+                        if (idx >= 0) populateFormADIME(row, idx);
+                      }}
                       isLoading={isLoadingADIME}
                     />
                   </div>
@@ -1386,10 +1495,10 @@ function AsuhanGiziContent() {
 
       {/* Bottom Panel */}
       <BottomActionPanel
-        onSave={activeTab === 'asuhangizi' ? handleSimpanAsuhanGizi : activeTab === 'monitoringgizi' ? handleSimpanMonitoring : activeTab === 'skrininggizilanjut' ? handleSimpanSkrining : undefined}
-        onNew={activeTab === 'asuhangizi' ? handleBaruAsuhanGizi : activeTab === 'monitoringgizi' ? handleBaruMonitoring : activeTab === 'skrininggizilanjut' ? handleBaruSkrining : undefined}
-        onReplace={activeTab === 'asuhangizi' ? handleGantiAsuhanGizi : activeTab === 'monitoringgizi' ? handleGantiMonitoring : activeTab === 'skrininggizilanjut' ? handleGantiSkrining : undefined}
-        onDelete={activeTab === 'asuhangizi' ? handleHapusAsuhanGizi : activeTab === 'monitoringgizi' ? handleHapusMonitoring : activeTab === 'skrininggizilanjut' ? handleHapusSkrining : undefined}
+        onSave={activeTab === 'asuhangizi' ? handleSimpanAsuhanGizi : activeTab === 'monitoringgizi' ? handleSimpanMonitoring : activeTab === 'skrininggizilanjut' ? handleSimpanSkrining : activeTab === 'catatanadimegizi' ? handleSimpanADIME : undefined}
+        onNew={activeTab === 'asuhangizi' ? handleBaruAsuhanGizi : activeTab === 'monitoringgizi' ? handleBaruMonitoring : activeTab === 'skrininggizilanjut' ? handleBaruSkrining : activeTab === 'catatanadimegizi' ? handleBaruADIME : undefined}
+        onReplace={activeTab === 'asuhangizi' ? handleGantiAsuhanGizi : activeTab === 'monitoringgizi' ? handleGantiMonitoring : activeTab === 'skrininggizilanjut' ? handleGantiSkrining : activeTab === 'catatanadimegizi' ? handleGantiADIME : undefined}
+        onDelete={activeTab === 'asuhangizi' ? handleHapusAsuhanGizi : activeTab === 'monitoringgizi' ? handleHapusMonitoring : activeTab === 'skrininggizilanjut' ? handleHapusSkrining : activeTab === 'catatanadimegizi' ? handleHapusADIME : undefined}
         recordCount={
           activeTab === 'monitoringgizi' ? dataMonitoring.length :
           activeTab === 'skrininggizilanjut' ? dataSkriningGizi.length :

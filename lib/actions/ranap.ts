@@ -901,6 +901,98 @@ export async function getCatatanADIMEGiziRanap(
 }
 
 /**
+ * Menyimpan data catatan ADIME gizi (Simpan).
+ * Tabel: catatan_adime_gizi
+ */
+export async function simpanCatatanADIMEGiziRanap(data: {
+  no_rawat: string; tanggal: string;
+  asesmen: string; diagnosis: string; intervensi: string;
+  monitoring: string; evaluasi: string; instruksi: string; nip: string;
+}) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      INSERT INTO catatan_adime_gizi (no_rawat, tanggal, asesmen, diagnosis, intervensi, monitoring, evaluasi, instruksi, nip)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      data.no_rawat, data.tanggal, data.asesmen || "", data.diagnosis || "",
+      data.intervensi || "", data.monitoring || "", data.evaluasi || "",
+      data.instruksi || "", data.nip,
+    ]);
+
+    return { success: true, message: "Data catatan ADIME gizi berhasil disimpan" };
+  } catch (error: any) {
+    console.error("Error saving catatan ADIME gizi:", error);
+    return { success: false, message: "Gagal menyimpan data catatan ADIME gizi", error: error.message };
+  }
+}
+
+/**
+ * Mengedit data catatan ADIME gizi (Ganti).
+ * UPDATE tabel catatan_adime_gizi WHERE tanggal=? AND no_rawat=?.
+ */
+export async function editCatatanADIMEGiziRanap(
+  oldTanggal: string,
+  oldNoRawat: string,
+  newData: {
+    no_rawat: string; tanggal: string;
+    asesmen: string; diagnosis: string; intervensi: string;
+    monitoring: string; evaluasi: string; instruksi: string; nip: string;
+  },
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      UPDATE catatan_adime_gizi SET
+        no_rawat=?, tanggal=?, asesmen=?, diagnosis=?, intervensi=?,
+        monitoring=?, evaluasi=?, instruksi=?, nip=?
+      WHERE tanggal=? AND no_rawat=?
+    `, [
+      newData.no_rawat, newData.tanggal, newData.asesmen || "", newData.diagnosis || "",
+      newData.intervensi || "", newData.monitoring || "", newData.evaluasi || "",
+      newData.instruksi || "", newData.nip,
+      oldTanggal, oldNoRawat,
+    ]);
+
+    return { success: true, message: "Data catatan ADIME gizi berhasil diubah" };
+  } catch (error: any) {
+    console.error("Error editing catatan ADIME gizi:", error);
+    return { success: false, message: "Gagal mengubah data catatan ADIME gizi", error: error.message };
+  }
+}
+
+/**
+ * Menghapus data catatan ADIME gizi (Hapus).
+ * DELETE dari tabel catatan_adime_gizi WHERE tanggal=? AND no_rawat=?.
+ */
+export async function hapusCatatanADIMEGiziRanap(tanggal: string, noRawat: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute("DELETE FROM catatan_adime_gizi WHERE tanggal=? AND no_rawat=?", [tanggal, noRawat]);
+
+    return { success: true, message: "Data catatan ADIME gizi berhasil dihapus" };
+  } catch (error: any) {
+    console.error("Error deleting catatan ADIME gizi:", error);
+    return { success: false, message: "Gagal menghapus data catatan ADIME gizi", error: error.message };
+  }
+}
+
+/**
  * Mengambil data skrining nutrisi dewasa pasien rawat inap.
  * Tabel: skrining_nutrisi_dewasa
  */
