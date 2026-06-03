@@ -439,7 +439,164 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 14. Checklist Review UI
+## 14. Layout Mode: Classic vs Zen
+
+Aplikasi memiliki **dua mode layout** yang bisa dipilih pengguna: **Classic** dan **Zen**.  
+Setiap halaman **harus** menyesuaikan tampilannya berdasarkan `layoutMode` yang dibaca dari `useSetting()`.
+
+### 14.1 Mekanisme
+
+- Nilai `layoutMode` disimpan di **localStorage** dengan key `"layoutMode"`.
+- Disediakan via `SettingContext` — baca dengan `const { layoutMode } = useSetting()`.
+- Tersedia fungsi `toggleLayoutMode()` dan `setLayoutMode(mode)`.
+- Tombol toggle ada di **Floating Action Button** pojok kanan bawah (komponen `LayoutSwitcherFAB`) dan di dropdown profil.
+
+```tsx
+import { useSetting } from "@/components/SettingContext";
+
+function MyPage() {
+  const { layoutMode } = useSetting();
+  // ...
+}
+```
+
+### 14.2 Perbandingan Struktur Layout
+
+| Aspek                | Classic                                | Zen                                    |
+|---------------------|----------------------------------------|----------------------------------------|
+| **Shell arah**      | `flex-col` (vertikal)                  | `flex-row` (horizontal)                |
+| **Navigasi atas**   | Toolbar (brand gradient) + Shortcutbar | Topbar minimalis (search + profile)    |
+| **Sidebar**         | Tidak ada (horizontal nav)             | Sidebar kiri 256px dengan grup menu    |
+| **Area konten**     | `main` penuh di bawah shortcutbar      | `main` di samping kanan sidebar        |
+| **Header halaman**  | Gradient bar (`brand-100` to `slate-50`) | Dinamis di topbar (judul + breadcrumb) |
+| **Dashboard**       | Wallpaper + logo + gradient overlay    | Welcome banner + metric cards + chart  |
+
+### 14.3 Implementasi di AppShell
+
+`AppShell.tsx` merender layout berbeda berdasarkan `layoutMode`:
+
+```tsx
+<div className={`flex h-screen w-full overflow-hidden ${
+  layoutMode === "classic" ? "flex-col" : "flex-row"
+}`}>
+  {layoutMode === "classic" ? (
+    <>
+      {/* Toolbar + Shortcutbar */}
+      {/* main area */}
+    </>
+  ) : (
+    <>
+      {/* Zen Left Sidebar (w-64) */}
+      {/* Zen Right Area: Topbar + main */}
+    </>
+  )}
+</div>
+```
+
+### 14.4 Aturan untuk Setiap Halaman Konten
+
+Setiap halaman **harus** membaca `layoutMode` dan menyesuaikan render:
+
+#### ✅ Wajib — Baca layoutMode dari useSetting
+```tsx
+export default function MyPage() {
+  const { layoutMode } = useSetting();
+  // ...
+}
+```
+
+#### ✅ Wajib — Sediakan render untuk kedua mode
+
+Gunakan pola `if (layoutMode === "classic") { ... }` diikuti `return ( /* zen */ )`:
+
+```tsx
+// CLASSIC
+if (layoutMode === "classic") {
+  return (
+    <div className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30">
+      {/* Halaman page header gradient */}
+      {/* Konten halaman classic */}
+    </div>
+  );
+}
+
+// ZEN
+return (
+  <div className="flex-1 w-full h-full overflow-y-auto bg-[#f8fafc] p-6 space-y-6">
+    {/* Konten halaman zen tanpa page header gradient */}
+  </div>
+);
+```
+
+#### ❌ Jangan — Wrap mode di dalam div yang sama dengan percabangan kecil
+
+```tsx
+// ❌ SALAH — tidak konsisten, sulit dirawat
+<div className={layoutMode === "classic" ? "bg-brand-50" : "bg-white"}>
+  {/* satu struktur konten untuk dua mode */}
+</div>
+```
+
+### 14.5 Perbedaan Visual per Mode
+
+| Elemen          | Classic                          | Zen                               |
+|-----------------|----------------------------------|-----------------------------------|
+| Background      | `bg-brand-50/30` + wallpaper     | `bg-[#f8fafc]` (slate-50 solid)   |
+| Page header     | Gradient `brand-100` to `slate-50` | Tidak ada (judul di topbar)      |
+| Container       | `overflow-hidden` (scroll di child) | `overflow-y-auto` (scroll penuh) |
+| Padding halaman | `px-4 py-1` (header)             | `p-6` (seluruh konten)            |
+| Warna aksen     | `brand-*` (emerald)              | `teal-*` (independent dari brand)  |
+| Animasi         | `framer-motion` scale + opacity  | `framer-motion` slide + fade       |
+
+### 14.6 Halaman Khusus — Dashboard (Home)
+
+Halaman `/` (Home) memiliki tampilan berbeda total:
+
+- **Classic**: Wallpaper penuh + logo instansi + gradient overlay + nama RS
+- **Zen**: Welcome banner (dengan gambar rumah sakit), 5 metric cards (grid 5 kolom), chart ringkasan layanan, antrian terbaru, pengumuman
+
+```tsx
+// app/page.tsx — pola branching
+if (layoutMode === "classic") {
+  return <ClassicDashboard />;  // wallpaper + logo
+}
+return <ZenDashboard />;        // banner + cards + chart + queue
+```
+
+### 14.7 Toggle Layout di Aplikasi
+
+Floating Action Button (`LayoutSwitcherFAB`) muncul di **semua halaman** (di `AppShell.tsx`):
+
+```tsx
+<LayoutSwitcherFAB layoutMode={layoutMode} onToggle={toggleLayoutMode} />
+```
+
+- Posisi: `fixed bottom-6 right-6 z-50`
+- Ikon: `FaSync` (spin lambat 10s)
+- Tooltip hover: "Ganti ke Tampilan Zen (Baru)" atau "Ganti ke Tampilan Klasik (Lama)"
+- Toggle juga tersedia di dropdown profil (ProfileMenu / ProfileMenuZen)
+
+### 14.8 Persistensi
+
+```tsx
+// SettingContext.tsx
+const setLayoutMode = useCallback((mode: "classic" | "zen") => {
+  setLayoutModeState(mode);
+  localStorage.setItem("layoutMode", mode);
+}, []);
+
+const toggleLayoutMode = useCallback(() => {
+  setLayoutModeState((prev) => {
+    const next = prev === "classic" ? "zen" : "classic";
+    localStorage.setItem("layoutMode", next);
+    return next;
+  });
+}, []);
+```
+
+---
+
+## 15. Checklist Review UI
 
 Sebelum menyelesaikan halaman baru, pastikan:
 
@@ -454,3 +611,4 @@ Sebelum menyelesaikan halaman baru, pastikan:
 - [ ] Halaman responsive di mobile (cek `grid-cols-1` fallback)
 - [ ] Sidebar bisa dilipat (jika ada)
 - [ ] Animasi halus menggunakan Framer Motion
+- [ ] **Halaman membaca `layoutMode` dari `useSetting()` dan menyediakan render terpisah untuk mode Classic dan Zen**
