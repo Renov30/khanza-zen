@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
+  FaArrowLeft,
   FaPalette,
   FaSave,
   FaTimes,
@@ -102,7 +103,11 @@ export default function TemaAplikasiPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-white dark:bg-slate-800">
-      <div className="bg-gradient-to-r from-brand-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 px-4 py-1 border-b border-brand-100 dark:border-slate-600 flex items-center justify-between shadow-sm z-10 shrink-0">
+      <div className="bg-gradient-to-r from-brand-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 px-4 py-1 border-b border-brand-100 dark:border-slate-600 flex items-center gap-3 shadow-sm z-10 shrink-0">
+        <button onClick={() => router.back()}
+          className="text-brand-600 dark:text-brand-300 hover:text-brand-800 dark:hover:text-brand-100 transition-colors p-1 -ml-1 cursor-pointer">
+          <FaArrowLeft className="text-sm" />
+        </button>
         <h2 className="text-brand-800 dark:text-brand-300 font-bold text-sm flex items-center gap-2 tracking-wide">
           <FaPalette className="text-brand-600" />
           Tema Aplikasi
@@ -209,16 +214,17 @@ export default function TemaAplikasiPage() {
                 Batal
               </Button>
             ) : (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => router.back()}
-                className="border-red-200 dark:border-red-800 hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 shadow-sm transition-all font-bold text-[11px]"
-              >
-                <FaTimes />
-                Keluar
-              </Button>
+              <Link href="/daftar-menu">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="border-red-200 dark:border-red-800 hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 shadow-sm transition-all font-bold text-[11px]"
+                >
+                  <FaTimes />
+                  Keluar
+                </Button>
+              </Link>
             )}
             <Link href="/setting/tata-letak">
               <Button

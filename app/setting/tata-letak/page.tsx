@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { FaDesktop, FaMobileAlt, FaSave, FaTimes, FaCheck } from "react-icons/fa";
+import { FaArrowLeft, FaDesktop, FaMobileAlt, FaSave, FaTimes, FaCheck } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { getLayoutSetting, setLayoutSettingAction } from "@/lib/actions/layout";
 import { useSetting } from "@/components/SettingContext";
 
 export default function TataLetakPage() {
+  const router = useRouter();
   const { layoutMode, setLayoutMode } = useSetting();
   const [defaultMode, setDefaultMode] = useState<"classic" | "zen">("classic");
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +55,11 @@ export default function TataLetakPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-white dark:bg-slate-900">
-      <div className="bg-gradient-to-r from-brand-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 px-4 py-1 border-b border-brand-100 dark:border-slate-700 flex items-center justify-between shadow-sm z-10 shrink-0">
+      <div className="bg-gradient-to-r from-brand-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 px-4 py-1 border-b border-brand-100 dark:border-slate-700 flex items-center gap-3 shadow-sm z-10 shrink-0">
+        <button onClick={() => router.back()}
+          className="text-brand-600 dark:text-slate-300 hover:text-brand-800 dark:hover:text-slate-100 transition-colors p-1 -ml-1 cursor-pointer">
+          <FaArrowLeft className="text-sm" />
+        </button>
         <h2 className="text-brand-800 dark:text-slate-100 font-bold text-sm flex items-center gap-2 tracking-wide">
           <FaDesktop className="text-brand-600 dark:text-slate-300" />
           Tata Letak Aplikasi
@@ -207,7 +213,7 @@ export default function TataLetakPage() {
           </div>
 
           <div className="flex justify-end gap-2">
-            <Link href="/setting">
+            <Link href="/daftar-menu">
               <Button type="button" variant="outline" size="sm"
                 className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600 hover:text-red-600 dark:border-red-800 dark:hover:border-red-600 dark:hover:bg-red-900/30 dark:text-red-400 shadow-sm transition-all font-bold text-[11px]">
                 <FaTimes />

@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { FaCog, FaSave, FaImage, FaTrash, FaTimes, FaPalette } from "react-icons/fa";
+import { FaArrowLeft, FaCog, FaSave, FaImage, FaTrash, FaTimes, FaPalette } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { getSettingRs, updateSetting } from "@/lib/actions/setting";
 import { useSetting } from "@/components/SettingContext";
 
 export default function SettingPage() {
+  const router = useRouter();
   const { instansi, refresh: refreshSettings } = useSetting();
   const [form, setForm] = useState({
     namaInstansi: instansi?.namaInstansi || "",
@@ -94,7 +96,11 @@ export default function SettingPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden bg-white dark:bg-slate-900">
       {/* Page Header — standar UI_STANDARDS 8 */}
-      <div className="bg-gradient-to-r from-brand-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 px-4 py-1 border-b border-brand-100 dark:border-slate-700 flex items-center justify-between shadow-sm z-10 shrink-0">
+      <div className="bg-gradient-to-r from-brand-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 px-4 py-1 border-b border-brand-100 dark:border-slate-700 flex items-center gap-3 shadow-sm z-10 shrink-0">
+        <button onClick={() => router.back()}
+          className="text-brand-600 dark:text-slate-300 hover:text-brand-800 dark:hover:text-slate-100 transition-colors p-1 -ml-1 cursor-pointer">
+          <FaArrowLeft className="text-sm" />
+        </button>
         <h2 className="text-brand-800 dark:text-slate-100 font-bold text-sm flex items-center gap-2 tracking-wide">
           <FaCog className="text-brand-600 dark:text-slate-300" />
           Pengaturan Aplikasi
