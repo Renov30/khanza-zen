@@ -80,6 +80,8 @@ const anakColumns: TableColumn[] = [
   { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
   { header: 'Tgl.Lahir', key: 'tgl_lahir', width: '100px' },
   { header: 'JK', key: 'jk', width: '30px' },
+  { header: 'Kode Petugas', key: 'nip', width: '100px' },
+  { header: 'Nama Petugas', key: 'nm_petugas', width: '180px' },
   { header: 'Tanggal', key: 'tanggal', width: '160px' },
   { header: 'BB(Kg)', key: 'bb', width: '60px' },
   { header: 'TB/PB(Cm)', key: 'tbpb', width: '80px' },
@@ -89,18 +91,18 @@ const anakColumns: TableColumn[] = [
   { header: 'Suhu', key: 'suhu', width: '50px' },
   { header: 'SpO2(%)', key: 'spo2', width: '65px' },
   { header: 'Alergi', key: 'alergi', width: '120px', className: 'truncate' },
-  { header: 'SG 1', key: 'sg1', width: '60px', className: 'truncate' },
+  { header: 'SG 1 (Kurus)', key: 'sg1', width: '80px', className: 'truncate' },
   { header: 'N1', key: 'nilai1', width: '40px' },
-  { header: 'SG 2', key: 'sg2', width: '60px', className: 'truncate' },
+  { header: 'SG 2 (BB Turun)', key: 'sg2', width: '80px', className: 'truncate' },
   { header: 'N2', key: 'nilai2', width: '40px' },
-  { header: 'SG 3', key: 'sg3', width: '60px', className: 'truncate' },
+  { header: 'SG 3 (Diare)', key: 'sg3', width: '80px', className: 'truncate' },
   { header: 'N3', key: 'nilai3', width: '40px' },
-  { header: 'SG 4', key: 'sg4', width: '60px', className: 'truncate' },
+  { header: 'SG 4 (Risiko)', key: 'sg4', width: '80px', className: 'truncate' },
   { header: 'N4', key: 'nilai4', width: '40px' },
   { header: 'Total', key: 'total_hasil', width: '50px' },
-  { header: 'Skor Nutrisi', key: 'skor_nutrisi', width: '120px', className: 'truncate' },
+  { header: 'Hasil Skrining', key: 'skor_nutrisi', width: '150px', className: 'truncate' },
   { header: 'Diketahui', key: 'diketahui_dietisien', width: '70px' },
-  { header: 'Ket.Diketahui', key: 'keterangan_diketahui_dietisien', width: '100px', className: 'truncate' },
+  { header: 'Ket.Diketahui', key: 'keterangan_diketahui_dietisien', width: '150px', className: 'truncate' },
   { header: 'NIP', key: 'nip', width: '100px' },
   { header: 'Petugas', key: 'nm_petugas', width: '180px' },
 ];
@@ -216,6 +218,7 @@ function SkriningNutrisiContent() {
   const [noRawat] = useState(noRawatParam);
   const [noRM, setNoRM] = useState('');
   const [namaPasien, setNamaPasien] = useState('');
+  const [tglLahir, setTglLahir] = useState('');
   const [isLoadingPatient, setIsLoadingPatient] = useState(false);
 
   // Shared
@@ -238,8 +241,9 @@ function SkriningNutrisiContent() {
   const [dHR, setDHR] = useState(''); const [dRR, setDRR] = useState('');
   const [dSuhu, setDSuhu] = useState(''); const [dSpO2, setDSpO2] = useState('');
   const [dAlergi, setDAlergi] = useState('');
-  const [dSG1, setDSG1] = useState(''); const [dNilai1, setDNilai1] = useState('');
-  const [dSG2, setDSG2] = useState(''); const [dNilai2, setDNilai2] = useState('');
+  const [dSG1, setDSG1] = useState('Tidak'); const [dNilai1, setDNilai1] = useState('0');
+  const [dSG2, setDSG2] = useState('Tidak'); const [dNilai2, setDNilai2] = useState('0');
+  const [dSG3, setDSG3] = useState('Tidak');
   const [dTotal, setDTotal] = useState('');
 
   // === Form state: Anak ===
@@ -247,10 +251,10 @@ function SkriningNutrisiContent() {
   const [aTD, setATD] = useState(''); const [aHR, setAHR] = useState('');
   const [aRR, setARR] = useState(''); const [aSuhu, setASuhu] = useState('');
   const [aSpO2, setASpO2] = useState('');   const [aAlergi, setAAlergi] = useState('');
-  const [aSG1, setASG1] = useState('Tidak'); const [aN1, setAN1] = useState('0');
-  const [aSG2, setASG2] = useState('Tidak'); const [aN2, setAN2] = useState('0');
-  const [aSG3, setASG3] = useState('Tidak'); const [aN3, setAN3] = useState('0');
-  const [aSG4, setASG4] = useState('Tidak'); const [aN4, setAN4] = useState('0');
+  const [aSG1, setASG1] = useState('Tidak'); const [aN1, setAN1] = useState('0'); // Tampak Kurus
+  const [aSG2, setASG2] = useState('Tidak'); const [aN2, setAN2] = useState('0'); // Penurunan BB
+  const [aSG3, setASG3] = useState('Tidak'); const [aN3, setAN3] = useState('0'); // Diare/Muntah
+  const [aSG4, setASG4] = useState('Tidak'); const [aN4, setAN4] = useState('0'); // Penyakit Risiko
   const [aTotal, setATotal] = useState('0');
   const [aSkorNutrisi, setASkorNutrisi] = useState('');
   const [aDiketahui, setADiketahui] = useState('Tidak');
@@ -276,9 +280,9 @@ function SkriningNutrisiContent() {
     setIsLoadingPatient(true);
     try {
       const result = await getPatientInfoByNoRawat(nrw);
-      if (result.success && result.data) { setNoRM(result.data.no_rkm_medis); setNamaPasien(result.data.nm_pasien); }
-      else { setNoRM(''); setNamaPasien(''); }
-    } catch { setNoRM(''); setNamaPasien(''); }
+      if (result.success && result.data) { setNoRM(result.data.no_rkm_medis); setNamaPasien(result.data.nm_pasien); setTglLahir(result.data.tgl_lahir || ''); }
+      else { setNoRM(''); setNamaPasien(''); setTglLahir(''); }
+    } catch { setNoRM(''); setNamaPasien(''); setTglLahir(''); }
     setIsLoadingPatient(false);
   }, []);
 
@@ -340,21 +344,26 @@ function SkriningNutrisiContent() {
     if (noRawat) fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
   }, [noRawat, searchKeyword, tglAwal, tglAkhir]);
 
-  // === Auto-score: Dewasa ===
+  // === Auto-score: Dewasa (MST) ===
   useEffect(() => {
-    try {
-      const n1 = parseInt(dNilai1) || 0;
-      const n2 = parseInt(dNilai2) || 0;
-      setDTotal((n1 + n2).toString());
-    } catch { setDTotal('0'); }
-  }, [dNilai1, dNilai2]);
+    const sg1Opts = ['Tidak', 'Tidak Yakin (Baju Jadi Longgar)', 'Ya, 1-5 Kg', 'Ya, 6-10 Kg', 'Ya, 11-15 Kg', 'Ya, >15 Kg'];
+    const sg1Vals = ['0', '2', '1', '2', '3', '4'];
+    const sg2Opts = ['Tidak', 'Ya'];
+    const sg2Vals = ['0', '1'];
+    const i1 = sg1Opts.indexOf(dSG1);
+    const i2 = sg2Opts.indexOf(dSG2);
+    const n1 = i1 >= 0 ? sg1Vals[i1] : '0';
+    const n2 = i2 >= 0 ? sg2Vals[i2] : '0';
+    setDNilai1(n1); setDNilai2(n2);
+    setDTotal((parseInt(n1) + parseInt(n2)).toString());
+  }, [dSG1, dSG2]);
 
   // === Auto-score: Anak ===
   useEffect(() => {
-    const n1 = aSG1 === 'Ya' ? 1 : 0;
-    const n2 = aSG2 === 'Ya' ? 1 : 0;
-    const n3 = aSG3 === 'Ya' ? 1 : 0;
-    const n4 = aSG4 === 'Ya' ? 1 : 0;
+    const n1 = aSG1 === 'Ya' ? 1 : 0; // Tampak Kurus
+    const n2 = aSG2 === 'Ya' ? 1 : 0; // Penurunan BB
+    const n3 = aSG3 === 'Ya' ? 1 : 0; // Diare/Muntah
+    const n4 = aSG4 === 'Ya' ? 1 : 0; // Penyakit Risiko
     setAN1(n1.toString()); setAN2(n2.toString()); setAN3(n3.toString()); setAN4(n4.toString());
     const total = n1 + n2 + n3 + n4;
     setATotal(total.toString());
@@ -436,20 +445,29 @@ function SkriningNutrisiContent() {
               </div>
             </div>
             <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining Gizi (MST)</h3>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">Penurunan BB</label>
-                  <input type="text" value={dSG1} onChange={e => setDSG1(e.target.value)} onKeyDown={handleEnterKeyDown} placeholder="tidak tahu/tidak=0, 0.5-5kg=1, 5-10kg=2, >10kg=3" className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0 ml-2">Nilai 1</label>
-                  <input type="text" value={dNilai1} onChange={e => setDNilai1(e.target.value)} onKeyDown={handleEnterKeyDown} className="w-16 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 text-center" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-28 shrink-0">Asupan Makanan</label>
-                  <input type="text" value={dSG2} onChange={e => setDSG2(e.target.value)} onKeyDown={handleEnterKeyDown} placeholder="berkurang=1, tidak=0" className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100" />
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0 ml-2">Nilai 2</label>
-                  <input type="text" value={dNilai2} onChange={e => setDNilai2(e.target.value)} onKeyDown={handleEnterKeyDown} className="w-16 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 text-center" />
-                </div>
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining Gizi Awal Dengan MST (Malnutrition Screening Tool) Bagi Perawat :</h3>
+              <div className="flex flex-col gap-4">
+                {[
+                  { num: "1.", text: "Apakah pasien mengalami penurunan berat badan yang tidak direncanakan dalam 6 bulan terakhir? (Penilaian 0-4)", val: dSG1, set: setDSG1, opts: ['Tidak', 'Tidak Yakin (Baju Jadi Longgar)', 'Ya, 1-5 Kg', 'Ya, 6-10 Kg', 'Ya, 11-15 Kg', 'Ya, >15 Kg'], skor: dNilai1 },
+                  { num: "2.", text: "Apakah asupan makan pasien berkurang karena penurunan nafsu makan/kesulitan menerima makanan?", val: dSG2, set: setDSG2, opts: ['Tidak', 'Ya'], skor: dNilai2 },
+                  { num: "3.", text: "Pasien dengan diagnosis khusus (DM/Kanker/GGK/Pasien HD/Infeksi kronis/Lain-lain)", val: dSG3, set: setDSG3, opts: ['Tidak', 'Ya'], skor: '-' },
+                ].map((q, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0 mt-1.5 w-4">{q.num}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">{q.text}</p>
+                    </div>
+                    <select
+                      value={q.val}
+                      onChange={e => q.set(e.target.value)}
+                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 shrink-0"
+                    >
+                      {q.opts.map(o => <option key={o}>{o}</option>)}
+                    </select>
+                    <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 shrink-0 whitespace-nowrap mt-1.5 w-14 text-right">Nilai: {q.skor}</span>
+                  </div>
+                ))}
+                <p className="text-[11px] italic text-slate-400 dark:text-slate-500 -mt-1">{'Bila Skor >= 2, Pasien Beresiko Malnutrisi, Konsul Ke Ahli Gizi'}</p>
                 <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
                   <label className="text-xs font-bold text-brand-700 dark:text-brand-400 w-28 shrink-0">Total Skor</label>
                   <input type="text" value={dTotal} readOnly className="flex-1 border border-brand-300 dark:border-brand-700 rounded px-2 py-1.5 text-xs bg-brand-50 dark:bg-slate-700 font-bold text-brand-700 dark:text-brand-400" />
@@ -479,6 +497,10 @@ function SkriningNutrisiContent() {
               </div>
               <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
               <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-14 shrink-0">Tgl.Lahir</label>
+                <input type="text" className="border border-slate-300 rounded px-2 py-1 w-24 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={tglLahir} readOnly />
+              </div>
               <div className="ml-auto flex items-center gap-2">
                 <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
                 <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
@@ -500,32 +522,33 @@ function SkriningNutrisiContent() {
               </div>
             </div>
             <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining StrongKids</h3>
-              <div className="flex flex-col gap-3">
-                <SelectField label="1. Penurunan BB" value={aSG1} onChange={setASG1} options={['Tidak', 'Ya']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2">
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500">(Penurunan BB 1 bulan terakhir)</span>
-                  <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {aN1}</span>
-                </div>
-                <SelectField label="2. Tampak Kurus" value={aSG2} onChange={setASG2} options={['Tidak', 'Ya']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2">
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500">(Apakah pasien tampak kurus?)</span>
-                  <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {aN2}</span>
-                </div>
-                <SelectField label="3. Diare/Muntah" value={aSG3} onChange={setASG3} options={['Tidak', 'Ya']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2">
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500">(Diare &gt;5x/hr/muntah &gt;3x/hr atau asupan berkurang)</span>
-                  <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {aN3}</span>
-                </div>
-                <SelectField label="4. Penyakit Risiko" value={aSG4} onChange={setASG4} options={['Tidak', 'Ya']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2">
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500">(Penyakit/keadaan yang menyebabkan risiko malnutrisi)</span>
-                  <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {aN4}</span>
-                </div>
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining Gizi Awal Dengan StrongKids</h3>
+              <div className="flex flex-col gap-4">
+                {[
+                  { num: "1.", text: "Apakah pasien tampak kurus?", val: aSG1, set: setASG1, nil: aN1 },
+                  { num: "2.", text: "Apakah terdapat penurunan berat badan selama satu bulan terakhir? (berdasarkan penilaian objektif data berat badan bila ada atau untuk bayi < 1 tahun ; berat badan tidak naik selama 3 bulan terakhir)", val: aSG2, set: setASG2, nil: aN2 },
+                  { num: "3.", text: "Apakah terdapat salah satu dari kondisi tersebut? Diare > 5 kali/hari dan/atau muntah > 3 kali/hari dalam seminggu terakhir; Asupan makanan berkurang selama 1 minggu terakhir", val: aSG3, set: setASG3, nil: aN3 },
+                  { num: "4.", text: "Apakah terdapat penyakit atau keadaan yang menyebabkan pasien beresiko mengalami malnutrisi?", val: aSG4, set: setASG4, nil: aN4 },
+                ].map((q, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0 mt-1.5 w-4">{q.num}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">{q.text}</p>
+                    </div>
+                    <select
+                      value={q.val}
+                      onChange={e => q.set(e.target.value)}
+                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 shrink-0"
+                    >
+                      {['Tidak', 'Ya'].map(o => <option key={o}>{o}</option>)}
+                    </select>
+                    <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 shrink-0 whitespace-nowrap mt-1.5 w-14 text-right">Nilai: {q.nil}</span>
+                  </div>
+                ))}
                 <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700 mt-1">
                   <label className="text-xs font-bold text-brand-700 dark:text-brand-400 w-28 shrink-0">Total Skor</label>
                   <input type="text" value={aTotal} readOnly className="w-16 border border-brand-300 dark:border-brand-700 rounded px-2 py-1.5 text-xs bg-brand-50 dark:bg-slate-700 font-bold text-brand-700 dark:text-brand-400 text-center" />
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 ml-4 shrink-0">Skor Nutrisi</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 ml-4 shrink-0">Hasil Skrining</label>
                   <input type="text" value={aSkorNutrisi} readOnly className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 font-semibold text-slate-700 dark:text-slate-200" />
                 </div>
                 <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
@@ -578,29 +601,35 @@ function SkriningNutrisiContent() {
               </div>
             </div>
             <div className="bg-slate-50/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining MNA</h3>
-              <div className="flex flex-col gap-3">
-                <SelectField label="A. Asupan Makan" value={lSG1} onChange={setLSG1}
-                  options={['Asupan Makan Tidak Berkurang', 'Asupan Makan Agak Berkurang', 'Asupan Makan Sangat Berkurang']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN1}</span></div>
-                <SelectField label="B. Penurunan BB" value={lSG2} onChange={setLSG2}
-                  options={['Tidak Ada Penurunan Berat Badan', 'Penurunan Berat Badan Antara 1 Hingga 3 Kg', 'Tidak Tahu', 'Penurunan Berat Badan Lebih Dari 3 Kg']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN2}</span></div>
-                <SelectField label="C. Mobilitas" value={lSG3} onChange={setLSG3}
-                  options={['Dapat Bepergian Keluar Rumah', 'Mampu Bangun Dari Tempat Tidur/Kursi Tetapi Tidak Bepergian Keluar Rumah', 'Terbatas Dari Tempat Tidur Atau Kursi']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN3}</span></div>
-                <SelectField label="D. Psikologis" value={lSG4} onChange={setLSG4} options={['Tidak', 'Ya']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-[11px] text-slate-400 dark:text-slate-500">(Tekanan psikologis/penyakit berat 3 bulan terakhir)</span><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN4}</span></div>
-                <SelectField label="E. Neuropsikologis" value={lSG5} onChange={setLSG5}
-                  options={['Tidak Ada Gangguan Psikologis', 'Kepikunan Ringan', 'Depresi Berat Atau Kepikunan Berat']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN5}</span></div>
-                <SelectField label="F. IMT" value={lSG6} onChange={setLSG6}
-                  options={['IMT >= 23', '21 Hingga < 23', '19 Hingga < 21', 'IMT < 19']} />
-                <div className="flex items-center gap-2 ml-[104px] -mt-2"><span className="text-xs font-semibold text-brand-600 dark:text-brand-400 ml-auto">Nilai: {lN6}</span></div>
+              <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Skrining Gizi Awal Dengan MNA (Mini Nutritional Assesment) :</h3>
+              <div className="flex flex-col gap-4">
+                {[
+                  { num: "A.", text: "Apakah Asupan Makan Berkurang Selama 3 Bulan Terakhir ?", val: lSG1, set: setLSG1, opts: ['Asupan Makan Tidak Berkurang', 'Asupan Makan Agak Berkurang', 'Asupan Makan Sangat Berkurang'], skor: lN1 },
+                  { num: "B.", text: "Penurunan Berat Badan Selama 3 Bulan Terakhir", val: lSG2, set: setLSG2, opts: ['Tidak Ada Penurunan Berat Badan', 'Penurunan Berat Badan Antara 1 Hingga 3 Kg', 'Tidak Tahu', 'Penurunan Berat Badan Lebih Dari 3 Kg'], skor: lN2 },
+                  { num: "C.", text: "Mobilitas", val: lSG3, set: setLSG3, opts: ['Dapat Bepergian Keluar Rumah', 'Mampu Bangun Dari Tempat Tidur/Kursi Tetapi Tidak Bepergian Keluar Rumah', 'Terbatas Dari Tempat Tidur Atau Kursi'], skor: lN3 },
+                  { num: "D.", text: "Menderita Tekanan Psikologis Atau Penyakit Berat Dalam 3 Bulan Terakhir", val: lSG4, set: setLSG4, opts: ['Tidak', 'Ya'], skor: lN4 },
+                  { num: "E.", text: "Gangguan Neuropsikologis", val: lSG5, set: setLSG5, opts: ['Tidak Ada Gangguan Psikologis', 'Kepikunan Ringan', 'Depresi Berat Atau Kepikunan Berat'], skor: lN5 },
+                  { num: "F.", text: "Indeks Masa Tubuh (IMT)", val: lSG6, set: setLSG6, opts: ['IMT >= 23', '21 Hingga < 23', '19 Hingga < 21', 'IMT < 19'], skor: lN6 },
+                ].map((q, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0 mt-1.5 w-5">{q.num}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">{q.text}</p>
+                    </div>
+                    <select
+                      value={q.val}
+                      onChange={e => q.set(e.target.value)}
+                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 shrink-0 max-w-[220px]"
+                    >
+                      {q.opts.map(o => <option key={o}>{o}</option>)}
+                    </select>
+                    <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 shrink-0 whitespace-nowrap mt-1.5 w-14 text-right">Nilai: {q.skor}</span>
+                  </div>
+                ))}
                 <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700 mt-1">
                   <label className="text-xs font-bold text-brand-700 dark:text-brand-400 w-28 shrink-0">Total Skor</label>
                   <input type="text" value={lTotal} readOnly className="w-16 border border-brand-300 dark:border-brand-700 rounded px-2 py-1.5 text-xs bg-brand-50 dark:bg-slate-700 font-bold text-brand-700 dark:text-brand-400 text-center" />
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 ml-4 shrink-0">Skor Nutrisi</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 ml-4 shrink-0">Hasil Skrining</label>
                   <input type="text" value={lSkorNutrisi} readOnly className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 font-semibold text-slate-700 dark:text-slate-200" />
                 </div>
               </div>

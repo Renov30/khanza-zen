@@ -10,7 +10,7 @@ import { logCppt } from "@/lib/file-log";
 export async function getPatientInfoByNoRawat(noRawat: string) {
   try {
     const query = `
-      SELECT reg_periksa.no_rkm_medis, pasien.nm_pasien 
+      SELECT reg_periksa.no_rkm_medis, pasien.nm_pasien, pasien.tgl_lahir
       FROM reg_periksa 
       INNER JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis 
       WHERE reg_periksa.no_rawat = ?
@@ -22,6 +22,9 @@ export async function getPatientInfoByNoRawat(noRawat: string) {
         data: {
           no_rkm_medis: rows[0].no_rkm_medis,
           nm_pasien: rows[0].nm_pasien,
+          tgl_lahir: rows[0].tgl_lahir instanceof Date
+            ? rows[0].tgl_lahir.toISOString().split('T')[0]
+            : rows[0].tgl_lahir,
         },
       };
     }
