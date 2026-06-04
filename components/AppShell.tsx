@@ -353,24 +353,17 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            {/* Sidebar Footer Card */}
+            {/* Sidebar Footer */}
             <div className="p-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/20">
-              <div className="bg-brand-50 dark:bg-slate-700/30 p-3 rounded-2xl flex items-center gap-3 border border-brand-100/50 dark:border-slate-700/50 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-brand-500/5 rounded-full blur-xl group-hover:scale-125 transition-transform" />
-                <img
-                  src="/img/medical_robot.png"
-                  alt="Assistant Robot"
-                  className="h-10 w-10 shrink-0 object-contain drop-shadow-md"
-                />
-                <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-bold text-brand-800 dark:text-brand-400 leading-tight">
-                    SIMRS-ZEN
-                  </span>
-                  <span className="font-medium text-slate-500 dark:text-slate-400 leading-normal truncate">
-                    Sistem Informasi Manajemen
-                  </span>
-                </div>
-              </div>
+              <button
+                onClick={() => (window.location.href = "/bantuan")}
+                className="w-full bg-brand-50 dark:bg-slate-700/30 p-3 rounded-2xl flex items-center gap-3 border border-brand-100/50 dark:border-slate-700/50 hover:bg-brand-100 dark:hover:bg-slate-700/50 transition-colors"
+              >
+                <FaQuestionCircle className="h-5 w-5 text-brand-600 dark:text-brand-400 shrink-0" />
+                <span className="text-xs font-bold text-brand-800 dark:text-brand-400 leading-tight">
+                  Bantuan
+                </span>
+              </button>
             </div>
           </aside>
 

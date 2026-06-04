@@ -1,28 +1,29 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useSetting } from "@/components/SettingContext";
+import { getDashboardMetrics, getChartData, getChartLegendByDate, getJadwalDokterHariIni } from "@/lib/actions/dashboard";
 import {
-  FaUser,
-  FaUsers,
-  FaBed,
-  FaAmbulance,
-  FaWheelchair,
-  FaClipboard,
-  FaArrowRight,
-  FaBullhorn,
-  FaCalendarAlt,
-  FaInfoCircle,
-  FaArrowUp,
-  FaArrowDown,
-  FaCheckCircle,
-  FaWalking,
+  FaUser, FaUsers, FaBed, FaAmbulance, FaWheelchair,
+  FaClipboard, FaArrowRight, FaBullhorn, FaCalendarAlt,
+  FaInfoCircle, FaArrowUp, FaArrowDown, FaCheckCircle,
+  FaWalking, FaClock, FaUserMd,
 } from "react-icons/fa";
 
 export default function Home() {
   const { instansi, logoUrl, wallpaperUrl, layoutMode } = useSetting();
   const [username, setUsername] = useState("Supervisor");
+  const [metrics, setMetrics] = useState<{
+    pasienHariIni: number; rawatInap: number; igdUgd: number; rawatJalan: number; pendaftaran: number;
+    trends?: Record<string, { pct: string; isUp: boolean }>;
+  }>({ pasienHariIni: 0, rawatInap: 0, igdUgd: 0, rawatJalan: 0, pendaftaran: 0 });
+  const [chartData, setChartData] = useState<{ labels: string[]; values: number[]; total: number } | null>(null);
+  const [chartLegend, setChartLegend] = useState({ pendaftaran: 0, igd: 0, ralan: 0, ranap: 0 });
+  const [chartFilter, setChartFilter] = useState<"hari-ini" | "kemarin" | "tanggal">("hari-ini");
+  const [chartTgl, setChartTgl] = useState(() => new Date().toISOString().split("T")[0]);
+  const [chartJenis, setChartJenis] = useState<"pendaftaran" | "igd" | "ralan" | "ranap">("ralan");
+  const [jadwal, setJadwal] = useState<any[]>([]);
 
   const namaInstansi = instansi?.namaInstansi || "";
   const alamatInstansi = [
@@ -33,9 +34,8 @@ export default function Home() {
     .filter(Boolean)
     .join(", ");
 
-  // Fetch logged-in user name
   useEffect(() => {
-    const fetchSession = async () => {
+    const fetchData = async () => {
       try {
         const response = await fetch("/api/auth/session");
         const data = await response.json();
@@ -44,8 +44,35 @@ export default function Home() {
         }
       } catch (err) {}
     };
-    fetchSession();
+    fetchData();
   }, []);
+
+  const fetchChart = useCallback(async (filter: string, tgl?: string, jenis?: string) => {
+    let param: string | undefined;
+    if (filter === "kemarin") {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      param = d.toISOString().split("T")[0];
+    } else if (filter === "tanggal" && tgl) {
+      param = tgl;
+    }
+    const [chartRes, legendRes] = await Promise.all([
+      getChartData(param, jenis),
+      getChartLegendByDate(param),
+    ]);
+    if (chartRes.success && chartRes.data) setChartData(chartRes.data);
+    if (legendRes.success && legendRes.data) setChartLegend(legendRes.data);
+  }, []);
+
+  useEffect(() => {
+    getDashboardMetrics().then((res) => {
+      if (res.success && res.data) setMetrics(res.data);
+    });
+    fetchChart("hari-ini", undefined, chartJenis);
+    getJadwalDokterHariIni().then((res) => {
+      if (res.success) setJadwal(res.data);
+    });
+  }, [fetchChart, chartJenis]);
 
   // RENDER CLASSIC MODE
   if (layoutMode === "classic") {
@@ -129,41 +156,41 @@ export default function Home() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <MetricCard
           title="Pasien Hari Ini"
-          value="256"
-          trend="12% dari kemarin"
-          isUp={true}
+          value={metrics.pasienHariIni}
+          trend={metrics.trends?.pasienHariIni.pct ?? "Hari Ini"}
+          isUp={metrics.trends?.pasienHariIni.isUp ?? true}
           icon={<FaUsers />}
           colorClass="bg-brand-50 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400 border-brand-100/50"
         />
         <MetricCard
           title="Rawat Inap"
-          value="128"
-          trend="8% dari kemarin"
-          isUp={true}
+          value={metrics.rawatInap}
+          trend={metrics.trends?.rawatInap.pct ?? "Aktif"}
+          isUp={metrics.trends?.rawatInap.isUp ?? true}
           icon={<FaBed />}
           colorClass="bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border-blue-100/50"
         />
         <MetricCard
           title="IGD/UGD"
-          value="32"
-          trend="4% dari kemarin"
-          isUp={false}
+          value={metrics.igdUgd}
+          trend={metrics.trends?.igdUgd.pct ?? "Hari Ini"}
+          isUp={metrics.trends?.igdUgd.isUp ?? false}
           icon={<FaAmbulance />}
           colorClass="bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400 border-red-100/50"
         />
         <MetricCard
           title="Rawat Jalan"
-          value="96"
-          trend="10% dari kemarin"
-          isUp={true}
+          value={metrics.rawatJalan}
+          trend={metrics.trends?.rawatJalan.pct ?? "Hari Ini"}
+          isUp={metrics.trends?.rawatJalan.isUp ?? true}
           icon={<FaWalking />}
           colorClass="bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400 border-purple-100/50"
         />
         <MetricCard
           title="Pendaftaran"
-          value="362"
-          trend="15% dari kemarin"
-          isUp={true}
+          value={metrics.pendaftaran}
+          trend={metrics.trends?.pendaftaran.pct ?? "Hari Ini"}
+          isUp={metrics.trends?.pendaftaran.isUp ?? true}
           icon={<FaClipboard />}
           colorClass="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-100/50"
         />
@@ -172,98 +199,94 @@ export default function Home() {
       {/* 3. CHARTS & RECENT WORK */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Ringkasan Layanan (SVG Line Chart) */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-5 rounded-2xl shadow-sm flex flex-col justify-between h-[360px] lg:col-span-6 relative group overflow-hidden">
-          <div className="flex items-center justify-between z-10">
-            <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-              Ringkasan Layanan
-            </h3>
-            <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-1 focus:ring-brand-500">
-              <option>Hari Ini</option>
-              <option>Minggu Ini</option>
-              <option>Bulan Ini</option>
-            </select>
+        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-5 rounded-2xl shadow-sm flex flex-col justify-between h-[460px] lg:col-span-6 relative group overflow-hidden">
+          <div className="flex flex-col gap-3 z-10 shrink-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col">
+                <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+                  Ringkasan Layanan
+                </h3>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-0.5">
+                  {chartJenis === "pendaftaran" ? "Pasien daftar" :
+                   chartJenis === "igd" ? "Pasien masuk IGD" :
+                   chartJenis === "ralan" ? "Pasien rawat jalan" :
+                   "Pasien masuk rawat inap"} berdasarkan jam
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={chartFilter}
+                  onChange={(e) => {
+                    const v = e.target.value as typeof chartFilter;
+                    setChartFilter(v);
+                    if (v !== "tanggal") fetchChart(v, undefined, chartJenis);
+                  }}
+                  className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-1 focus:ring-brand-500"
+                >
+                  <option value="hari-ini">Hari Ini</option>
+                  <option value="kemarin">Kemarin</option>
+                  <option value="tanggal">Tanggal</option>
+                </select>
+                {chartFilter === "tanggal" && (
+                  <input
+                    type="date"
+                    value={chartTgl}
+                    onChange={(e) => {
+                      setChartTgl(e.target.value);
+                      fetchChart("tanggal", e.target.value, chartJenis);
+                    }}
+                    className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Jenis filter pills */}
+            <div className="flex items-center gap-1.5">
+              {[
+                { key: "pendaftaran", label: "Pendaftaran" },
+                { key: "igd", label: "IGD/UGD" },
+                { key: "ralan", label: "Rawat Jalan" },
+                { key: "ranap", label: "Rawat Inap" },
+              ].map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => {
+                    setChartJenis(item.key as typeof chartJenis);
+                    fetchChart(chartFilter, chartFilter === "tanggal" ? chartTgl : undefined, item.key as typeof chartJenis);
+                  }}
+                  className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-colors cursor-pointer ${
+                    chartJenis === item.key
+                      ? "bg-brand-600 text-white border-brand-600"
+                      : "bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* SVG Pure Chart */}
-          <div className="flex-1 w-full mt-4 flex items-center justify-center relative">
-            <svg
-              viewBox="0 0 500 160"
-              className="w-full h-full overflow-visible"
-            >
-              <defs>
-                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0d9488" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#0d9488" stopOpacity="0.00" />
-                </linearGradient>
-              </defs>
-
-              {/* Grid Horizontal Lines */}
-              <line x1="15" y1="140" x2="480" y2="140" stroke="#f1f5f9" strokeDasharray="3,3" className="dark:stroke-slate-700/50" />
-              <line x1="15" y1="80" x2="480" y2="80" stroke="#f1f5f9" strokeDasharray="3,3" className="dark:stroke-slate-700/50" />
-              <line x1="15" y1="26" x2="480" y2="26" stroke="#f1f5f9" strokeDasharray="3,3" className="dark:stroke-slate-700/50" />
-
-              {/* Peak Indicator Vertical Line */}
-              <line x1="246" y1="26" x2="246" y2="140" stroke="#0d9488" strokeWidth="1" strokeDasharray="2,2" opacity="0.6" />
-
-              {/* Gradient Area under Curve */}
-              <path
-                d="M 15 124 C 50 120, 70 112, 92 108 C 120 102, 145 95, 169 88 C 195 80, 220 40, 246 26 C 272 12, 300 48, 323 52 C 345 56, 375 44, 400 48 C 425 52, 450 70, 477 84 L 477 140 L 15 140 Z"
-                fill="url(#chartGradient)"
-              />
-
-              {/* Styled Glowing Curve Line */}
-              <path
-                d="M 15 124 C 50 120, 70 112, 92 108 C 120 102, 145 95, 169 88 C 195 80, 220 40, 246 26 C 272 12, 300 48, 323 52 C 345 56, 375 44, 400 48 C 425 52, 450 70, 477 84"
-                fill="none"
-                stroke="#0d9488"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-
-              {/* Points Dots */}
-              <circle cx="15" cy="124" r="3" fill="#0d9488" />
-              <circle cx="92" cy="108" r="3" fill="#0d9488" />
-              <circle cx="169" cy="88" r="3" fill="#0d9488" />
-              <circle cx="323" cy="52" r="3" fill="#0d9488" />
-              <circle cx="400" cy="48" r="3" fill="#0d9488" />
-              <circle cx="477" cy="84" r="3" fill="#0d9488" />
-
-              {/* Active Dot with pulse at 12:00 */}
-              <circle cx="246" cy="26" r="6" fill="#0d9488" fillOpacity="0.3" className="animate-ping" style={{ transformOrigin: "246px 26px" }} />
-              <circle cx="246" cy="26" r="4.5" fill="#0d9488" stroke="#ffffff" strokeWidth="1.5" />
-
-              {/* X Axis Labels */}
-              <text x="15" y="154" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="middle">00:00</text>
-              <text x="92" y="154" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="middle">04:00</text>
-              <text x="169" y="154" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="middle">08:00</text>
-              <text x="246" y="154" fill="#0d9488" fontSize="8" fontWeight="black" textAnchor="middle">12:00</text>
-              <text x="323" y="154" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="middle">16:00</text>
-              <text x="400" y="154" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="middle">20:00</text>
-              <text x="477" y="154" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="middle">24:00</text>
-
-              {/* Custom Tooltip popup bubble on peak */}
-              <g transform="translate(210, -3)">
-                <rect width="72" height="22" rx="6" fill="#1e293b" />
-                <text x="36" y="9" fill="#94a3b8" fontSize="6.5" fontWeight="bold" textAnchor="middle">12:00</text>
-                <text x="36" y="17" fill="#ffffff" fontSize="7.5" fontWeight="black" textAnchor="middle">Total: 142</text>
-              </g>
-            </svg>
-          </div>
+          {chartData ? <ChartSVG data={chartData} /> : (
+            <div className="flex-1 flex items-center justify-center text-xs text-slate-400">
+              Memuat data...
+            </div>
+          )}
 
           {/* Legend Items */}
           <div className="grid grid-cols-4 gap-2 pt-4 border-t border-slate-100 dark:border-slate-700/50 mt-2 z-10 shrink-0">
-            <LegendBox label="Pendaftaran" value="142" colorClass="bg-brand-500" />
-            <LegendBox label="IGD/UGD" value="32" colorClass="bg-red-500" />
-            <LegendBox label="Rawat Jalan" value="96" colorClass="bg-purple-500" />
-            <LegendBox label="Rawat Inap" value="128" colorClass="bg-blue-500" />
+            <LegendBox label="Pendaftaran" value={chartLegend.pendaftaran} colorClass="bg-brand-500" />
+            <LegendBox label="IGD/UGD" value={chartLegend.igd} colorClass="bg-red-500" />
+            <LegendBox label="Rawat Jalan" value={chartLegend.ralan} colorClass="bg-purple-500" />
+            <LegendBox label="Rawat Inap" value={chartLegend.ranap} colorClass="bg-blue-500" />
           </div>
         </div>
 
-        {/* Antrian Terbaru */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-5 rounded-2xl shadow-sm flex flex-col justify-between h-[360px] lg:col-span-3">
+        {/* Jadwal Dokter Hari Ini */}
+        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-5 rounded-2xl shadow-sm flex flex-col justify-between h-[460px] lg:col-span-3">
           <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50 pb-3 shrink-0">
             <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-              Antrian Terbaru
+              Jadwal Dokter Hari Ini
             </h3>
             <span className="text-xs font-extrabold text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">
               Lihat Semua
@@ -271,16 +294,26 @@ export default function Home() {
           </div>
 
           <div className="flex-1 overflow-y-auto py-2 space-y-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <QueueItem queueNo="A-023" poliName="Poli Umum" time="09:45" status="Menunggu" statusColor="text-slate-400 bg-slate-50 dark:bg-slate-900 border-slate-100" />
-            <QueueItem queueNo="B-015" poliName="Poli Anak" time="09:42" status="Dipanggil" statusColor="text-brand-600 bg-brand-50 dark:bg-brand-950/30 border-brand-100 animate-pulse font-black" />
-            <QueueItem queueNo="C-008" poliName="Poli Gigi" time="09:40" status="Menunggu" statusColor="text-slate-400 bg-slate-50 dark:bg-slate-900 border-slate-100" />
-            <QueueItem queueNo="D-012" poliName="Poli Kandungan" time="09:37" status="Selesai" statusColor="text-slate-500 bg-slate-100 dark:bg-slate-700/50 border-slate-200" />
-            <QueueItem queueNo="E-006" poliName="Poli Jantung" time="09:35" status="Menunggu" statusColor="text-slate-400 bg-slate-50 dark:bg-slate-900 border-slate-100" />
+            {jadwal.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-xs text-slate-400">
+                Tidak ada jadwal hari ini
+              </div>
+            ) : (
+              jadwal.map((d: any, i: number) => (
+                <JadwalDokterItem
+                  key={i}
+                  nama={d.nm_dokter}
+                  poli={d.nm_poli}
+                  jamMulai={d.jam_mulai}
+                  jamSelesai={d.jam_selesai}
+                />
+              ))
+            )}
           </div>
         </div>
 
         {/* Pengumuman */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-5 rounded-2xl shadow-sm flex flex-col justify-between h-[360px] lg:col-span-3">
+        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-5 rounded-2xl shadow-sm flex flex-col justify-between h-[460px] lg:col-span-3">
           <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50 pb-3 shrink-0">
             <h3 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
               Pengumuman
@@ -312,14 +345,19 @@ export default function Home() {
               desc="Fitur laporan keuangan telah diperbarui. Silakan cek modul laporan."
               date="18 Mei 2024"
             />
+            <AnnouncementItem
+              icon={<FaBullhorn />}
+              iconColor="bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
+              title="Sosialisasi Program Baru"
+              desc="Akan diadakan sosialisasi program Jaminan Kesehatan Nasional (JKN) pada hari Jumat mendatang."
+              date="4 Juni 2024"
+            />
           </div>
         </div>
       </div>
 
-      {/* 4. FOOTER ROW */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-500 pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 shrink-0">
-        <span>&copy; 2024 RS SIMRS Khanza. All rights reserved.</span>
-        <span>Versi 2.5.0</span>
+      <footer className="flex items-center justify-start text-[10px] text-slate-400 dark:text-slate-500 pt-2 pb-0 border-t border-slate-100 dark:border-slate-700/50 mt-2 shrink-0">
+        &copy; {new Date().getFullYear()} SIMRS-ZEN. All rights reserved.
       </footer>
     </div>
   );
@@ -328,6 +366,158 @@ export default function Home() {
 // ==========================================
 // SUBCOMPONENTS
 // ==========================================
+
+function ChartSVG({ data }: { data: { labels: string[]; values: number[]; total: number } }) {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const w = 500;
+  const h = 180;
+  const padX = 32;
+  const padY = 26;
+  const chartW = w - padX * 2;
+  const chartH = h - padY - 20;
+  const n = data.labels.length;
+  const maxVal = Math.max(...data.values, 1);
+
+  const xPos = data.labels.map((_, i) => padX + (chartW / (n - 1)) * i);
+  const yPos = data.values.map((v) => padY + chartH - (v / maxVal) * chartH);
+
+  const lineD = xPos.map((x, i) => `${i === 0 ? "M" : "L"} ${x} ${yPos[i]}`).join(" ");
+  const areaD = `${lineD} L ${xPos[n - 1]} ${padY + chartH} L ${xPos[0]} ${padY + chartH} Z`;
+
+  const scaleTicks = [0, Math.round(maxVal / 2), maxVal];
+
+  const togglePoint = (i: number) => {
+    setSelectedIndex(selectedIndex === i ? null : i);
+  };
+
+  const showTooltip = (i: number) => selectedIndex === i || hoveredIndex === i;
+
+  return (
+    <div className="flex-1 w-full mt-4 flex items-center justify-center relative">
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full overflow-visible">
+        <defs>
+          <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0d9488" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.00" />
+          </linearGradient>
+        </defs>
+
+        <line x1={padX} y1={padY + chartH} x2={w - padX} y2={padY + chartH} stroke="#e2e8f0" strokeDasharray="3,3" className="dark:stroke-slate-700/50" />
+        <line x1={padX} y1={padY + chartH * 0.5} x2={w - padX} y2={padY + chartH * 0.5} stroke="#f1f5f9" strokeDasharray="3,3" className="dark:stroke-slate-700/50" />
+        <line x1={padX} y1={padY} x2={w - padX} y2={padY} stroke="#f1f5f9" strokeDasharray="3,3" className="dark:stroke-slate-700/50" />
+
+        {scaleTicks.map((v) => {
+          const y = padY + chartH - (v / maxVal) * chartH;
+          return (
+            <text key={v} x={padX - 8} y={y + 3} fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="end">
+              {v}
+            </text>
+          );
+        })}
+
+        <path d={areaD} fill="url(#chartGrad)" />
+        <path d={lineD} fill="none" stroke="#0d9488" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+        {xPos.map((x, i) => (
+          <g
+            key={i}
+            onClick={() => togglePoint(i)}
+            onMouseEnter={() => setHoveredIndex(i)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            className="cursor-pointer"
+          >
+            <circle cx={x} cy={yPos[i]} r="8" fill="transparent" />
+            <circle
+              cx={x}
+              cy={yPos[i]}
+              r="4"
+              fill={showTooltip(i) ? "#0f766e" : "#0d9488"}
+              stroke="#ffffff"
+              strokeWidth="1.5"
+              className="transition-colors"
+            />
+            {showTooltip(i) && (
+              <>
+                <rect
+                  x={x - 16}
+                  y={yPos[i] - 28}
+                  width="32"
+                  height="17"
+                  rx="4"
+                  fill="#0f766e"
+                  className="dark:fill-teal-700"
+                />
+                <text
+                  x={x}
+                  y={yPos[i] - 16}
+                  fill="white"
+                  fontSize="9"
+                  fontWeight="bold"
+                  textAnchor="middle"
+                >
+                  {data.values[i]}
+                </text>
+              </>
+            )}
+          </g>
+        ))}
+
+        {xPos.map((x, i) => (
+          <text key={i} x={x} y={padY + chartH + 14} fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="middle">
+            {data.labels[i]}
+          </text>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+function JadwalDokterItem({ nama, poli, jamMulai, jamSelesai }: { nama: string; poli: string; jamMulai: string; jamSelesai: string }) {
+  const now = new Date();
+  const curr = now.getHours() * 60 + now.getMinutes();
+  const startParts = jamMulai?.split(":").map(Number) || [0, 0];
+  const endParts = jamSelesai?.split(":").map(Number) || [0, 0];
+  const startMin = startParts[0] * 60 + (startParts[1] || 0);
+  const endMin = endParts[0] * 60 + (endParts[1] || 0);
+  const isActive = curr >= startMin && curr < endMin;
+
+  return (
+    <div className={`flex items-center justify-between border p-2.5 rounded-xl transition-colors ${
+      isActive
+        ? "border-brand-300 dark:border-brand-700 bg-brand-50/80 dark:bg-brand-950/30"
+        : "border-slate-50 dark:border-slate-800/80 hover:bg-slate-50/50 dark:hover:bg-slate-900/30"
+    }`}>
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 ${
+          isActive
+            ? "bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400"
+            : "bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400"
+        }`}>
+          <FaUserMd />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className={`text-xs font-bold truncate block ${isActive ? "text-brand-800 dark:text-brand-300" : "text-slate-700 dark:text-slate-200"}`}>
+              {nama}
+            </span>
+            {isActive && (
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse shrink-0" />
+            )}
+          </div>
+          <span className="text-[10px] font-semibold text-slate-400 truncate block">{poli}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className={`text-[10px] font-bold flex items-center gap-1 ${isActive ? "text-brand-600 dark:text-brand-400" : "text-slate-400"}`}>
+          <FaClock className="text-[8px]" />
+          {jamMulai}-{jamSelesai}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function MetricCard({
   title,
@@ -338,7 +528,7 @@ function MetricCard({
   colorClass,
 }: {
   title: string;
-  value: string;
+  value: number;
   trend: string;
   isUp: boolean;
   icon: React.ReactNode;
@@ -382,7 +572,7 @@ function LegendBox({
   colorClass,
 }: {
   label: string;
-  value: string;
+  value: number;
   colorClass: string;
 }) {
   return (
@@ -394,57 +584,6 @@ function LegendBox({
       <span className="text-sm font-black text-slate-700 dark:text-slate-100 mt-1 leading-none">
         {value}
       </span>
-    </div>
-  );
-}
-
-function QueueItem({
-  queueNo,
-  poliName,
-  time,
-  status,
-  statusColor,
-}: {
-  queueNo: string;
-  poliName: string;
-  time: string;
-  status: string;
-  statusColor: string;
-}) {
-  // Color code based on alphabet
-  const getBadgeColor = (char: string) => {
-    switch (char) {
-      case "A": return "bg-brand-50 border-brand-100 text-brand-700 dark:bg-brand-950/40 dark:text-brand-400 dark:border-brand-900/40";
-      case "B": return "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/40";
-      case "C": return "bg-purple-50 border-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-900/40";
-      case "D": return "bg-orange-50 border-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-900/40";
-      default: return "bg-slate-50 border-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800";
-    }
-  };
-
-  return (
-    <div className="flex items-center justify-between border border-slate-50 dark:border-slate-800/80 p-2.5 rounded-xl hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-      <div className="flex items-center gap-3 min-w-0">
-        <span
-          className={`w-12 h-6 rounded flex items-center justify-center text-[10px] font-black tracking-wide border shrink-0 ${getBadgeColor(
-            queueNo[0]
-          )}`}
-        >
-          {queueNo}
-        </span>
-        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">
-          {poliName}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-3 shrink-0">
-        <span className="text-[10px] font-bold text-slate-400">{time}</span>
-        <span
-          className={`text-[10px] font-extrabold px-2 py-0.5 rounded border tracking-wider uppercase ${statusColor}`}
-        >
-          {status}
-        </span>
-      </div>
     </div>
   );
 }
