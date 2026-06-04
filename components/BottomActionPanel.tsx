@@ -110,7 +110,7 @@ export default function BottomActionPanel({
   };
 
   return (
-    <div className="bg-white px-4 py-3 border-t border-slate-200 text-xs shadow-[0_-4px_10px_rgba(0,0,0,0.03)] z-20 shrink-0 flex flex-col gap-3 dark:bg-slate-800 dark:border-slate-700">
+    <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700/60 text-xs shrink-0 flex flex-col gap-3">
       {extraFilters && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-2 border-b border-brand-50 pb-2 mb-1 dark:border-slate-700">
           {extraFilters}

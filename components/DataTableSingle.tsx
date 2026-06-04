@@ -45,15 +45,15 @@ export default function DataTableSingle({
   return (
     <div className="flex flex-col flex-1 overflow-hidden h-full">
       {title && (
-        <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0 dark:from-slate-700 dark:to-slate-800 dark:border-slate-600">
-          <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
+        <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between shrink-0">
+          <h2 className="text-slate-700 dark:text-slate-200 font-bold text-sm flex items-center gap-2 tracking-wide">
             {icon && <span className="text-brand-600">{icon}</span>}
             {title}
           </h2>
           {onRefresh && (
             <button
               onClick={onRefresh}
-              className="p-1.5 hover:bg-brand-200 rounded-full transition-colors text-brand-700"
+              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-500"
               title="Refresh Data"
             >
               <FaSync className={isLoading ? "animate-spin" : ""} />
@@ -61,7 +61,7 @@ export default function DataTableSingle({
           )}
         </div>
       )}
-      <div className="flex-1 overflow-auto bg-slate-50/50 border-t border-slate-300 relative h-full custom-scrollbar dark:bg-slate-900/50 dark:border-slate-600">
+      <div className="flex-1 overflow-auto relative h-full custom-scrollbar">
       <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
         <thead className="sticky top-0 z-10 text-slate-600 shadow-sm backdrop-blur-md bg-white/95 border-b-2 border-brand-500 dark:text-slate-300 dark:bg-slate-800/95">
           <tr>

@@ -22,7 +22,7 @@ export default function Home() {
   const [chartLegend, setChartLegend] = useState({ pendaftaran: 0, igd: 0, ralan: 0, ranap: 0 });
   const [chartFilter, setChartFilter] = useState<"hari-ini" | "kemarin" | "tanggal">("hari-ini");
   const [chartTgl, setChartTgl] = useState(() => new Date().toISOString().split("T")[0]);
-  const [chartJenis, setChartJenis] = useState<"pendaftaran" | "igd" | "ralan" | "ranap">("ralan");
+  const [chartJenis, setChartJenis] = useState<"pendaftaran" | "igd" | "ralan" | "ranap">("pendaftaran");
   const [jadwal, setJadwal] = useState<any[]>([]);
 
   const namaInstansi = instansi?.namaInstansi || "";
