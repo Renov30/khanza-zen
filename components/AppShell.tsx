@@ -376,9 +376,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 <button className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">
                   <FaBars className="text-base" />
                 </button>
-                <h1 className="text-sm font-extrabold text-slate-800 dark:text-slate-100 tracking-tight capitalize">
-                  {getPageTitle(pathname)}
-                </h1>
+
               </div>
 
               {/* Topbar Middle (Search Mock) */}
