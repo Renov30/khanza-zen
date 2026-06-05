@@ -1418,6 +1418,134 @@ export async function hapusSkriningNutrisiAnakRanap(tanggal: string, noRawat: st
 }
 
 /**
+ * Menyimpan data skrining nutrisi lansia (Simpan).
+ * Tabel: skrining_nutrisi_lansia (MNA)
+ */
+export async function simpanSkriningNutrisiLansiaRanap(data: {
+  no_rawat: string; tanggal: string;
+  bb: string; tbpb: string; td: string; hr: string; rr: string;
+  suhu: string; spo2: string; alergi: string;
+  sg1: string; nilai1: string; sg2: string; nilai2: string;
+  sg3: string; nilai3: string; sg4: string; nilai4: string;
+  sg5: string; nilai5: string; sg6: string; nilai6: string;
+  total_hasil: string; skor_nutrisi: string;
+  nip: string;
+}) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      INSERT INTO skrining_nutrisi_lansia
+        (no_rawat, tanggal, bb, tbpb, td, hr, rr, suhu, spo2, alergi,
+         sg1, nilai1, sg2, nilai2, sg3, nilai3, sg4, nilai4,
+         sg5, nilai5, sg6, nilai6,
+         total_hasil, skor_nutrisi, nip)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        tanggal=VALUES(tanggal), bb=VALUES(bb), tbpb=VALUES(tbpb),
+        td=VALUES(td), hr=VALUES(hr), rr=VALUES(rr),
+        suhu=VALUES(suhu), spo2=VALUES(spo2), alergi=VALUES(alergi),
+        sg1=VALUES(sg1), nilai1=VALUES(nilai1),
+        sg2=VALUES(sg2), nilai2=VALUES(nilai2),
+        sg3=VALUES(sg3), nilai3=VALUES(nilai3),
+        sg4=VALUES(sg4), nilai4=VALUES(nilai4),
+        sg5=VALUES(sg5), nilai5=VALUES(nilai5),
+        sg6=VALUES(sg6), nilai6=VALUES(nilai6),
+        total_hasil=VALUES(total_hasil), skor_nutrisi=VALUES(skor_nutrisi),
+        nip=VALUES(nip)
+    `, [
+      data.no_rawat, data.tanggal,
+      data.bb || "", data.tbpb || "", data.td || "", data.hr || "",
+      data.rr || "", data.suhu || "", data.spo2 || "", data.alergi || "",
+      data.sg1, data.nilai1, data.sg2, data.nilai2,
+      data.sg3, data.nilai3, data.sg4, data.nilai4,
+      data.sg5, data.nilai5, data.sg6, data.nilai6,
+      data.total_hasil, data.skor_nutrisi, data.nip,
+    ]);
+
+    return { success: true, message: "Data skrining nutrisi lansia berhasil disimpan" };
+  } catch (error: any) {
+    console.error("Error saving skrining nutrisi lansia:", error);
+    return { success: false, message: "Gagal menyimpan data skrining nutrisi lansia", error: error.message };
+  }
+}
+
+/**
+ * Mengedit data skrining nutrisi lansia (Ganti).
+ * UPDATE skrining_nutrisi_lansia WHERE tanggal=? AND no_rawat=?.
+ */
+export async function editSkriningNutrisiLansiaRanap(
+  oldTanggal: string,
+  oldNoRawat: string,
+  newData: {
+    no_rawat: string; tanggal: string;
+    bb: string; tbpb: string; td: string; hr: string; rr: string;
+    suhu: string; spo2: string; alergi: string;
+    sg1: string; nilai1: string; sg2: string; nilai2: string;
+    sg3: string; nilai3: string; sg4: string; nilai4: string;
+    sg5: string; nilai5: string; sg6: string; nilai6: string;
+    total_hasil: string; skor_nutrisi: string;
+    nip: string;
+  },
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      UPDATE skrining_nutrisi_lansia SET
+        no_rawat=?, tanggal=?, bb=?, tbpb=?, td=?, hr=?, rr=?, suhu=?, spo2=?, alergi=?,
+        sg1=?, nilai1=?, sg2=?, nilai2=?, sg3=?, nilai3=?, sg4=?, nilai4=?,
+        sg5=?, nilai5=?, sg6=?, nilai6=?,
+        total_hasil=?, skor_nutrisi=?, nip=?
+      WHERE tanggal=? AND no_rawat=?
+    `, [
+      newData.no_rawat, newData.tanggal,
+      newData.bb || "", newData.tbpb || "", newData.td || "", newData.hr || "",
+      newData.rr || "", newData.suhu || "", newData.spo2 || "", newData.alergi || "",
+      newData.sg1, newData.nilai1, newData.sg2, newData.nilai2,
+      newData.sg3, newData.nilai3, newData.sg4, newData.nilai4,
+      newData.sg5, newData.nilai5, newData.sg6, newData.nilai6,
+      newData.total_hasil, newData.skor_nutrisi, newData.nip,
+      oldTanggal, oldNoRawat,
+    ]);
+
+    return { success: true, message: "Data skrining nutrisi lansia berhasil diubah" };
+  } catch (error: any) {
+    console.error("Error editing skrining nutrisi lansia:", error);
+    return { success: false, message: "Gagal mengubah data skrining nutrisi lansia", error: error.message };
+  }
+}
+
+/**
+ * Menghapus data skrining nutrisi lansia (Hapus).
+ * DELETE dari skrining_nutrisi_lansia WHERE tanggal=? AND no_rawat=?.
+ */
+export async function hapusSkriningNutrisiLansiaRanap(tanggal: string, noRawat: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute("DELETE FROM skrining_nutrisi_lansia WHERE tanggal=? AND no_rawat=?", [tanggal, noRawat]);
+
+    return { success: true, message: "Data skrining nutrisi lansia berhasil dihapus" };
+  } catch (error: any) {
+    console.error("Error deleting skrining nutrisi lansia:", error);
+    return { success: false, message: "Gagal menghapus data skrining nutrisi lansia", error: error.message };
+  }
+}
+
+/**
  * Mengambil data skrining nutrisi lansia pasien rawat inap.
  * Tabel: skrining_nutrisi_lansia (MNA)
  */

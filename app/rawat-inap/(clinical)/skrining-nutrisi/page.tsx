@@ -8,11 +8,12 @@ import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import FormSection from '@/components/FormSection';
 import DialogPilihPegawai from '@/components/DialogPilihPegawai';
-import { getPatientInfoByNoRawat, getSkriningNutrisiRanap, getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap, getLoggedInPegawai, simpanSkriningNutrisiRanap, editSkriningNutrisiRanap, hapusSkriningNutrisiRanap, simpanSkriningNutrisiAnakRanap, editSkriningNutrisiAnakRanap, hapusSkriningNutrisiAnakRanap } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getSkriningNutrisiRanap, getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap, getLoggedInPegawai, simpanSkriningNutrisiRanap, editSkriningNutrisiRanap, hapusSkriningNutrisiRanap, simpanSkriningNutrisiAnakRanap, editSkriningNutrisiAnakRanap, hapusSkriningNutrisiAnakRanap, simpanSkriningNutrisiLansiaRanap, editSkriningNutrisiLansiaRanap, hapusSkriningNutrisiLansiaRanap } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
 interface SkriningNutrisiRow {
+  id: string;
   no_rawat: string; no_rkm_medis: string; nm_pasien: string;
   tgl_lahir: string; jk: string; tanggal: string;
   bb: string; lila: string; tbpb: string;
@@ -20,6 +21,32 @@ interface SkriningNutrisiRow {
   alergi: string;
   sg1: string; nilai1: string; sg2: string; nilai2: string;
   sg3: string; total_hasil: string;
+  nip: string; nm_petugas: string;
+}
+
+interface SkriningNutrisiAnakRow {
+  id: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  tgl_lahir: string; jk: string; tanggal: string;
+  bb: string; tbpb: string; td: string; hr: string; rr: string; suhu: string; spo2: string;
+  alergi: string;
+  sg1: string; nilai1: string; sg2: string; nilai2: string;
+  sg3: string; nilai3: string; sg4: string; nilai4: string;
+  total_hasil: string; skor_nutrisi: string;
+  diketahui_dietisien: string; keterangan_diketahui_dietisien: string;
+  nip: string; nm_petugas: string;
+}
+
+interface SkriningNutrisiLansiaRow {
+  id: string;
+  no_rawat: string; no_rkm_medis: string; nm_pasien: string;
+  tgl_lahir: string; jk: string; tanggal: string;
+  bb: string; tbpb: string; td: string; hr: string; rr: string; suhu: string; spo2: string;
+  alergi: string;
+  sg1: string; nilai1: string; sg2: string; nilai2: string;
+  sg3: string; nilai3: string; sg4: string; nilai4: string;
+  sg5: string; nilai5: string; sg6: string; nilai6: string;
+  total_hasil: string; skor_nutrisi: string;
   nip: string; nm_petugas: string;
 }
 
@@ -263,6 +290,8 @@ function SkriningNutrisiContent() {
   const [aKetDiketahui, setAKetDiketahui] = useState('');
   const [isEditModeAnak, setIsEditModeAnak] = useState(false);
   const [selectedRowIdxAnak, setSelectedRowIdxAnak] = useState<number | null>(null);
+  const [isEditModeLansia, setIsEditModeLansia] = useState(false);
+  const [selectedRowIdxLansia, setSelectedRowIdxLansia] = useState<number | null>(null);
 
   // === Form state: Lansia ===
   const [lBB, setLBB] = useState(''); const [lTBPB, setLTBPB] = useState('');
@@ -592,6 +621,104 @@ function SkriningNutrisiContent() {
     await handleSimpanAnak();
   };
 
+  // === CRUD: Lansia ===
+  const resetFormLansia = () => {
+    setLSG1('Asupan Makan Tidak Berkurang'); setLSG2('Tidak Ada Penurunan Berat Badan');
+    setLSG3('Dapat Bepergian Keluar Rumah'); setLSG4('Tidak');
+    setLSG5('Tidak Ada Gangguan Psikologis'); setLSG6('IMT >= 23');
+    setLN1('0'); setLN2('0'); setLN3('0'); setLN4('0'); setLN5('0'); setLN6('0');
+    setLTotal('0'); setLSkorNutrisi('');
+    setIsEditModeLansia(false);
+    setSelectedRowIdxLansia(null);
+    setSelectedRows([]);
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+  };
+
+  const populateFormLansia = (row: SkriningNutrisiLansiaRow, idx: number) => {
+    setLSG1(row.sg1 ?? 'Asupan Makan Tidak Berkurang'); setLSG2(row.sg2 ?? 'Tidak Ada Penurunan Berat Badan');
+    setLSG3(row.sg3 ?? 'Dapat Bepergian Keluar Rumah'); setLSG4(row.sg4 ?? 'Tidak');
+    setLSG5(row.sg5 ?? 'Tidak Ada Gangguan Psikologis'); setLSG6(row.sg6 ?? 'IMT >= 23');
+    setLN1(row.nilai1 ?? '0'); setLN2(row.nilai2 ?? '0'); setLN3(row.nilai3 ?? '0');
+    setLN4(row.nilai4 ?? '0'); setLN5(row.nilai5 ?? '0'); setLN6(row.nilai6 ?? '0');
+    setLTotal(row.total_hasil ?? '0'); setLSkorNutrisi(row.skor_nutrisi ?? '');
+    if (row.tanggal) {
+      const parts = row.tanggal.split(' ');
+      setCurrentDate(parts[0] || currentDate);
+      setCurrentTime(parts[1] || currentTime);
+    }
+    setIsEditModeLansia(true);
+    setSelectedRowIdxLansia(idx);
+    setFormOpen(true);
+  };
+
+  const handleSimpanLansia = async () => {
+    if (!noRawat) return;
+    const payload = {
+      no_rawat: noRawat,
+      tanggal: `${currentDate} ${currentTime}`,
+      bb: lBB, tbpb: lTBPB, td: lTD, hr: lHR, rr: lRR,
+      suhu: lSuhu, spo2: lSpO2, alergi: lAlergi,
+      sg1: lSG1, nilai1: lN1, sg2: lSG2, nilai2: lN2,
+      sg3: lSG3, nilai3: lN3, sg4: lSG4, nilai4: lN4,
+      sg5: lSG5, nilai5: lN5, sg6: lSG6, nilai6: lN6,
+      total_hasil: lTotal, skor_nutrisi: lSkorNutrisi,
+      nip: pegawaiNik,
+    };
+
+    let result;
+    if (isEditModeLansia && selectedRowIdxLansia !== null) {
+      const oldRow = dataLansia[selectedRowIdxLansia];
+      result = await editSkriningNutrisiLansiaRanap(oldRow.tanggal, oldRow.no_rawat, payload);
+    } else {
+      result = await simpanSkriningNutrisiLansiaRanap(payload);
+    }
+
+    if (result.success) {
+      resetFormLansia();
+      fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menyimpan data');
+    }
+  };
+
+  const handleBaruLansia = () => {
+    resetFormLansia();
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+    setFormOpen(true);
+  };
+
+  const handleHapusLansia = async () => {
+    if (selectedRowIdxLansia === null || selectedRowIdxLansia < 0 || selectedRowIdxLansia >= dataLansia.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    if (!confirm('Yakin akan menghapus data skrining nutrisi lansia ini?')) return;
+    const row = dataLansia[selectedRowIdxLansia];
+    const result = await hapusSkriningNutrisiLansiaRanap(row.tanggal, row.no_rawat);
+    if (result.success) {
+      resetFormLansia();
+      fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menghapus data');
+    }
+  };
+
+  const handleGantiLansia = async () => {
+    if (!isEditModeLansia || selectedRowIdxLansia === null) {
+      alert('Silakan pilih data yang akan diganti terlebih dahulu.');
+      return;
+    }
+    await handleSimpanLansia();
+  };
+
   if (!mounted) return null;
 
   const currentData = activeTab === 'dewasa' ? dataDewasa : activeTab === 'anak' ? dataAnak : dataLansia;
@@ -888,6 +1015,9 @@ function SkriningNutrisiContent() {
                 } else if (activeTab === 'anak') {
                   const idx = dataAnak.findIndex(r => r.id === row.id);
                   if (idx >= 0) populateFormAnak(row, idx);
+                } else if (activeTab === 'lansia') {
+                  const idx = dataLansia.findIndex(r => r.id === row.id);
+                  if (idx >= 0) populateFormLansia(row, idx);
                 }
               }}
               isLoading={isLoadingData}
@@ -930,10 +1060,10 @@ function SkriningNutrisiContent() {
         onSelect={handlePilihPegawai}
       />
       <BottomActionPanel
-        onSave={activeTab === 'dewasa' ? handleSimpanDewasa : activeTab === 'anak' ? handleSimpanAnak : undefined}
-        onNew={activeTab === 'dewasa' ? handleBaruDewasa : activeTab === 'anak' ? handleBaruAnak : undefined}
-        onReplace={activeTab === 'dewasa' ? handleGantiDewasa : activeTab === 'anak' ? handleGantiAnak : undefined}
-        onDelete={activeTab === 'dewasa' ? handleHapusDewasa : activeTab === 'anak' ? handleHapusAnak : undefined}
+        onSave={activeTab === 'dewasa' ? handleSimpanDewasa : activeTab === 'anak' ? handleSimpanAnak : activeTab === 'lansia' ? handleSimpanLansia : undefined}
+        onNew={activeTab === 'dewasa' ? handleBaruDewasa : activeTab === 'anak' ? handleBaruAnak : activeTab === 'lansia' ? handleBaruLansia : undefined}
+        onReplace={activeTab === 'dewasa' ? handleGantiDewasa : activeTab === 'anak' ? handleGantiAnak : activeTab === 'lansia' ? handleGantiLansia : undefined}
+        onDelete={activeTab === 'dewasa' ? handleHapusDewasa : activeTab === 'anak' ? handleHapusAnak : activeTab === 'lansia' ? handleHapusLansia : undefined}
         recordCount={currentData.length}
         onExit={() => router.push('/rawat-inap')}
         searchValue={searchKeyword}
