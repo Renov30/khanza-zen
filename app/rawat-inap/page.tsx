@@ -160,7 +160,7 @@ export default function RawatInap() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
-      className="flex flex-col w-full h-full overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-inner border-t border-l border-white dark:border-t-white/5 dark:border-l-white/5"
+      className="flex flex-col w-full h-full overflow-hidden bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-inner border-t border-l border-white dark:border-t-white/5 dark:border-l-white/5"
     >
       <DataTableSingle
         title="Daftar Pasien Rawat Inap"

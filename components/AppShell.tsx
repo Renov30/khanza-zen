@@ -636,7 +636,7 @@ function ShortcutMenuItem({
       className={`group flex flex-col items-center justify-center gap-0.5 md:gap-1 min-w-[44px] md:min-w-[70px] lg:min-w-[76px] p-1 md:p-2 rounded-xl transition-all duration-150 border ${active ? "border-brand-200 bg-brand-50/60 shadow-sm dark:bg-slate-800 dark:border-white/15" : "border-transparent"} hover:border-brand-100 hover:bg-brand-50/60 dark:hover:border-white/15 dark:hover:bg-slate-700 hover:shadow-sm`}
     >
       <span
-        className={`text-lg md:text-xl lg:text-2xl drop-shadow-sm ${active && !isRed ? "text-brand-600" : "dark:text-slate-300"}`}
+        className={`text-lg md:text-xl lg:text-2xl ${active && !isRed ? "text-brand-600" : "dark:text-slate-300"}`}
       >
         {icon}
       </span>

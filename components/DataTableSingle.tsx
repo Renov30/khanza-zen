@@ -43,17 +43,17 @@ export default function DataTableSingle({
   };
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden h-full">
+    <div className="flex flex-col flex-1 overflow-hidden h-full bg-white">
       {title && (
-        <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between shrink-0">
-          <h2 className="text-slate-700 dark:text-slate-200 font-bold text-sm flex items-center gap-2 tracking-wide">
+        <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-2 border-b border-brand-100 flex items-center justify-between shadow-sm z-10 shrink-0 dark:from-slate-700 dark:to-slate-800 dark:border-slate-600">
+          <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
             {icon && <span className="text-brand-600">{icon}</span>}
             {title}
           </h2>
           {onRefresh && (
             <button
               onClick={onRefresh}
-              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-500"
+              className="p-1.5 hover:bg-brand-200 rounded-full transition-colors text-brand-700"
               title="Refresh Data"
             >
               <FaSync className={isLoading ? "animate-spin" : ""} />
