@@ -8,7 +8,7 @@ import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import FormSection from '@/components/FormSection';
 import DialogPilihPegawai from '@/components/DialogPilihPegawai';
-import { getPatientInfoByNoRawat, getSkriningNutrisiRanap, getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap, getLoggedInPegawai, simpanSkriningNutrisiRanap, editSkriningNutrisiRanap, hapusSkriningNutrisiRanap } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getSkriningNutrisiRanap, getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap, getLoggedInPegawai, simpanSkriningNutrisiRanap, editSkriningNutrisiRanap, hapusSkriningNutrisiRanap, simpanSkriningNutrisiAnakRanap, editSkriningNutrisiAnakRanap, hapusSkriningNutrisiAnakRanap } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
@@ -261,6 +261,8 @@ function SkriningNutrisiContent() {
   const [aSkorNutrisi, setASkorNutrisi] = useState('');
   const [aDiketahui, setADiketahui] = useState('Tidak');
   const [aKetDiketahui, setAKetDiketahui] = useState('');
+  const [isEditModeAnak, setIsEditModeAnak] = useState(false);
+  const [selectedRowIdxAnak, setSelectedRowIdxAnak] = useState<number | null>(null);
 
   // === Form state: Lansia ===
   const [lBB, setLBB] = useState(''); const [lTBPB, setLTBPB] = useState('');
@@ -369,9 +371,9 @@ function SkriningNutrisiContent() {
     setAN1(n1.toString()); setAN2(n2.toString()); setAN3(n3.toString()); setAN4(n4.toString());
     const total = n1 + n2 + n3 + n4;
     setATotal(total.toString());
-    if (total === 0) setASkorNutrisi('Risiko rendah');
-    else if (total <= 2) setASkorNutrisi('Risiko sedang');
-    else setASkorNutrisi('Risiko tinggi');
+    if (total === 0) setASkorNutrisi('Risiko Rendah');
+    else if (total <= 3) setASkorNutrisi('Risiko Sedang');
+    else setASkorNutrisi('Risikio Berat');
   }, [aSG1, aSG2, aSG3, aSG4]);
 
   // === Auto-score: Lansia (MNA) ===
@@ -488,6 +490,106 @@ function SkriningNutrisiContent() {
       return;
     }
     await handleSimpanDewasa();
+  };
+
+  // === CRUD: Anak ===
+  const resetFormAnak = () => {
+    setABB(''); setATBPB(''); setATD(''); setAHR('');
+    setARR(''); setASuhu(''); setASpO2(''); setAAlergi('');
+    setASG1('Tidak'); setASG2('Tidak'); setASG3('Tidak'); setASG4('Tidak');
+    setATotal('0'); setASkorNutrisi('');
+    setADiketahui('Tidak'); setAKetDiketahui('');
+    setIsEditModeAnak(false);
+    setSelectedRowIdxAnak(null);
+    setSelectedRows([]);
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+  };
+
+  const populateFormAnak = (row: SkriningNutrisiAnakRow, idx: number) => {
+    setABB(row.bb ?? ''); setATBPB(row.tbpb ?? '');
+    setATD(row.td ?? ''); setAHR(row.hr ?? ''); setARR(row.rr ?? '');
+    setASuhu(row.suhu ?? ''); setASpO2(row.spo2 ?? ''); setAAlergi(row.alergi ?? '');
+    setASG1(row.sg1 ?? 'Tidak'); setASG2(row.sg2 ?? 'Tidak');
+    setASG3(row.sg3 ?? 'Tidak'); setASG4(row.sg4 ?? 'Tidak');
+    setATotal(row.total_hasil ?? '0'); setASkorNutrisi(row.skor_nutrisi ?? '');
+    setADiketahui(row.diketahui_dietisien ?? 'Tidak');
+    setAKetDiketahui(row.keterangan_diketahui_dietisien ?? '');
+    if (row.tanggal) {
+      const parts = row.tanggal.split(' ');
+      setCurrentDate(parts[0] || currentDate);
+      setCurrentTime(parts[1] || currentTime);
+    }
+    setIsEditModeAnak(true);
+    setSelectedRowIdxAnak(idx);
+    setFormOpen(true);
+  };
+
+  const handleSimpanAnak = async () => {
+    if (!noRawat) return;
+    const payload = {
+      no_rawat: noRawat,
+      tanggal: `${currentDate} ${currentTime}`,
+      bb: aBB, tbpb: aTBPB, td: aTD, hr: aHR, rr: aRR,
+      suhu: aSuhu, spo2: aSpO2, alergi: aAlergi,
+      sg1: aSG1, nilai1: aN1, sg2: aSG2, nilai2: aN2,
+      sg3: aSG3, nilai3: aN3, sg4: aSG4, nilai4: aN4,
+      total_hasil: aTotal, skor_nutrisi: aSkorNutrisi,
+      diketahui_dietisien: aDiketahui, keterangan_diketahui_dietisien: aKetDiketahui,
+      nip: pegawaiNik,
+    };
+
+    let result;
+    if (isEditModeAnak && selectedRowIdxAnak !== null) {
+      const oldRow = dataAnak[selectedRowIdxAnak];
+      result = await editSkriningNutrisiAnakRanap(oldRow.tanggal, oldRow.no_rawat, payload);
+    } else {
+      result = await simpanSkriningNutrisiAnakRanap(payload);
+    }
+
+    if (result.success) {
+      resetFormAnak();
+      fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menyimpan data');
+    }
+  };
+
+  const handleBaruAnak = () => {
+    resetFormAnak();
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+    setFormOpen(true);
+  };
+
+  const handleHapusAnak = async () => {
+    if (selectedRowIdxAnak === null || selectedRowIdxAnak < 0 || selectedRowIdxAnak >= dataAnak.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    if (!confirm('Yakin akan menghapus data skrining nutrisi anak ini?')) return;
+    const row = dataAnak[selectedRowIdxAnak];
+    const result = await hapusSkriningNutrisiAnakRanap(row.tanggal, row.no_rawat);
+    if (result.success) {
+      resetFormAnak();
+      fetchAllData(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menghapus data');
+    }
+  };
+
+  const handleGantiAnak = async () => {
+    if (!isEditModeAnak || selectedRowIdxAnak === null) {
+      alert('Silakan pilih data yang akan diganti terlebih dahulu.');
+      return;
+    }
+    await handleSimpanAnak();
   };
 
   if (!mounted) return null;
@@ -783,6 +885,9 @@ function SkriningNutrisiContent() {
                 if (activeTab === 'dewasa') {
                   const idx = dataDewasa.findIndex(r => r.id === row.id);
                   if (idx >= 0) populateFormDewasa(row, idx);
+                } else if (activeTab === 'anak') {
+                  const idx = dataAnak.findIndex(r => r.id === row.id);
+                  if (idx >= 0) populateFormAnak(row, idx);
                 }
               }}
               isLoading={isLoadingData}
@@ -825,10 +930,10 @@ function SkriningNutrisiContent() {
         onSelect={handlePilihPegawai}
       />
       <BottomActionPanel
-        onSave={activeTab === 'dewasa' ? handleSimpanDewasa : undefined}
-        onNew={activeTab === 'dewasa' ? handleBaruDewasa : undefined}
-        onReplace={activeTab === 'dewasa' ? handleGantiDewasa : undefined}
-        onDelete={activeTab === 'dewasa' ? handleHapusDewasa : undefined}
+        onSave={activeTab === 'dewasa' ? handleSimpanDewasa : activeTab === 'anak' ? handleSimpanAnak : undefined}
+        onNew={activeTab === 'dewasa' ? handleBaruDewasa : activeTab === 'anak' ? handleBaruAnak : undefined}
+        onReplace={activeTab === 'dewasa' ? handleGantiDewasa : activeTab === 'anak' ? handleGantiAnak : undefined}
+        onDelete={activeTab === 'dewasa' ? handleHapusDewasa : activeTab === 'anak' ? handleHapusAnak : undefined}
         recordCount={currentData.length}
         onExit={() => router.push('/rawat-inap')}
         searchValue={searchKeyword}
