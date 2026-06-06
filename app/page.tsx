@@ -408,10 +408,10 @@ function ChartSVG({ data }: { data: { labels: string[]; values: number[]; total:
         <line x1={padX} y1={padY + chartH * 0.5} x2={w - padX} y2={padY + chartH * 0.5} stroke="#f1f5f9" strokeDasharray="3,3" className="dark:stroke-slate-700/50" />
         <line x1={padX} y1={padY} x2={w - padX} y2={padY} stroke="#f1f5f9" strokeDasharray="3,3" className="dark:stroke-slate-700/50" />
 
-        {scaleTicks.map((v) => {
+        {scaleTicks.map((v, i) => {
           const y = padY + chartH - (v / maxVal) * chartH;
           return (
-            <text key={v} x={padX - 8} y={y + 3} fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="end">
+            <text key={i} x={padX - 8} y={y + 3} fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="end">
               {v}
             </text>
           );
