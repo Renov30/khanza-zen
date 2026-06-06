@@ -44,7 +44,7 @@ export default function TopFormContainer({
   };
 
   return (
-    <div className="bg-white shadow-sm z-0 shrink-0 flex flex-col dark:bg-slate-800">
+    <div className="bg-white z-0 shrink-0 flex flex-col dark:bg-slate-800">
       {!isControlled && (
         <button
           onClick={handleToggle}
@@ -64,7 +64,7 @@ export default function TopFormContainer({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden border-b border-slate-200 dark:border-slate-700"
+            className="overflow-hidden"
           >
             <div className="p-3 bg-white dark:bg-slate-800">
               {children}
