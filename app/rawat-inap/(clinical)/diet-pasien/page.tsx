@@ -8,7 +8,7 @@ import BottomActionPanel from '@/components/BottomActionPanel';
 import TopFormContainer from '@/components/TopFormContainer';
 import FormSection from '@/components/FormSection';
 import DialogPilihPegawai from '@/components/DialogPilihPegawai';
-import { getPatientInfoByNoRawat, getDietPasienRanap, getDaftarDiet, getJamDiet, getLoggedInPegawai } from '@/lib/actions/ranap';
+import { getPatientInfoByNoRawat, getDietPasienRanap, getDaftarDiet, getJamDiet, getLoggedInPegawai, simpanDietPasienRanap, editDietPasienRanap, hapusDietPasienRanap, getKamarPasienRanap } from '@/lib/actions/ranap';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
 
@@ -78,11 +78,14 @@ function DietPasienContent() {
   const [pegawaiNik, setPegawaiNik] = useState('');
   const [pegawaiNama, setPegawaiNama] = useState('');
 
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [oldPk, setOldPk] = useState<{no_rawat: string; tanggal: string; waktu: string; kd_diet: string} | null>(null);
   const [formTanggal, setFormTanggal] = useState(today);
   const [formWaktu, setFormWaktu] = useState('');
   const [formKdDiet, setFormKdDiet] = useState('');
   const [formNmDiet, setFormNmDiet] = useState('');
   const [formKeterangan, setFormKeterangan] = useState('');
+  const [formKdKamar, setFormKdKamar] = useState('');
 
   const [dietOptions, setDietOptions] = useState<DietOption[]>([]);
   const [jamDietOptions, setJamDietOptions] = useState<JamDietOption[]>([]);
@@ -150,19 +153,124 @@ function DietPasienContent() {
     } catch {}
   }, []);
 
+  const fetchKamar = useCallback(async (nrw: string) => {
+    if (!nrw.trim()) return;
+    try {
+      const result = await getKamarPasienRanap(nrw);
+      if (result.success && result.data) {
+        setFormKdKamar(result.data.kd_kamar);
+      }
+    } catch {}
+  }, []);
+
   useEffect(() => {
     setMounted(true);
     fetchPegawaiInfo();
     if (noRawatParam) {
       fetchPatientInfo(noRawatParam);
+      fetchKamar(noRawatParam);
     }
-  }, [noRawatParam, fetchPatientInfo, fetchPegawaiInfo]);
+  }, [noRawatParam, fetchPatientInfo, fetchPegawaiInfo, fetchKamar]);
 
   useEffect(() => {
     if (noRawat) fetchDiet(noRawat, searchKeyword, tglAwal, tglAkhir);
   }, [noRawat, searchKeyword, tglAwal, tglAkhir]);
 
   if (!mounted) return null;
+
+  const resetForm = () => {
+    setFormTanggal(today);
+    setFormWaktu('');
+    setFormKdDiet('');
+    setFormNmDiet('');
+    setFormKeterangan('');
+    setFormKdKamar('');
+    setIsEditMode(false);
+    setOldPk(null);
+    setSelectedRows([]);
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+    if (noRawat) fetchKamar(noRawat);
+  };
+
+  const populateFormFromRow = (row: any) => {
+    setFormTanggal(row.tanggal ?? '');
+    setFormWaktu(row.waktu ?? '');
+    setFormKdDiet(row.kd_diet ?? '');
+    setFormNmDiet(row.nama_diet ?? '');
+    setFormKeterangan(row.keterangan ?? '');
+    setFormKdKamar(row.kd_kamar ?? '');
+    setCurrentDate(row.tanggal || currentDate);
+    setOldPk({ no_rawat: row.no_rawat, tanggal: row.tanggal, waktu: row.waktu, kd_diet: row.kd_diet });
+    setIsEditMode(true);
+    setFormOpen(true);
+  };
+
+  const handleSimpanDiet = async () => {
+    if (!noRawat) return;
+    if (!formWaktu) { alert('Silakan pilih waktu diet terlebih dahulu.'); return; }
+    if (!formKdDiet) { alert('Silakan pilih diet terlebih dahulu.'); return; }
+    if (!formKdKamar) { alert('Kamar pasien belum ditemukan.'); return; }
+
+    const payload = {
+      no_rawat: noRawat,
+      kd_kamar: formKdKamar,
+      tanggal: formTanggal,
+      waktu: formWaktu,
+      kd_diet: formKdDiet,
+      keterangan: formKeterangan,
+    };
+
+    let result;
+    if (isEditMode && oldPk) {
+      result = await editDietPasienRanap(oldPk.no_rawat, oldPk.tanggal, oldPk.waktu, oldPk.kd_diet, payload);
+    } else {
+      result = await simpanDietPasienRanap(payload);
+    }
+
+    if (result.success) {
+      resetForm();
+      fetchDiet(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menyimpan data');
+    }
+  };
+
+  const handleBaruDiet = () => {
+    resetForm();
+    if (isClockRunning) {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split('T')[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    }
+    setFormOpen(true);
+  };
+
+  const handleHapusDiet = async () => {
+    if (!oldPk) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    if (!confirm('Yakin akan menghapus data diet pasien ini?')) return;
+    const result = await hapusDietPasienRanap(oldPk.no_rawat, oldPk.tanggal, oldPk.waktu, oldPk.kd_diet);
+    if (result.success) {
+      resetForm();
+      fetchDiet(noRawat, searchKeyword, tglAwal, tglAkhir);
+    } else {
+      alert(result.message || 'Gagal menghapus data');
+    }
+  };
+
+  const handleGantiDiet = async () => {
+    if (!isEditMode || !oldPk) {
+      alert('Silakan pilih data yang akan diganti terlebih dahulu.');
+      return;
+    }
+    await handleSimpanDiet();
+  };
 
   const handleBottomSearch = () => fetchDiet(noRawat, searchKeyword, tglAwal, tglAkhir);
 
@@ -271,6 +379,7 @@ function DietPasienContent() {
               idKey="id"
               selectedIds={selectedRows}
               onSelectionChange={setSelectedRows}
+              onRowClick={(row: any) => populateFormFromRow(row)}
               isLoading={isLoadingData}
               emptyMessage="Tidak ada data diet pasien yang ditemukan."
             />
@@ -296,6 +405,7 @@ function DietPasienContent() {
                     idKey="id"
                     selectedIds={selectedRows}
                     onSelectionChange={setSelectedRows}
+                    onRowClick={(row: any) => populateFormFromRow(row)}
                     isLoading={isLoadingData}
                   />
                 </div>
@@ -311,6 +421,10 @@ function DietPasienContent() {
         onSelect={handlePilihPegawai}
       />
       <BottomActionPanel
+        onSave={handleSimpanDiet}
+        onNew={handleBaruDiet}
+        onReplace={handleGantiDiet}
+        onDelete={handleHapusDiet}
         recordCount={dietData.length}
         onExit={() => router.push('/rawat-inap')}
         searchValue={searchKeyword}

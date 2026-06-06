@@ -1911,6 +1911,115 @@ export async function getJamDiet() {
 }
 
 /**
+ * Mendapatkan kd_kamar pasien rawat inap.
+ */
+export async function getKamarPasienRanap(noRawat: string) {
+  try {
+    const query = `
+      SELECT kd_kamar FROM kamar_inap
+      WHERE no_rawat = ?
+      ORDER BY tgl_masuk DESC
+      LIMIT 1
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    if (rows.length > 0) {
+      return { success: true, data: { kd_kamar: rows[0].kd_kamar } };
+    }
+    return { success: false, message: "Kamar tidak ditemukan" };
+  } catch (error: any) {
+    console.error("Error fetching kamar pasien:", error);
+    return { success: false, message: "Gagal mengambil kamar pasien", error: error.message };
+  }
+}
+
+/**
+ * Menyimpan data diet pasien (Simpan).
+ * INSERT ke tabel detail_beri_diet.
+ * Ported from DlgPemberianDiet.java BtnSimpanActionPerformed.
+ */
+export async function simpanDietPasienRanap(data: {
+  no_rawat: string; kd_kamar: string; tanggal: string;
+  waktu: string; kd_diet: string; keterangan: string;
+}) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      INSERT INTO detail_beri_diet (no_rawat, kd_kamar, tanggal, waktu, kd_diet, keterangan)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `, [data.no_rawat, data.kd_kamar, data.tanggal, data.waktu, data.kd_diet, data.keterangan]);
+
+    return { success: true, message: "Data diet pasien berhasil disimpan" };
+  } catch (error: any) {
+    console.error("Error saving diet pasien:", error);
+    return { success: false, message: "Gagal menyimpan data diet pasien", error: error.message };
+  }
+}
+
+/**
+ * Mengedit data diet pasien (Ganti).
+ * UPDATE tabel detail_beri_diet WHERE no_rawat=? AND tanggal=? AND waktu=? AND kd_diet=?.
+ */
+export async function editDietPasienRanap(
+  oldNoRawat: string, oldTanggal: string, oldWaktu: string, oldKdDiet: string,
+  newData: {
+    no_rawat: string; kd_kamar: string; tanggal: string;
+    waktu: string; kd_diet: string; keterangan: string;
+  },
+) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(`
+      UPDATE detail_beri_diet SET
+        no_rawat=?, kd_kamar=?, tanggal=?, waktu=?, kd_diet=?, keterangan=?
+      WHERE no_rawat=? AND tanggal=? AND waktu=? AND kd_diet=?
+    `, [
+      newData.no_rawat, newData.kd_kamar, newData.tanggal, newData.waktu, newData.kd_diet, newData.keterangan,
+      oldNoRawat, oldTanggal, oldWaktu, oldKdDiet,
+    ]);
+
+    return { success: true, message: "Data diet pasien berhasil diubah" };
+  } catch (error: any) {
+    console.error("Error editing diet pasien:", error);
+    return { success: false, message: "Gagal mengubah data diet pasien", error: error.message };
+  }
+}
+
+/**
+ * Menghapus data diet pasien (Hapus).
+ * DELETE dari tabel detail_beri_diet WHERE no_rawat=? AND tanggal=? AND waktu=? AND kd_diet=?.
+ * Ported from DlgPemberianDiet.java BtnHapusActionPerformed.
+ */
+export async function hapusDietPasienRanap(noRawat: string, tanggal: string, waktu: string, kdDiet: string) {
+  try {
+    const { getSession } = await import("@/lib/auth");
+    const session = await getSession();
+    if (!session || !session.id) {
+      return { success: false, message: "Sesi tidak ditemukan" };
+    }
+
+    await db.execute(
+      "DELETE FROM detail_beri_diet WHERE no_rawat=? AND tanggal=? AND waktu=? AND kd_diet=?",
+      [noRawat, tanggal, waktu, kdDiet],
+    );
+
+    return { success: true, message: "Data diet pasien berhasil dihapus" };
+  } catch (error: any) {
+    console.error("Error deleting diet pasien:", error);
+    return { success: false, message: "Gagal menghapus data diet pasien", error: error.message };
+  }
+}
+
+/**
  * Mengambil riwayat kunjungan pasien (Tab 0).
  * Meniru tampilKunjungan() dari RMRiwayatPerawatanRanap.java.
  * Filter mode: "5terakhir", "semua", "tanggal", "norawat"
