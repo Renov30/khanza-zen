@@ -640,7 +640,7 @@ function PemeriksaanContent() {
   return (
     <>
       {/* Tab */}
-      <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
+      <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-1 sm:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {[
           "Penanganan Dokter",
           "Penanganan Petugas",
@@ -658,7 +658,7 @@ function PemeriksaanContent() {
               onClick={() =>
                 setActiveTab(tab === "Pemeriksaan / CPPT" ? "cppt" : tabId)
               }
-              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? "text-brand-700 dark:text-brand-400 font-bold" : "text-slate-500 dark:text-slate-400 hover:text-brand-600"}`}
+              className={`px-1.5 sm:px-3 lg:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? "text-brand-700 dark:text-brand-400 font-bold" : "text-slate-500 dark:text-slate-400 hover:text-brand-600"}`}
             >
               {tab}
               {isActive && (
@@ -672,7 +672,7 @@ function PemeriksaanContent() {
       {/* Konten Tab */}
       <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 pt-0 pb-2 relative">
         {activeTab === "cppt" && (
-          <div className="flex flex-col min-h-full w-full max-w-full mx-auto px-3 md:px-6 lg:px-8">
+          <div className="flex flex-col min-h-full w-full max-w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
             {/* Warning banner jika SOAP sebelumnya belum diverifikasi */}
             <AnimatePresence>
               {isVerifBlocked && (
@@ -704,39 +704,39 @@ function PemeriksaanContent() {
                 className={`flex flex-col gap-5 ${isVerifBlocked ? "opacity-50 pointer-events-none select-none" : ""}`}
               >
                 {/* Info Pasien & Tanggal */}
-                <FormSection className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1 lg:flex-none">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 sm:w-10 shrink-0">
+                <FormSection className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-7 sm:w-10 shrink-0">
                       Pasien
                     </label>
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 w-28 sm:w-auto bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 w-20 sm:w-24 lg:w-auto bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={noRawat}
                       readOnly
                     />
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 w-14 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 w-12 sm:w-14 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={isLoadingPatient ? "..." : noRM}
                       readOnly
                       placeholder="RM"
                     />
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 min-w-0 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 flex-1 min-w-0 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={isLoadingPatient ? "Memuat..." : namaPasien}
                       readOnly
                       placeholder="Nama"
                     />
                   </div>
-                  <div className="ml-auto flex items-center gap-2 shrink-0">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 sm:w-16 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 sm:w-16 shrink-0">
                       Tanggal
                     </label>
                     <input
                       type="date"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs w-32 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 text-xs w-28 sm:w-32 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
                       value={currentDate}
                       onChange={(e) => {
                         if (!isClockRunning) setCurrentDate(e.target.value);
@@ -746,7 +746,7 @@ function PemeriksaanContent() {
                     <input
                       type="time"
                       step="1"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 text-xs w-24 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
                       value={currentTime}
                       onChange={(e) => {
                         if (!isClockRunning) setCurrentTime(e.target.value);
@@ -763,7 +763,7 @@ function PemeriksaanContent() {
                   </div>
                 </FormSection>
                 {/* SOAP, Alergi & TTV */}
-                <div className="flex flex-col xl:flex-row gap-4 items-start">
+                <div className="flex flex-col xl:flex-row gap-4">
                   {/* Kiri: SOAP, TTV */}
                   <div className="flex-1 flex flex-col gap-4 min-w-0">
                     <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
@@ -771,23 +771,23 @@ function PemeriksaanContent() {
                         Subjek &amp; Objek
                       </h3>
                       <div className="flex flex-col gap-3">
-                        <div className="flex items-start gap-2">
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0 pt-2">
+                        <div className="flex items-start gap-1.5 sm:gap-2">
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
                             Subjek
                           </label>
                           <textarea
-                            className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 resize-y min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                            className="border border-slate-300 dark:border-slate-600 rounded p-1.5 sm:p-2 flex-1 resize-y min-h-[50px] sm:min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                             placeholder="Keluhan pasien..."
                             value={formKeluhan}
                             onChange={(e) => setFormKeluhan(e.target.value)}
                           />
                         </div>
-                        <div className="flex items-start gap-2">
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0 pt-2">
+                        <div className="flex items-start gap-1.5 sm:gap-2">
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
                             Objek
                           </label>
                           <textarea
-                            className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 resize-y min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                            className="border border-slate-300 dark:border-slate-600 rounded p-1.5 sm:p-2 flex-1 resize-y min-h-[50px] sm:min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                             placeholder="Hasil pemeriksaan..."
                             value={formPemeriksaan}
                             onChange={(e) => setFormPemeriksaan(e.target.value)}
@@ -802,48 +802,48 @@ function PemeriksaanContent() {
                       </h3>
                       <div data-form="pemeriksaan" className="flex flex-col gap-2">
                         {/* Row 1: Suhu, Tensi, Berat */}
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0">Suhu (°C)</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formSuhu} onChange={(e) => setFormSuhu(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">Suhu</label>
+                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="°C" value={formSuhu} onChange={(e) => setFormSuhu(e.target.value)} onKeyDown={handleEnterKeyDown} />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Tensi (mmHg)</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formTensi} onChange={(e) => setFormTensi(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">Tensi</label>
+                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="mmHg" value={formTensi} onChange={(e) => setFormTensi(e.target.value)} onKeyDown={handleEnterKeyDown} />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0">Berat (Kg)</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formBerat} onChange={(e) => setFormBerat(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">Berat</label>
+                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="Kg" value={formBerat} onChange={(e) => setFormBerat(e.target.value)} onKeyDown={handleEnterKeyDown} />
                           </div>
                         </div>
                         {/* Row 2: TB, RR, Nadi */}
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0">TB (Cm)</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formTinggi} onChange={(e) => setFormTinggi(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">TB</label>
+                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="Cm" value={formTinggi} onChange={(e) => setFormTinggi(e.target.value)} onKeyDown={handleEnterKeyDown} />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">RR (/mnt)</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formRespirasi} onChange={(e) => setFormRespirasi(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">RR</label>
+                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="/mnt" value={formRespirasi} onChange={(e) => setFormRespirasi(e.target.value)} onKeyDown={handleEnterKeyDown} />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0">Nadi (/mnt)</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formNadi} onChange={(e) => setFormNadi(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">Nadi</label>
+                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="/mnt" value={formNadi} onChange={(e) => setFormNadi(e.target.value)} onKeyDown={handleEnterKeyDown} />
                           </div>
                         </div>
                         {/* Row 3: SpO2, GCS, Kesadaran */}
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0">SpO2 (%)</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formSpo2} onChange={(e) => setFormSpo2(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">SpO2</label>
+                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="%" value={formSpo2} onChange={(e) => setFormSpo2(e.target.value)} onKeyDown={handleEnterKeyDown} />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">GCS (E,V,M)</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formGcs} onChange={(e) => setFormGcs(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">GCS</label>
+                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="E,V,M" value={formGcs} onChange={(e) => setFormGcs(e.target.value)} onKeyDown={handleEnterKeyDown} />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0">Kesadaran</label>
-                            <select className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formKesadaran} onChange={(e) => setFormKesadaran(e.target.value)}>
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">Kesadaran</label>
+                            <select className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formKesadaran} onChange={(e) => setFormKesadaran(e.target.value)}>
                               <option value="">-</option>
                               <option value="Compos Mentis">Compos Mentis</option>
                               <option value="Somnolence">Somnolence</option>
@@ -861,56 +861,56 @@ function PemeriksaanContent() {
                       Alergi, Asesmen, Plan, Instruksi &amp; Evaluasi
                     </h3>
                     <div className="flex flex-col gap-3">
-                      <div className="flex items-start gap-2">
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0 pt-2">
+                      <div className="flex items-start gap-1.5 sm:gap-2">
+                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
                           Alergi
                         </label>
                         <textarea
-                          className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 resize-y min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                          className="border border-slate-300 dark:border-slate-600 rounded p-1.5 sm:p-2 flex-1 resize-y min-h-[50px] sm:min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                           placeholder="Alergi pasien..."
                           value={formAlergi}
                           onChange={(e) => setFormAlergi(e.target.value)}
                         />
                       </div>
-                      <div className="flex items-start gap-2">
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0 pt-2">
+                      <div className="flex items-start gap-1.5 sm:gap-2">
+                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
                           Asesmen
                         </label>
                         <textarea
-                          className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 resize-y min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                          className="border border-slate-300 dark:border-slate-600 rounded p-1.5 sm:p-2 flex-1 resize-y min-h-[50px] sm:min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                           placeholder="Diagnosis/Asesmen..."
                           value={formPenilaian}
                           onChange={(e) => setFormPenilaian(e.target.value)}
                         />
                       </div>
-                      <div className="flex items-start gap-2">
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0 pt-2">
+                      <div className="flex items-start gap-1.5 sm:gap-2">
+                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
                           Plan
                         </label>
                         <textarea
-                          className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 resize-y min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                          className="border border-slate-300 dark:border-slate-600 rounded p-1.5 sm:p-2 flex-1 resize-y min-h-[50px] sm:min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                           placeholder="Rencana tindakan..."
                           value={formRtl}
                           onChange={(e) => setFormRtl(e.target.value)}
                         />
                       </div>
-                      <div className="flex items-start gap-2">
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0 pt-2">
+                      <div className="flex items-start gap-1.5 sm:gap-2">
+                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
                           Instruksi
                         </label>
                         <textarea
-                          className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 resize-y min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                          className="border border-slate-300 dark:border-slate-600 rounded p-1.5 sm:p-2 flex-1 resize-y min-h-[50px] sm:min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                           placeholder="Instruksi medis..."
                           value={formInstruksi}
                           onChange={(e) => setFormInstruksi(e.target.value)}
                         />
                       </div>
-                      <div className="flex items-start gap-2">
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-16 shrink-0 pt-2">
+                      <div className="flex items-start gap-1.5 sm:gap-2">
+                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
                           Evaluasi
                         </label>
                         <textarea
-                          className="border border-slate-300 dark:border-slate-600 rounded p-2 flex-1 resize-y min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                          className="border border-slate-300 dark:border-slate-600 rounded p-1.5 sm:p-2 flex-1 resize-y min-h-[50px] sm:min-h-[60px] focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
                           placeholder="Evaluasi tindakan..."
                           value={formEvaluasi}
                           onChange={(e) => setFormEvaluasi(e.target.value)}
@@ -923,7 +923,7 @@ function PemeriksaanContent() {
                     <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
                       Shortcut
                     </h3>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-row flex-wrap xl:flex-col gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -932,9 +932,9 @@ function PemeriksaanContent() {
                           window.open(`/rawat-inap/riwayat-pasien?noRawat=${encodeURIComponent(noRawat)}&noRM=${encodeURIComponent(noRM)}&nama=${encodeURIComponent(namaPasien)}`, "_blank");
                         }}
                         title="Riwayat Pasien"
-                        className="w-full justify-start h-7.5 font-bold text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
+                        className="flex-1 xl:flex-none xl:w-full justify-center xl:justify-start h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
                       >
-                        <span className="text-sm"><FaHistory /></span> Riwayat Pasien
+                        <span className="text-sm"><FaHistory /></span> Riwayat
                       </Button>
                       <Button
                         variant="outline"
@@ -944,44 +944,44 @@ function PemeriksaanContent() {
                           window.open(`/rawat-inap/riwayat-pasien?noRawat=${encodeURIComponent(noRawat)}&noRM=${encodeURIComponent(noRM)}&nama=${encodeURIComponent(namaPasien)}`, "_blank");
                         }}
                         title="Resume Pasien"
-                        className="w-full justify-start h-7.5 font-bold text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
+                        className="flex-1 xl:flex-none xl:w-full justify-center xl:justify-start h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
                       >
-                        <span className="text-sm"><FaClipboardList /></span> Resume Pasien
+                        <span className="text-sm"><FaClipboardList /></span> Resume
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={handleShow5Soap}
                         title="5 SOAP Terakhir"
-                        className="w-full justify-start h-7.5 font-bold text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
+                        className="flex-1 xl:flex-none xl:w-full justify-center xl:justify-start h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
                       >
-                        <span className="text-sm"><FaFileAlt /></span> 5 SOAP Terakhir
+                        <span className="text-sm"><FaFileAlt /></span> 5 SOAP
                       </Button>
                     </div>
                   </div>
                 </div>
                 {/* Petugas */}
                 <FormSection>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 sm:w-24 shrink-0">
                       Dilakukan Oleh
                     </label>
-                    <div className="flex gap-1 flex-1">
+                    <div className="flex gap-1 w-full sm:flex-1">
                       <input
                         type="text"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 w-20 sm:w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
                         value={pegawaiNik}
                         readOnly
                       />
                       <input
                         type="text"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
                         value={pegawaiNama}
                         readOnly
                       />
                       <button
                         onClick={() => setDialogPegawaiOpen(true)}
-                        className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors"
+                        className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors shrink-0"
                         title="Pilih Petugas"
                       >
                         <FaEdit />
@@ -1033,7 +1033,7 @@ function PemeriksaanContent() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 dark:bg-slate-900 p-4 shadow-2xl rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col"
+                    className="fixed inset-0 sm:top-8 sm:bottom-8 sm:left-8 sm:right-8 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 dark:bg-slate-900 p-2 sm:p-4 shadow-2xl rounded-none sm:rounded-xl border-0 sm:border border-slate-300 dark:border-slate-700 flex flex-col"
                   >
                     <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-t-lg px-3 py-2 shrink-0">
                       <h3 className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">
@@ -1075,7 +1075,7 @@ function PemeriksaanContent() {
                     initial={{ scale: 0.95 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0.95 }}
-                    className="w-[720px]"
+                    className="w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] md:w-[720px] max-h-[90vh] overflow-y-auto"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Card>
@@ -1099,54 +1099,56 @@ function PemeriksaanContent() {
                             Tidak ada data SOAP ditemukan untuk petugas ini
                           </div>
                         ) : (
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead className="w-[90px]">
-                                  Tanggal
-                                </TableHead>
-                                <TableHead className="w-[65px]">Jam</TableHead>
-                                <TableHead>Subjek</TableHead>
-                                <TableHead>Objek</TableHead>
-                                <TableHead>Asesmen</TableHead>
-                                <TableHead>Plan</TableHead>
-                                <TableHead>Instruksi</TableHead>
-                                <TableHead>Evaluasi</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {soap5Data.map((row: any, i: number) => (
-                                <TableRow
-                                  key={i}
-                                  onClick={() => selectFromSoap5(row)}
-                                  className="cursor-pointer"
-                                >
-                                  <TableCell className="font-medium">
-                                    {row.tgl_perawatan}
-                                  </TableCell>
-                                  <TableCell>{row.jam_rawat}</TableCell>
-                                  <TableCell className="truncate max-w-[110px]">
-                                    {row.keluhan || "-"}
-                                  </TableCell>
-                                  <TableCell className="truncate max-w-[110px]">
-                                    {row.pemeriksaan || "-"}
-                                  </TableCell>
-                                  <TableCell className="truncate max-w-[110px]">
-                                    {row.penilaian || "-"}
-                                  </TableCell>
-                                  <TableCell className="truncate max-w-[110px]">
-                                    {row.rtl || "-"}
-                                  </TableCell>
-                                  <TableCell className="truncate max-w-[110px]">
-                                    {row.instruksi || "-"}
-                                  </TableCell>
-                                  <TableCell className="truncate max-w-[110px]">
-                                    {row.evaluasi || "-"}
-                                  </TableCell>
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-[90px]">
+                                    Tanggal
+                                  </TableHead>
+                                  <TableHead className="w-[65px]">Jam</TableHead>
+                                  <TableHead>Subjek</TableHead>
+                                  <TableHead>Objek</TableHead>
+                                  <TableHead>Asesmen</TableHead>
+                                  <TableHead>Plan</TableHead>
+                                  <TableHead>Instruksi</TableHead>
+                                  <TableHead>Evaluasi</TableHead>
                                 </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
+                              </TableHeader>
+                              <TableBody>
+                                {soap5Data.map((row: any, i: number) => (
+                                  <TableRow
+                                    key={i}
+                                    onClick={() => selectFromSoap5(row)}
+                                    className="cursor-pointer"
+                                  >
+                                    <TableCell className="font-medium whitespace-nowrap">
+                                      {row.tgl_perawatan}
+                                    </TableCell>
+                                    <TableCell className="whitespace-nowrap">{row.jam_rawat}</TableCell>
+                                    <TableCell className="truncate max-w-[110px]">
+                                      {row.keluhan || "-"}
+                                    </TableCell>
+                                    <TableCell className="truncate max-w-[110px]">
+                                      {row.pemeriksaan || "-"}
+                                    </TableCell>
+                                    <TableCell className="truncate max-w-[110px]">
+                                      {row.penilaian || "-"}
+                                    </TableCell>
+                                    <TableCell className="truncate max-w-[110px]">
+                                      {row.rtl || "-"}
+                                    </TableCell>
+                                    <TableCell className="truncate max-w-[110px]">
+                                      {row.instruksi || "-"}
+                                    </TableCell>
+                                    <TableCell className="truncate max-w-[110px]">
+                                      {row.evaluasi || "-"}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
                         )}
                       </CardContent>
                       <CardFooter className="justify-end">
@@ -1186,7 +1188,7 @@ function PemeriksaanContent() {
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
-              className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 w-96 p-5"
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 w-[calc(100%-2rem)] sm:w-96 p-5"
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200 mb-3">
