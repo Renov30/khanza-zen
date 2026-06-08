@@ -812,7 +812,8 @@ function PemeriksaanContent() {
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
-                              Suhu<span className="hidden sm:inline"> (°C)</span>
+                              Suhu
+                              <span className="hidden sm:inline"> (°C)</span>
                             </label>
                             <input
                               type="text"
@@ -825,7 +826,8 @@ function PemeriksaanContent() {
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
-                              Tensi<span className="hidden sm:inline"> (mmHg)</span>
+                              Tensi
+                              <span className="hidden sm:inline"> (mmHg)</span>
                             </label>
                             <input
                               type="text"
@@ -838,7 +840,8 @@ function PemeriksaanContent() {
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
-                              Berat<span className="hidden sm:inline"> (Kg)</span>
+                              Berat
+                              <span className="hidden sm:inline"> (Kg)</span>
                             </label>
                             <input
                               type="text"
@@ -867,7 +870,8 @@ function PemeriksaanContent() {
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
-                              RR<span className="hidden sm:inline"> (/mnt)</span>
+                              RR
+                              <span className="hidden sm:inline"> (/mnt)</span>
                             </label>
                             <input
                               type="text"
@@ -880,7 +884,8 @@ function PemeriksaanContent() {
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
-                              Nadi<span className="hidden sm:inline"> (/mnt)</span>
+                              Nadi
+                              <span className="hidden sm:inline"> (/mnt)</span>
                             </label>
                             <input
                               type="text"
@@ -909,7 +914,8 @@ function PemeriksaanContent() {
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
-                              GCS<span className="hidden sm:inline"> (E,V,M)</span>
+                              GCS
+                              <span className="hidden sm:inline"> (E,V,M)</span>
                             </label>
                             <input
                               type="text"

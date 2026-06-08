@@ -74,7 +74,7 @@ export default function DataTableMulti({
           </h2>
           {onRefresh && (
             <button
-              onClick={onRefresh}
+              onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
               className="p-1.5 hover:bg-brand-200 rounded-full transition-colors text-brand-700"
               title="Refresh Data"
             >
