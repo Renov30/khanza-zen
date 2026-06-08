@@ -388,12 +388,16 @@ function PemeriksaanContent() {
   }, [noRawat, searchKeyword, tglAwal, tglAkhir]);
 
   const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
-      const form = (e.currentTarget as HTMLElement).closest('[data-form]');
+      const form = (e.currentTarget as HTMLElement).closest("[data-form]");
       if (!form) return;
-      const inputs = form.querySelectorAll<HTMLInputElement>('input:not([readonly])');
-      const currentIdx = Array.from(inputs).indexOf(e.currentTarget as HTMLInputElement);
+      const inputs = form.querySelectorAll<HTMLInputElement>(
+        "input:not([readonly])",
+      );
+      const currentIdx = Array.from(inputs).indexOf(
+        e.currentTarget as HTMLInputElement,
+      );
       if (currentIdx >= 0 && currentIdx < inputs.length - 1) {
         inputs[currentIdx + 1].focus();
       }
@@ -800,52 +804,135 @@ function PemeriksaanContent() {
                       <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
                         TTV
                       </h3>
-                      <div data-form="pemeriksaan" className="flex flex-col gap-2">
+                      <div
+                        data-form="pemeriksaan"
+                        className="flex flex-col gap-2"
+                      >
                         {/* Row 1: Suhu, Tensi, Berat */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">Suhu</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="°C" value={formSuhu} onChange={(e) => setFormSuhu(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
+                              Suhu
+                            </label>
+                            <input
+                              type="text"
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              placeholder="°C"
+                              value={formSuhu}
+                              onChange={(e) => setFormSuhu(e.target.value)}
+                              onKeyDown={handleEnterKeyDown}
+                            />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">Tensi</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="mmHg" value={formTensi} onChange={(e) => setFormTensi(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
+                              Tensi
+                            </label>
+                            <input
+                              type="text"
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              placeholder="mmHg"
+                              value={formTensi}
+                              onChange={(e) => setFormTensi(e.target.value)}
+                              onKeyDown={handleEnterKeyDown}
+                            />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">Berat</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="Kg" value={formBerat} onChange={(e) => setFormBerat(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
+                              Berat
+                            </label>
+                            <input
+                              type="text"
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              placeholder="Kg"
+                              value={formBerat}
+                              onChange={(e) => setFormBerat(e.target.value)}
+                              onKeyDown={handleEnterKeyDown}
+                            />
                           </div>
                         </div>
                         {/* Row 2: TB, RR, Nadi */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">TB</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="Cm" value={formTinggi} onChange={(e) => setFormTinggi(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
+                              TB
+                            </label>
+                            <input
+                              type="text"
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              placeholder="Cm"
+                              value={formTinggi}
+                              onChange={(e) => setFormTinggi(e.target.value)}
+                              onKeyDown={handleEnterKeyDown}
+                            />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">RR</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="/mnt" value={formRespirasi} onChange={(e) => setFormRespirasi(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
+                              RR
+                            </label>
+                            <input
+                              type="text"
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              placeholder="/mnt"
+                              value={formRespirasi}
+                              onChange={(e) => setFormRespirasi(e.target.value)}
+                              onKeyDown={handleEnterKeyDown}
+                            />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">Nadi</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="/mnt" value={formNadi} onChange={(e) => setFormNadi(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
+                              Nadi
+                            </label>
+                            <input
+                              type="text"
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              placeholder="/mnt"
+                              value={formNadi}
+                              onChange={(e) => setFormNadi(e.target.value)}
+                              onKeyDown={handleEnterKeyDown}
+                            />
                           </div>
                         </div>
                         {/* Row 3: SpO2, GCS, Kesadaran */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">SpO2</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="%" value={formSpo2} onChange={(e) => setFormSpo2(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
+                              SpO2
+                            </label>
+                            <input
+                              type="text"
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              placeholder="%"
+                              value={formSpo2}
+                              onChange={(e) => setFormSpo2(e.target.value)}
+                              onKeyDown={handleEnterKeyDown}
+                            />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">GCS</label>
-                            <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" placeholder="E,V,M" value={formGcs} onChange={(e) => setFormGcs(e.target.value)} onKeyDown={handleEnterKeyDown} />
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
+                              GCS
+                            </label>
+                            <input
+                              type="text"
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              placeholder="E,V,M"
+                              value={formGcs}
+                              onChange={(e) => setFormGcs(e.target.value)}
+                              onKeyDown={handleEnterKeyDown}
+                            />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">Kesadaran</label>
-                            <select className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100" value={formKesadaran} onChange={(e) => setFormKesadaran(e.target.value)}>
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
+                              Kesadaran
+                            </label>
+                            <select
+                              className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                              value={formKesadaran}
+                              onChange={(e) => setFormKesadaran(e.target.value)}
+                            >
                               <option value="">-</option>
-                              <option value="Compos Mentis">Compos Mentis</option>
+                              <option value="Compos Mentis">
+                                Compos Mentis
+                              </option>
                               <option value="Somnolence">Somnolence</option>
                               <option value="Sopor">Sopor</option>
                               <option value="Coma">Coma</option>
@@ -919,7 +1006,7 @@ function PemeriksaanContent() {
                     </div>
                   </div>
                   {/* Shortcut */}
-                  <div className="xl:w-48 shrink-0 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
+                  <div className="xl:w-38 shrink-0 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
                     <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
                       Shortcut
                     </h3>
@@ -928,25 +1015,45 @@ function PemeriksaanContent() {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          if (!noRM.trim()) { alert("Silahkan pilih pasien terlebih dahulu"); return; }
-                          window.open(`/rawat-inap/riwayat-pasien?noRawat=${encodeURIComponent(noRawat)}&noRM=${encodeURIComponent(noRM)}&nama=${encodeURIComponent(namaPasien)}`, "_blank");
+                          if (!noRM.trim()) {
+                            alert("Silahkan pilih pasien terlebih dahulu");
+                            return;
+                          }
+                          window.open(
+                            `/rawat-inap/riwayat-pasien?noRawat=${encodeURIComponent(noRawat)}&noRM=${encodeURIComponent(noRM)}&nama=${encodeURIComponent(namaPasien)}`,
+                            "_blank",
+                          );
                         }}
                         title="Riwayat Pasien"
                         className="flex-1 xl:flex-none xl:w-full justify-center xl:justify-start h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
                       >
-                        <span className="text-sm"><FaHistory /></span> Riwayat
+                        <span className="text-sm">
+                          <FaHistory />
+                        </span>{" "}
+                        <span>Riwayat</span>
+                        <span className="hidden xl:inline"> Pasien</span>
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          if (!noRM.trim()) { alert("Silahkan pilih pasien terlebih dahulu"); return; }
-                          window.open(`/rawat-inap/riwayat-pasien?noRawat=${encodeURIComponent(noRawat)}&noRM=${encodeURIComponent(noRM)}&nama=${encodeURIComponent(namaPasien)}`, "_blank");
+                          if (!noRM.trim()) {
+                            alert("Silahkan pilih pasien terlebih dahulu");
+                            return;
+                          }
+                          window.open(
+                            `/rawat-inap/riwayat-pasien?noRawat=${encodeURIComponent(noRawat)}&noRM=${encodeURIComponent(noRM)}&nama=${encodeURIComponent(namaPasien)}`,
+                            "_blank",
+                          );
                         }}
                         title="Resume Pasien"
                         className="flex-1 xl:flex-none xl:w-full justify-center xl:justify-start h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
                       >
-                        <span className="text-sm"><FaClipboardList /></span> Resume
+                        <span className="text-sm">
+                          <FaClipboardList />
+                        </span>{" "}
+                        <span>Resume</span>
+                        <span className="hidden xl:inline"> Pasien</span>
                       </Button>
                       <Button
                         variant="outline"
@@ -955,7 +1062,11 @@ function PemeriksaanContent() {
                         title="5 SOAP Terakhir"
                         className="flex-1 xl:flex-none xl:w-full justify-center xl:justify-start h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
                       >
-                        <span className="text-sm"><FaFileAlt /></span> 5 SOAP
+                        <span className="text-sm">
+                          <FaFileAlt />
+                        </span>{" "}
+                        <span>5 SOAP</span>
+                        <span className="hidden xl:inline"> Terakhir</span>
                       </Button>
                     </div>
                   </div>
@@ -1106,7 +1217,9 @@ function PemeriksaanContent() {
                                   <TableHead className="w-[90px]">
                                     Tanggal
                                   </TableHead>
-                                  <TableHead className="w-[65px]">Jam</TableHead>
+                                  <TableHead className="w-[65px]">
+                                    Jam
+                                  </TableHead>
                                   <TableHead>Subjek</TableHead>
                                   <TableHead>Objek</TableHead>
                                   <TableHead>Asesmen</TableHead>
@@ -1125,7 +1238,9 @@ function PemeriksaanContent() {
                                     <TableCell className="font-medium whitespace-nowrap">
                                       {row.tgl_perawatan}
                                     </TableCell>
-                                    <TableCell className="whitespace-nowrap">{row.jam_rawat}</TableCell>
+                                    <TableCell className="whitespace-nowrap">
+                                      {row.jam_rawat}
+                                    </TableCell>
                                     <TableCell className="truncate max-w-[110px]">
                                       {row.keluhan || "-"}
                                     </TableCell>
