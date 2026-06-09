@@ -735,7 +735,7 @@ function PemeriksaanContent() {
                     />
                   </div>
                   <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap sm:flex-nowrap">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 sm:w-16 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 sm:w-12 shrink-0">
                       Tanggal
                     </label>
                     <input
@@ -771,9 +771,6 @@ function PemeriksaanContent() {
                   {/* Kiri: SOAP, TTV */}
                   <div className="flex-1 flex flex-col gap-4 min-w-0">
                     <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
-                      <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
-                        Subjek &amp; Objek
-                      </h3>
                       <div className="flex flex-col gap-3">
                         <div className="flex items-start gap-1.5 sm:gap-2">
                           <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
@@ -801,9 +798,6 @@ function PemeriksaanContent() {
                     </div>
                     {/* TTV */}
                     <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
-                      <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
-                        TTV
-                      </h3>
                       <div
                         data-form="pemeriksaan"
                         className="flex flex-col gap-2"
@@ -950,9 +944,6 @@ function PemeriksaanContent() {
                   </div>
                   {/* Tengah: Alergi, Asesmen, Plan, Instruksi, Evaluasi */}
                   <div className="flex-1 min-w-0 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
-                    <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
-                      Alergi, Asesmen, Plan, Instruksi &amp; Evaluasi
-                    </h3>
                     <div className="flex flex-col gap-3">
                       <div className="flex items-start gap-1.5 sm:gap-2">
                         <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0 pt-2">
