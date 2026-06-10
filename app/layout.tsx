@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SIMRS-ZEN",
+  title: "SIMRS-KHANZA",
   description: "Sistem Informasi Manajemen Rumah Sakit",
 };
 
