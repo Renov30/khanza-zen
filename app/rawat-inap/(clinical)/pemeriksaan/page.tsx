@@ -1348,7 +1348,7 @@ function PemeriksaanContent() {
       />
 
       {/* Fitur 1 & 2: BottomPanel dengan filter periode + pencarian */}
-      <BottomActionPanel
+      <BottomActionPanel buttonsAlign="left"
         recordCount={pemeriksaanData.length}
         onSave={handleSave}
         onNew={handleNew}

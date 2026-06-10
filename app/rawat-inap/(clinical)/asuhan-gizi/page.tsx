@@ -1494,7 +1494,7 @@ function AsuhanGiziContent() {
       />
 
       {/* Bottom Panel */}
-      <BottomActionPanel
+      <BottomActionPanel buttonsAlign="left"
         onSave={activeTab === 'asuhangizi' ? handleSimpanAsuhanGizi : activeTab === 'monitoringgizi' ? handleSimpanMonitoring : activeTab === 'skrininggizilanjut' ? handleSimpanSkrining : activeTab === 'catatanadimegizi' ? handleSimpanADIME : undefined}
         onNew={activeTab === 'asuhangizi' ? handleBaruAsuhanGizi : activeTab === 'monitoringgizi' ? handleBaruMonitoring : activeTab === 'skrininggizilanjut' ? handleBaruSkrining : activeTab === 'catatanadimegizi' ? handleBaruADIME : undefined}
         onReplace={activeTab === 'asuhangizi' ? handleGantiAsuhanGizi : activeTab === 'monitoringgizi' ? handleGantiMonitoring : activeTab === 'skrininggizilanjut' ? handleGantiSkrining : activeTab === 'catatanadimegizi' ? handleGantiADIME : undefined}

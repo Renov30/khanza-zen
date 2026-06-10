@@ -36,6 +36,7 @@ interface BottomActionPanelProps {
   dateEnd?: string;
   onDateStartChange?: (value: string) => void;
   onDateEndChange?: (value: string) => void;
+  buttonsAlign?: "center" | "left";
 }
 
 export default function BottomActionPanel({
@@ -58,6 +59,7 @@ export default function BottomActionPanel({
   dateEnd,
   onDateStartChange,
   onDateEndChange,
+  buttonsAlign = "center",
 }: BottomActionPanelProps) {
   const router = useRouter();
 
@@ -117,7 +119,7 @@ export default function BottomActionPanel({
         </div>
       )}
       {/* Baris Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100 dark:bg-slate-900 dark:border-slate-700">
+      <div className={`flex flex-col sm:flex-row sm:items-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100 dark:bg-slate-900 dark:border-slate-700 ${buttonsAlign === "center" ? "justify-center" : "justify-start"}`}>
         <div className="flex items-center gap-2 flex-wrap justify-center">
           {leftFilters}
           <span className="font-semibold text-slate-600 dark:text-slate-300">Periode :</span>
@@ -173,7 +175,7 @@ export default function BottomActionPanel({
       </div>
 
       {/* Baris Tombol */}
-      <div className="flex items-center justify-center flex-wrap gap-1.5">
+      <div className={`flex items-center flex-wrap gap-1.5 ${buttonsAlign === "center" ? "justify-center" : "justify-start"}`}>
         {customButtons}
         {!hideStandardButtons && (
           <>

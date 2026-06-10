@@ -211,7 +211,7 @@ export default function Registrasi() {
       />
 
       {/* Panel Aksi dan Filter */}
-      <BottomActionPanel
+      <BottomActionPanel buttonsAlign="left"
         recordCount={16}
       />
     </motion.div>

@@ -420,7 +420,7 @@ function DietPasienContent() {
         onClose={() => setDialogPegawaiOpen(false)}
         onSelect={handlePilihPegawai}
       />
-      <BottomActionPanel
+      <BottomActionPanel buttonsAlign="left"
         onSave={handleSimpanDiet}
         onNew={handleBaruDiet}
         onReplace={handleGantiDiet}

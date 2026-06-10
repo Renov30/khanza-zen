@@ -726,7 +726,7 @@ function RiwayatPasienContent() {
       </AnimatePresence>
 
       {/* BottomActionPanel */}
-      <BottomActionPanel
+      <BottomActionPanel buttonsAlign="left"
         recordCount={activeTab === "kunjungan" ? kunjunganData.length : activeTab === "soapie" ? soapieData.length : 0}
         onExit={() => router.back()}
         searchValue={searchKeyword}

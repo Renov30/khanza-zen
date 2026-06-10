@@ -1059,7 +1059,7 @@ function SkriningNutrisiContent() {
         onClose={() => setDialogPegawaiOpen(false)}
         onSelect={handlePilihPegawai}
       />
-      <BottomActionPanel
+      <BottomActionPanel buttonsAlign="left"
         onSave={activeTab === 'dewasa' ? handleSimpanDewasa : activeTab === 'anak' ? handleSimpanAnak : activeTab === 'lansia' ? handleSimpanLansia : undefined}
         onNew={activeTab === 'dewasa' ? handleBaruDewasa : activeTab === 'anak' ? handleBaruAnak : activeTab === 'lansia' ? handleBaruLansia : undefined}
         onReplace={activeTab === 'dewasa' ? handleGantiDewasa : activeTab === 'anak' ? handleGantiAnak : activeTab === 'lansia' ? handleGantiLansia : undefined}
