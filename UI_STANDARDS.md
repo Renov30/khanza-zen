@@ -265,14 +265,14 @@ Setter `onKeyDown={handleEnterKeyDown}` dipasang pada setiap **single-line `<inp
 
 ## 6. Hierarki Tombol Aksi (Button Hierarchy)
 
-### 5.1 Tombol Primer (Primary) — Tindakan Utama (Simpan)
+### Tombol Primer (Primary) — Tindakan Utama (Simpan)
 ```tsx
 <Button className="bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-sm">
   <FaSave /> Simpan
 </Button>
 ```
 
-### 5.2 Tombol Sekunder (Secondary) — Tindakan Biasa
+### Tombol Sekunder (Secondary) — Tindakan Biasa
 ```tsx
 <Button variant="outline" className="border-slate-200 hover:border-brand-400
   hover:bg-brand-50 text-slate-700 font-bold">
@@ -280,7 +280,7 @@ Setter `onKeyDown={handleEnterKeyDown}` dipasang pada setiap **single-line `<inp
 </Button>
 ```
 
-### 5.3 Tombol Bahaya (Danger) — Tindakan Destruktif
+### Tombol Bahaya (Danger) — Tindakan Destruktif
 ```tsx
 <Button variant="outline" className="border-red-200 hover:border-red-400
   hover:bg-red-50 text-red-700 font-bold">
@@ -288,7 +288,7 @@ Setter `onKeyDown={handleEnterKeyDown}` dipasang pada setiap **single-line `<inp
 </Button>
 ```
 
-### 5.4 Tombol Keluar — Wajib Gaya Exit
+### Tombol Keluar — Wajib Gaya Exit
 
 Tombol "Keluar" **harus** menggunakan gaya exit/merah konsisten di seluruh aplikasi:
 
@@ -311,7 +311,7 @@ import { ActionButton } from "@/components/BottomActionPanel";
 ```
 
 **Aturan:**
-- Tombol "Keluar" selalu ditempatkan di pojok kanan, terpisah secara visual.
+- Tombol "Keluar" selalu ditempatkan di pojok kanan.
 - Gunakan `ActionButton` dari `BottomActionPanel` dengan prop `isExit` jika tersedia.
 - Warna merah konsisten: `border-red-200`, `hover:border-red-400`, `hover:bg-red-50`, `text-red-700`.
 - Hanya **satu** tombol primer per section.
@@ -322,26 +322,26 @@ import { ActionButton } from "@/components/BottomActionPanel";
 
 ## 7. Tabel Data
 
-### 6.1 Header Sticky
+### Header Sticky
 Semua tabel data **harus** memiliki header `sticky top-0` agar kolom tetap terlihat saat di-scroll.
 
-### 6.2 Zebra Striping
+### Zebra Striping
 ```tsx
 className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}
 ```
 
-### 6.3 Hover State
+### Hover State
 ```tsx
 className="hover:bg-brand-50 hover:shadow-[inset_3px_0_0_0_var(--color-brand-500)]"
 ```
 
-### 6.4 Link dalam Tabel
+### Link dalam Tabel
 Data yang bisa diklik (seperti No. Rawat) harus menggunakan `<Link>` dengan style:
 ```tsx
 <Link className="text-brand-600 hover:text-brand-800 hover:underline font-bold">
 ```
 
-### 6.5 Empty State
+### Empty State
 ```tsx
 <tr>
   <td colSpan={N} className="py-8 text-center text-slate-400 italic">
@@ -354,18 +354,18 @@ Data yang bisa diklik (seperti No. Rawat) harus menggunakan `<Link>` dengan styl
 
 ## 8. Sidebar (Collapsible)
 
-Sidebar pada halaman detail (seperti Pemeriksaan Rawat Inap) harus bisa dilipat (*collapse*):
+Sidebar pada halaman detail (seperti Riwayat Perawatan) harus bisa dilipat (*collapse*):
 
-- **Terbuka:** Lebar `224px`, menampilkan ikon + label + search bar.
-- **Tertutup:** Lebar `48px`, hanya menampilkan ikon. Tooltip muncul saat hover.
+- **Terbuka:** Lebar `260px`, menampilkan ikon + label.
+- **Tertutup:** Lebar `40px`, hanya menampilkan tombol toggle.
 - **Toggle:** Tombol hamburger (`FaBars`) di pojok kiri atas sidebar.
 - **Animasi:** Gunakan `motion.div` dari Framer Motion.
 
 ---
 
-## 9. Halaman Page Header
+## 9. Page Header
 
-Setiap halaman konten memiliki header:
+Setiap halaman konten memiliki header gradient:
 
 ```tsx
 <div className="bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1
@@ -379,21 +379,207 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 10. Bottom Action Panel (`BottomActionPanel`)
+## 10. Toolbar (Top Navigation Bar)
 
-### Struktur:
-1. **Baris Filter** — Periode tanggal + Pencarian search (atas).
-2. **Baris Tombol** — Tombol aksi + Record count + Keluar (bawah).
+Toolbar adalah navigasi horizontal paling atas dengan gradient brand.
 
-### Aturan:
-- Tombol "Simpan" = **primer** (solid `bg-brand-600 text-white`).
-- Tombol "Hapus" = **danger** (`border-red-200`).
-- Tombol lain = **sekunder** (outline standar).
-- Tombol "Keluar" = terpisah di kanan.
+### Style
+- Background gradient: `from-brand-700 via-brand-600 to-brand-800`
+- Items di-**center** menggunakan `w-full + justify-center`
+- Logo dan judul "SIMRS-KHANZA" di kiri (jika ada), menu/tombol di tengah dan kanan
+
+```tsx
+<div className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 ...">
+  <div className="flex items-center w-full justify-center gap-4">
+    {/* items centered */}
+  </div>
+</div>
+```
 
 ---
 
-## 11. Responsive Design
+## 11. Shortcut Bar (Second Navigation Row)
+
+Baris kedua setelah toolbar, berisi shortcut menu + profil.
+
+### Style
+- Background `bg-white dark:bg-slate-900`, border bottom
+- **Items**: "Menu" tetap di kiri, shortcut items di center, profil di kanan
+- Layout: `flex items-center justify-center gap-1`
+- Label icon berada di **samping kanan icon** (`flex-row`, bukan `flex-col`)
+- Text size: `text-[10px] md:text-xs`
+- Padding minimal: `px-2 py-1.5`, gap: `gap-1.5 md:gap-2`
+
+### Avatar & ProfileMenu
+- Avatar: `w-7 h-7` (small)
+- Dropdown icons: `text-[11px]`
+- Padding dropdown items: `px-3 py-2`
+- Trigger button hanya menampilkan **username** (tanpa "Online" status, tanpa jabatan)
+
+```tsx
+// Shortcut item pattern
+<button className="flex items-center gap-1.5 text-[10px] md:text-xs ...">
+  <FaIcon className="text-[11px]" />
+  <span>Label</span>
+</button>
+
+// Avatar pattern
+<Image className="w-7 h-7 rounded-full object-cover" ... />
+```
+
+---
+
+## 12. Bottom Action Panel (`BottomActionPanel`)
+
+### Struktur:
+1. **Baris Filter** — Status, Periode tanggal, Pencarian + **Record count** (di sebelah kanan kolom pencarian).
+2. **Baris Tombol** — Tombol aksi (Simpan, Baru, Ganti, Hapus, Cetak, Semua, Keluar).
+
+### Props
+| Prop             | Type                        | Default    | Description                                    |
+|------------------|-----------------------------|------------|------------------------------------------------|
+| `buttonsAlign`   | `"center"` \| `"left"`      | `"center"` | Alignment untuk baris filter dan tombol        |
+| `hideStandardButtons` | `boolean`             | `false`    | Sembunyikan tombol standar                     |
+| `customButtons`  | `React.ReactNode`           | —          | Tombol kustom (kiri)                           |
+| `leftFilters`    | `React.ReactNode`           | —          | Filter kustom (kiri)                           |
+| `extraFilters`   | `React.ReactNode`           | —          | Filter tambahan                                |
+
+### Record Count
+- Ditampilkan di **baris filter**, di samping kanan kolom pencarian
+- Format: `Record : <angka>` dengan `text-[11px]`
+
+### Aligment
+- `buttonsAlign="center"` (default): Filter dan tombol di-`justify-center`
+- `buttonsAlign="left"`: Filter dan tombol di-`justify-start`
+
+### Aturan Tombol
+- Tombol "Simpan" = **primer** (solid `bg-brand-600 text-white`)
+- Tombol "Hapus" = **danger** (`border-red-200`)
+- Tombol lain = **sekunder** (outline standar)
+- Tombol "Keluar" = merah, di paling kanan
+
+### ActionButton Component
+```tsx
+<ActionButton
+  onClick={handleAction}
+  icon={<FaIcon className="..." />}
+  label="Label"
+  variant="primary"      // primary | secondary | danger
+  isExit                 // untuk tombol keluar (warna merah)
+  title="Tooltip (Shortcut)"
+/>
+```
+
+Variant mapping:
+| Variant    | Style                                                       |
+|------------|-------------------------------------------------------------|
+| `primary`  | `bg-brand-600 hover:bg-brand-700 text-white`                |
+| `secondary`| `border-slate-300 hover:border-brand-400 text-slate-700`    |
+| `danger`   | `border-red-200 hover:border-red-400 hover:bg-red-50 text-red-700` |
+| `isExit`   | Sama dengan danger + kelas khusus `hover:bg-red-100`        |
+
+---
+
+## 13. Dashboard (Home Page)
+
+Halaman `/` menampilkan dua mode yang bisa dipilih user:
+
+### 1. Full Wallpaper View
+- Wallpaper penuh sebagai latar belakang
+- Logo instansi + nama RS + gradient overlay
+- Shortcut bar di atas
+
+### 2. Dashboard View
+- Wallpaper tetap muncul sebagai **subtle background** (`opacity-7`)
+- Menampilkan:
+  - **Metric Cards** (grid 3–5 kolom): jumlah pasien, kunjungan, dll.
+  - **Chart Ringkasan** (bar chart)
+  - **Jadwal Jaga** (tabel dokter jaga)
+  - **Pengumuman** (daftar pengumuman)
+- Toggle antar mode disimpan di `localStorage` key `"showWallpaper"`
+- Toggle button tersedia di dalam page
+
+---
+
+## 14. Layout
+
+Hanya **Classic Mode** yang tersedia. Zen mode telah dihapus.
+
+### Struktur Layout
+```
+┌─────────────────────────────────┐
+│ Toolbar (brand gradient)        │  ← `from-brand-700 via-brand-600 to-brand-800`
+├─────────────────────────────────┤
+│ Shortcut Bar (icons + label)    │  ← bg-white, centered items, "Menu" left, profile right
+├─────────────────────────────────┤
+│ Page Header (gradient)          │  ← `from-brand-100 to-slate-50`
+├─────────────────────────────────┤
+│                                 │
+│  Konten Halaman (flex-1)        │
+│                                 │
+├─────────────────────────────────┤
+│ Bottom Action Panel             │  ← filter + action buttons
+└─────────────────────────────────┘
+```
+
+### Area Konten
+- Container: `flex-1 overflow-hidden` (scroll di child)
+- Background: `bg-brand-50/30`
+- Tidak ada sidebar navigasi (navigasi via shortcut bar horizontal)
+
+### Dashboard / Page Header
+- Dashboard wallpaper bisa di-toggle antara full wallpaper dan dashboard view
+- Page header gradient `from-brand-100 to-slate-50` di setiap halaman konten
+
+---
+
+## 15. Riwayat Perawatan (Riwayat Pasien)
+
+Halaman riwayat pasien memiliki 3 tab: Riwayat Kunjungan, Riwayat SOAPIE, dan Riwayat Perawatan.
+
+### Riwayat Perawatan Tab
+- Sidebar kiri collapsible dengan **checkbox** untuk memilih section data
+- 70+ section data (diagnosa, prosedur, triase, pemeriksaan, catatan dokter, observasi, keperawatan, EWS, risiko jatuh, operasi, penunjang, farmasi, dll.)
+- Data di-fetch per section saat checkbox diaktifkan
+- Renderer: `renderTable` (tabular) dan `renderForm` (key-value form)
+- Section selector di visit picker (pilih kunjungan berdasarkan no_rawat)
+
+### Renderer Patterns
+```tsx
+// Table renderer (data tabular)
+const renderTable = (data, columns) => (
+  <table className="w-full text-xs border-collapse">
+    <thead>
+      <tr className="bg-slate-100 font-semibold">
+        {columns.map(col => <th key={col.key} className="p-2 border text-left">{col.label}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {data.map((row, i) => (
+        <tr className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+          {columns.map(col => <td key={col.key} className="p-2 border">{row[col.key]}</td>)}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
+// Form renderer (assessment / key-value)
+const renderForm = (data) => data.map(row => (
+  <div className="bg-white border rounded-lg p-3 text-xs space-y-1">
+    {Object.entries(row).filter(...).map(([key, val]) => (
+      <div className="flex gap-2">
+        <span className="font-semibold w-32 capitalize">{key.replace(/_/g, ' ')}:</span>
+        <span>{val ?? '-'}</span>
+      </div>
+    ))}
+  </div>
+));
+```
+
+---
+
+## 16. Responsive Design
 
 ### Breakpoints (Tailwind CSS default):
 | Breakpoint | Lebar     | Target Device   |
@@ -411,7 +597,7 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 12. Animasi & Transisi
+## 17. Animasi & Transisi
 
 - **Page enter:** `framer-motion` scale + opacity.
 - **Sidebar toggle:** `motion.div` animate width.
@@ -420,7 +606,7 @@ Setiap halaman konten memiliki header:
 
 ---
 
-## 13. Spacing & Typography
+## 18. Spacing & Typography
 
 | Elemen             | Font Size        | Weight     |
 |--------------------|------------------|------------|
@@ -431,172 +617,19 @@ Setiap halaman konten memiliki header:
 | Tabel header       | `text-xs` (12px) | `font-bold`|
 | Tabel body         | `text-xs` (12px) | normal     |
 | Tombol aksi        | `text-[11px]`    | `font-bold`|
+| Shortcut bar text  | `text-[10px] md:text-xs` | `font-semibold` |
+| Dropdown icon      | `text-[11px]`    | —          |
 
 **Spacing:**
 - Gap antar form field: `gap-4` (16px)
 - Padding dalam card: `p-3` s/d `p-4`
 - Padding input: `px-2 py-1.5`
+- Padding shortcut item: `px-2 py-1.5`
+- Gap shortcut items: `gap-1.5 md:gap-2`
 
 ---
 
-## 14. Layout Mode: Classic vs Zen
-
-Aplikasi memiliki **dua mode layout** yang bisa dipilih pengguna: **Classic** dan **Zen**.  
-Setiap halaman **harus** menyesuaikan tampilannya berdasarkan `layoutMode` yang dibaca dari `useSetting()`.
-
-### 14.1 Mekanisme
-
-- Nilai `layoutMode` disimpan di **localStorage** dengan key `"layoutMode"`.
-- Disediakan via `SettingContext` — baca dengan `const { layoutMode } = useSetting()`.
-- Tersedia fungsi `toggleLayoutMode()` dan `setLayoutMode(mode)`.
-- Tombol toggle ada di **Floating Action Button** pojok kanan bawah (komponen `LayoutSwitcherFAB`) dan di dropdown profil.
-
-```tsx
-import { useSetting } from "@/components/SettingContext";
-
-function MyPage() {
-  const { layoutMode } = useSetting();
-  // ...
-}
-```
-
-### 14.2 Perbandingan Struktur Layout
-
-| Aspek                | Classic                                | Zen                                    |
-|---------------------|----------------------------------------|----------------------------------------|
-| **Shell arah**      | `flex-col` (vertikal)                  | `flex-row` (horizontal)                |
-| **Navigasi atas**   | Toolbar (brand gradient) + Shortcutbar | Topbar minimalis (search + profile)    |
-| **Sidebar**         | Tidak ada (horizontal nav)             | Sidebar kiri 256px dengan grup menu    |
-| **Area konten**     | `main` penuh di bawah shortcutbar      | `main` di samping kanan sidebar        |
-| **Header halaman**  | Gradient bar (`brand-100` to `slate-50`) | Dinamis di topbar (judul + breadcrumb) |
-| **Dashboard**       | Wallpaper + logo + gradient overlay    | Welcome banner + metric cards + chart  |
-
-### 14.3 Implementasi di AppShell
-
-`AppShell.tsx` merender layout berbeda berdasarkan `layoutMode`:
-
-```tsx
-<div className={`flex h-screen w-full overflow-hidden ${
-  layoutMode === "classic" ? "flex-col" : "flex-row"
-}`}>
-  {layoutMode === "classic" ? (
-    <>
-      {/* Toolbar + Shortcutbar */}
-      {/* main area */}
-    </>
-  ) : (
-    <>
-      {/* Zen Left Sidebar (w-64) */}
-      {/* Zen Right Area: Topbar + main */}
-    </>
-  )}
-</div>
-```
-
-### 14.4 Aturan untuk Setiap Halaman Konten
-
-Setiap halaman **harus** membaca `layoutMode` dan menyesuaikan render:
-
-#### ✅ Wajib — Baca layoutMode dari useSetting
-```tsx
-export default function MyPage() {
-  const { layoutMode } = useSetting();
-  // ...
-}
-```
-
-#### ✅ Wajib — Sediakan render untuk kedua mode
-
-Gunakan pola `if (layoutMode === "classic") { ... }` diikuti `return ( /* zen */ )`:
-
-```tsx
-// CLASSIC
-if (layoutMode === "classic") {
-  return (
-    <div className="flex-1 relative w-full h-full overflow-hidden bg-brand-50/30">
-      {/* Halaman page header gradient */}
-      {/* Konten halaman classic */}
-    </div>
-  );
-}
-
-// ZEN
-return (
-  <div className="flex-1 w-full h-full overflow-y-auto bg-[#f8fafc] p-6 space-y-6">
-    {/* Konten halaman zen tanpa page header gradient */}
-  </div>
-);
-```
-
-#### ❌ Jangan — Wrap mode di dalam div yang sama dengan percabangan kecil
-
-```tsx
-// ❌ SALAH — tidak konsisten, sulit dirawat
-<div className={layoutMode === "classic" ? "bg-brand-50" : "bg-white"}>
-  {/* satu struktur konten untuk dua mode */}
-</div>
-```
-
-### 14.5 Perbedaan Visual per Mode
-
-| Elemen          | Classic                          | Zen                               |
-|-----------------|----------------------------------|-----------------------------------|
-| Background      | `bg-brand-50/30` + wallpaper     | `bg-[#f8fafc]` (slate-50 solid)   |
-| Page header     | Gradient `brand-100` to `slate-50` | Tidak ada (judul di topbar)      |
-| Container       | `overflow-hidden` (scroll di child) | `overflow-y-auto` (scroll penuh) |
-| Padding halaman | `px-4 py-1` (header)             | `p-6` (seluruh konten)            |
-| Warna aksen     | `brand-*` (emerald)              | `teal-*` (independent dari brand)  |
-| Animasi         | `framer-motion` scale + opacity  | `framer-motion` slide + fade       |
-
-### 14.6 Halaman Khusus — Dashboard (Home)
-
-Halaman `/` (Home) memiliki tampilan berbeda total:
-
-- **Classic**: Wallpaper penuh + logo instansi + gradient overlay + nama RS
-- **Zen**: Welcome banner (dengan gambar rumah sakit), 5 metric cards (grid 5 kolom), chart ringkasan layanan, antrian terbaru, pengumuman
-
-```tsx
-// app/page.tsx — pola branching
-if (layoutMode === "classic") {
-  return <ClassicDashboard />;  // wallpaper + logo
-}
-return <ZenDashboard />;        // banner + cards + chart + queue
-```
-
-### 14.7 Toggle Layout di Aplikasi
-
-Floating Action Button (`LayoutSwitcherFAB`) muncul di **semua halaman** (di `AppShell.tsx`):
-
-```tsx
-<LayoutSwitcherFAB layoutMode={layoutMode} onToggle={toggleLayoutMode} />
-```
-
-- Posisi: `fixed bottom-6 right-6 z-50`
-- Ikon: `FaSync` (spin lambat 10s)
-- Tooltip hover: "Ganti ke Tampilan Zen (Baru)" atau "Ganti ke Tampilan Klasik (Lama)"
-- Toggle juga tersedia di dropdown profil (ProfileMenu / ProfileMenuZen)
-
-### 14.8 Persistensi
-
-```tsx
-// SettingContext.tsx
-const setLayoutMode = useCallback((mode: "classic" | "zen") => {
-  setLayoutModeState(mode);
-  localStorage.setItem("layoutMode", mode);
-}, []);
-
-const toggleLayoutMode = useCallback(() => {
-  setLayoutModeState((prev) => {
-    const next = prev === "classic" ? "zen" : "classic";
-    localStorage.setItem("layoutMode", next);
-    return next;
-  });
-}, []);
-```
-
----
-
-## 15. Checklist Review UI
+## 19. Checklist Review UI
 
 Sebelum menyelesaikan halaman baru, pastikan:
 
@@ -611,4 +644,7 @@ Sebelum menyelesaikan halaman baru, pastikan:
 - [ ] Halaman responsive di mobile (cek `grid-cols-1` fallback)
 - [ ] Sidebar bisa dilipat (jika ada)
 - [ ] Animasi halus menggunakan Framer Motion
-- [ ] **Halaman membaca `layoutMode` dari `useSetting()` dan menyediakan render terpisah untuk mode Classic dan Zen**
+- [ ] BottomActionPanel menggunakan `buttonsAlign` yang sesuai (`"left"` untuk halaman CRUD, `"center"` untuk halaman daftar)
+- [ ] Record count ditempatkan di baris filter (sebelah kanan pencarian), bukan di baris tombol
+- [ ] Shortcut bar menggunakan `flex-row` untuk label & icon, text `text-[10px] md:text-xs`
+- [ ] Avatar berukuran `w-7 h-7`, dropdown icons `text-[11px]`

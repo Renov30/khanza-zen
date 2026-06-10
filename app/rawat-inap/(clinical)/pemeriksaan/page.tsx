@@ -647,8 +647,8 @@ function PemeriksaanContent() {
       <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-1 sm:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {[
           "Penanganan Dokter",
-          "Penanganan Petugas",
-          "Penanganan Dokter & Petugas",
+          "Petugas",
+          "Dokter & Petugas",
           "Pemeriksaan / CPPT",
           "Pemeriksaan Obstetri",
           "Pemeriksaan Ginekologi",
