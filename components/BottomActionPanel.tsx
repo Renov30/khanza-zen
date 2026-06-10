@@ -117,10 +117,10 @@ export default function BottomActionPanel({
         </div>
       )}
       {/* Baris Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100 dark:bg-slate-900 dark:border-slate-700">
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100 dark:bg-slate-900 dark:border-slate-700">
+        <div className="flex items-center gap-2 flex-wrap justify-center">
           {leftFilters}
-          <span className="font-semibold text-slate-600 ml-1 dark:text-slate-300">Periode :</span>
+          <span className="font-semibold text-slate-600 dark:text-slate-300">Periode :</span>
           <div className="flex items-center gap-1.5">
             <input
               type="date"
@@ -136,10 +136,8 @@ export default function BottomActionPanel({
               onChange={(e) => onDateEndChange?.(e.target.value)}
             />
           </div>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap sm:mr-2 w-full sm:w-auto">
-          <span className="font-semibold text-slate-600 hidden sm:inline dark:text-slate-300">Pencarian :</span>
+          <span className="font-semibold text-slate-600 hidden sm:inline dark:text-slate-300 ml-2">Pencarian :</span>
+          <div className="flex items-center gap-2">
           <div className="flex bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-brand-500 w-full sm:w-[250px] dark:bg-slate-700 dark:border-slate-600">
             <input
               type="text"
@@ -166,71 +164,66 @@ export default function BottomActionPanel({
               </button>
             </div>
           </div>
+          <div className="flex items-center text-slate-500 font-semibold text-[11px] dark:text-slate-400 shrink-0">
+            Record :{" "}
+            <span className="text-slate-800 ml-1 dark:text-slate-100">{recordCount}</span>
+          </div>
+        </div>
         </div>
       </div>
 
       {/* Baris Tombol */}
-      <div className="flex items-center justify-between flex-wrap gap-y-2">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {customButtons}
-          {!hideStandardButtons && (
-            <>
-              <ActionButton
-                onClick={onSave}
-                icon={<FaSave className="text-white drop-shadow-sm" />}
-                label="Simpan"
-                variant="primary"
-                title="Simpan (Ctrl+S)"
-              />
-              <ActionButton
-                onClick={onNew}
-                icon={<FaFileAlt className="text-brand-600 drop-shadow-sm" />}
-                label="Baru"
-                title="Baru (Ctrl+N)"
-              />
-              <ActionButton
-                onClick={onReplace}
-                icon={<FaEdit className="text-orange-500 drop-shadow-sm" />}
-                label="Ganti"
-                title="Ganti (Ctrl+E)"
-              />
-              <ActionButton
-                onClick={onDelete}
-                icon={<FaTrash className="text-red-500 drop-shadow-sm" />}
-                label="Hapus"
-                variant="danger"
-                title="Hapus (Ctrl+D)"
-              />
-              <ActionButton
-                onClick={onPrint}
-                icon={<FaPrint className="text-indigo-600 drop-shadow-sm" />}
-                label="Cetak"
-                title="Cetak (Ctrl+P)"
-              />
-              <ActionButton
-                onClick={onAll}
-                icon={<FaList className="text-slate-600 drop-shadow-sm" />}
-                label="Semua"
-                title="Semua (Ctrl+L)"
-              />
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="flex items-center px-3 py-1.5 text-slate-500 font-semibold text-[11px] mx-1 dark:text-slate-400">
-            Record :{" "}
-            <span className="text-slate-800 ml-1.5 dark:text-slate-100">{recordCount}</span>
-          </div>
-
-          <ActionButton
-            icon={<FaTimes className="text-red-500 drop-shadow-sm" />}
-            label="Keluar"
-            isExit
-            title="Keluar (Ctrl+Q)"
-            onClick={handleExit}
-          />
-        </div>
+      <div className="flex items-center justify-center flex-wrap gap-1.5">
+        {customButtons}
+        {!hideStandardButtons && (
+          <>
+            <ActionButton
+              onClick={onSave}
+              icon={<FaSave className="text-white drop-shadow-sm" />}
+              label="Simpan"
+              variant="primary"
+              title="Simpan (Ctrl+S)"
+            />
+            <ActionButton
+              onClick={onNew}
+              icon={<FaFileAlt className="text-brand-600 drop-shadow-sm" />}
+              label="Baru"
+              title="Baru (Ctrl+N)"
+            />
+            <ActionButton
+              onClick={onReplace}
+              icon={<FaEdit className="text-orange-500 drop-shadow-sm" />}
+              label="Ganti"
+              title="Ganti (Ctrl+E)"
+            />
+            <ActionButton
+              onClick={onDelete}
+              icon={<FaTrash className="text-red-500 drop-shadow-sm" />}
+              label="Hapus"
+              variant="danger"
+              title="Hapus (Ctrl+D)"
+            />
+            <ActionButton
+              onClick={onPrint}
+              icon={<FaPrint className="text-indigo-600 drop-shadow-sm" />}
+              label="Cetak"
+              title="Cetak (Ctrl+P)"
+            />
+            <ActionButton
+              onClick={onAll}
+              icon={<FaList className="text-slate-600 drop-shadow-sm" />}
+              label="Semua"
+              title="Semua (Ctrl+L)"
+            />
+          </>
+        )}
+        <ActionButton
+          icon={<FaTimes className="text-red-500 drop-shadow-sm" />}
+          label="Keluar"
+          isExit
+          title="Keluar (Ctrl+Q)"
+          onClick={handleExit}
+        />
       </div>
     </div>
   );

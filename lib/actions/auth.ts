@@ -29,6 +29,7 @@ export async function loginAction(formData: FormData) {
       userData = {
         id: id_user,
         nama: rows[0].nama || id_user,
+        jabatan: rows[0].jabatan || rows[0].nama || 'Petugas',
         role: 'user'
       };
     } else {

@@ -57,6 +57,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
+  const [jabatan, setJabatan] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +74,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         if (data.isLoggedIn) {
           setIsLoggedIn(true);
           setUsername(data.user.nama || data.user.id);
+          setJabatan(data.user.jabatan || "Petugas");
         } else {
           setIsLoginModalOpen(true);
         }
@@ -144,7 +146,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
-        className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 dark:bg-slate-800/80 dark:[background-image:none] dark:backdrop-blur-md text-white dark:text-slate-200 flex overflow-x-auto whitespace-nowrap px-2 py-0.5 lg:py-1 shadow-md z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 dark:bg-slate-800/80 dark:[background-image:none] dark:backdrop-blur-md text-white dark:text-slate-200 flex overflow-x-auto whitespace-nowrap px-2 py-0.5 lg:py-0.5 shadow-md z-30 border-b border-brand-500/50 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="flex items-center justify-center gap-1 w-full">
           <ToolbarMenuItem
@@ -273,6 +275,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           ) : (
             <ProfileMenu
               username={username}
+              jabatan={jabatan}
               isOpen={isAccountMenuOpen}
               onToggle={setIsAccountMenuOpen}
               onLogout={handleLogout}
@@ -513,11 +516,13 @@ function ShortcutMenuItem({
 
 function ProfileMenu({
   username,
+  jabatan,
   isOpen,
   onToggle,
   onLogout,
 }: {
   username: string;
+  jabatan: string;
   isOpen: boolean;
   onToggle: (open: boolean) => void;
   onLogout: () => void;
@@ -534,14 +539,13 @@ function ProfileMenu({
           onToggle(!isOpen);
         }}
       >
-        <div className="flex flex-col items-end hidden sm:flex">
-          <span className="text-[13px] font-bold text-slate-700 dark:text-slate-200 max-w-[140px] truncate group-hover/account:text-brand-600 dark:group-hover/account:text-brand-400 transition-colors duration-150">
+        <div className="hidden sm:flex items-center">
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 max-w-[120px] truncate group-hover/account:text-brand-600 dark:group-hover/account:text-brand-400 transition-colors duration-150">
             {username || "User"}
           </span>
-          <span className="text-[9px] font-medium text-emerald-500 -mt-0.5">Online</span>
         </div>
-        <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 dark:from-brand-600 dark:to-brand-800 flex items-center justify-center border-2 border-white/80 dark:border-slate-600 shadow-md transition-all duration-200 group-hover/account:scale-110 group-hover/account:shadow-lg">
-          <FaUser className="text-white text-sm md:text-base drop-shadow-sm" />
+        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 dark:from-brand-600 dark:to-brand-800 flex items-center justify-center border-2 border-white/80 dark:border-slate-600 shadow-sm transition-all duration-200 group-hover/account:scale-110 group-hover/account:shadow-md">
+          <FaUser className="text-white text-[10px] md:text-xs drop-shadow-sm" />
         </div>
       </div>
 
@@ -554,21 +558,20 @@ function ProfileMenu({
             onClick={(e) => e.stopPropagation()}
             className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/70 dark:border-slate-700/60 py-1.5 z-[100] overflow-hidden backdrop-blur-xl"
           >
-            <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700/50 mb-1">
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block truncate">
+            <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50 mb-1">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
                 {username}
               </span>
-              <span className="text-[10px] font-semibold text-emerald-500 flex items-center gap-1 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-                Online
+              <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 block">
+                {jabatan}
               </span>
             </div>
-            <button className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-all font-semibold rounded-lg">
-              <FaUser className="text-slate-400 dark:text-slate-500 text-sm" />
+            <button className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-2 transition-all font-semibold rounded-lg">
+              <FaUser className="text-slate-400 dark:text-slate-500 text-[11px]" />
               <span>Profile</span>
             </button>
-            <button className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-all font-semibold rounded-lg">
-              <FaBell className="text-slate-400 dark:text-slate-500 text-sm" />
+            <button className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-2 transition-all font-semibold rounded-lg">
+              <FaBell className="text-slate-400 dark:text-slate-500 text-[11px]" />
               <span>Notifications</span>
             </button>
             <button
@@ -576,30 +579,30 @@ function ProfileMenu({
                 router.push("/setting");
                 onToggle(false);
               }}
-              className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-3 transition-all font-semibold rounded-lg"
+              className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-2 transition-all font-semibold rounded-lg"
             >
-              <FaCog className="text-slate-400 dark:text-slate-500 text-sm" />
+              <FaCog className="text-slate-400 dark:text-slate-500 text-[11px]" />
               <span>Settings</span>
             </button>
             <div className="h-px bg-slate-100 dark:bg-slate-700/50 my-1 mx-3"></div>
             <button
               onClick={toggleDarkMode}
-              className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-3 transition-all font-semibold rounded-lg"
+              className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-2 transition-all font-semibold rounded-lg"
             >
               {isDarkMode ? (
-                <FaMoon className="text-indigo-400 text-sm" />
+                <FaMoon className="text-indigo-400 text-[11px]" />
               ) : (
-                <FaSun className="text-amber-400 text-sm" />
+                <FaSun className="text-amber-400 text-[11px]" />
               )}
               <span className="flex-1">Dark Mode</span>
               <div
-                className={`w-9 h-5 rounded-full transition-colors relative ${
+                className={`w-8 h-4 rounded-full transition-colors relative ${
                   isDarkMode ? "bg-brand-600" : "bg-slate-300"
                 }`}
               >
                 <div
-                  className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[3px] shadow-sm transition-transform ${
-                    isDarkMode ? "translate-x-[18px]" : "translate-x-[2px]"
+                  className={`w-3 h-3 bg-white rounded-full absolute top-[2px] shadow-sm transition-transform ${
+                    isDarkMode ? "translate-x-[16px]" : "translate-x-[2px]"
                   }`}
                 />
               </div>
@@ -607,9 +610,9 @@ function ProfileMenu({
             <div className="h-px bg-slate-100 dark:bg-slate-700/50 my-1 mx-3"></div>
             <button
               onClick={onLogout}
-              className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 flex items-center gap-3 transition-all font-bold rounded-lg"
+              className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 flex items-center gap-2 transition-all font-bold rounded-lg"
             >
-              <FaSignInAlt className="text-red-400 rotate-180 text-sm" />
+              <FaSignInAlt className="text-red-400 rotate-180 text-[11px]" />
               <span>Log Out</span>
             </button>
           </motion.div>
