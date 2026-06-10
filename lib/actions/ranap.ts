@@ -3451,3 +3451,447 @@ export async function cariPegawai(keyword: string = "") {
     return { success: false, message: "Gagal mencari pegawai", error: error.message, data: [] };
   }
 }
+
+/**
+ * Mendapatkan data untuk satu seksi riwayat perawatan.
+ */
+export async function getSectionData(sectionId: string, noRawat: string) {
+  const queries: Record<string, string> = {
+    // Sudah ada di fungsi terpisah, tapi kita sediakan juga di sini
+    diagnosa: `
+      SELECT diagnosa_pasien.kd_penyakit, penyakit.nm_penyakit, diagnosa_pasien.status, dokter.nm_dokter
+      FROM diagnosa_pasien
+      INNER JOIN penyakit ON diagnosa_pasien.kd_penyakit = penyakit.kd_penyakit
+      INNER JOIN dokter ON diagnosa_pasien.kd_dokter = dokter.kd_dokter
+      WHERE diagnosa_pasien.no_rawat = ?`,
+    prosedur: `
+      SELECT prosedur_pasien.kd_icd9, icd9.nm_icd9_1
+      FROM prosedur_pasien
+      INNER JOIN icd9 ON prosedur_pasien.kd_icd9 = icd9.kd_icd9
+      WHERE prosedur_pasien.no_rawat = ?`,
+    triase: `
+      SELECT dt.nama_pemeriksaan, dtd.hasil, pegawai.nama AS nm_pegawai
+      FROM data_triase_igd_detail dtd
+      INNER JOIN data_triase_igd dt ON dtd.no_rawat = dt.no_rawat AND dtd.kode_pemeriksaan = dt.kode_pemeriksaan
+      LEFT JOIN pegawai ON dtd.nip = pegawai.nik
+      WHERE dtd.no_rawat = ?`,
+    catatan_dokter: `
+      SELECT catatan_perawatan.tanggal, catatan_perawatan.jam, catatan_perawatan.kd_dokter, dokter.nm_dokter, catatan_perawatan.catatan
+      FROM catatan_perawatan INNER JOIN dokter ON catatan_perawatan.kd_dokter = dokter.kd_dokter
+      WHERE catatan_perawatan.no_rawat = ? ORDER BY catatan_perawatan.tanggal DESC, catatan_perawatan.jam DESC`,
+    resep_pulang: `
+      SELECT resep_pulang.kode_brng, databarang.nama_brng, resep_pulang.dosis, resep_pulang.jml_barang, databarang.kode_sat, resep_pulang.total
+      FROM resep_pulang INNER JOIN databarang ON resep_pulang.kode_brng = databarang.kode_brng
+      WHERE resep_pulang.no_rawat = ? ORDER BY databarang.nama_brng`,
+    gas_medik: `
+      SELECT beri_gas_medik.tanggal, gasmedis.nm_obat, beri_gas_medik.hargasatuan, beri_gas_medik.jumlah, beri_gas_medik.kd_petugas
+      FROM beri_gas_medik INNER JOIN gasmedis ON beri_gas_medik.kd_obat = gasmedis.kd_obat
+      WHERE beri_gas_medik.no_rawat = ? ORDER BY beri_gas_medik.tanggal`,
+    tambahan_biaya: `
+      SELECT nama_biaya, besar_biaya FROM tambahan_biaya WHERE no_rawat = ? ORDER BY nama_biaya`,
+    potongan_biaya: `
+      SELECT nama_pengurangan, (-1 * besar_pengurangan) AS besar_pengurangan FROM pengurangan_biaya WHERE no_rawat = ? ORDER BY nama_pengurangan`,
+    pemeriksaan_ralan: `
+      SELECT pemeriksaan_ralan.tgl_perawatan, pemeriksaan_ralan.jam_rawat, pemeriksaan_ralan.keluhan, pemeriksaan_ralan.pemeriksaan, pemeriksaan_ralan.penilaian, pemeriksaan_ralan.rtl, pemeriksaan_ralan.instruksi, pemeriksaan_ralan.tensi, pemeriksaan_ralan.nadi, pemeriksaan_ralan.respirasi, pemeriksaan_ralan.suhu_tubuh, pegawai.nama AS nm_pegawai
+      FROM pemeriksaan_ralan LEFT JOIN pegawai ON pemeriksaan_ralan.nip = pegawai.nik
+      WHERE pemeriksaan_ralan.no_rawat = ? ORDER BY pemeriksaan_ralan.tgl_perawatan DESC, pemeriksaan_ralan.jam_rawat DESC`,
+    pemeriksaan_obstetri_ralan: `
+      SELECT * FROM pemeriksaan_obstetri_ralan WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    pemeriksaan_genekologi_ralan: `
+      SELECT * FROM pemeriksaan_ginekologi_ralan WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    pemeriksaan_obstetri_ranap: `
+      SELECT * FROM pemeriksaan_obstetri_ranap WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    pemeriksaan_genekologi_ranap: `
+      SELECT * FROM pemeriksaan_ginekologi_ranap WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    catatan_observasi_igd: `
+      SELECT * FROM catatan_observasi_igd WHERE no_rawat = ? ORDER BY tgl_observasi DESC`,
+    catatan_observasi_ranap: `
+      SELECT * FROM catatan_observasi_ranap WHERE no_rawat = ? ORDER BY tgl_observasi DESC`,
+    catatan_observasi_ranap_kebidanan: `
+      SELECT * FROM catatan_observasi_ranap_kebidanan WHERE no_rawat = ? ORDER BY tgl_observasi DESC`,
+    catatan_observasi_ranap_postpartum: `
+      SELECT * FROM catatan_observasi_ranap_postpartum WHERE no_rawat = ? ORDER BY tgl_observasi DESC`,
+    catatan_keperawatan_ralan: `
+      SELECT * FROM catatan_keperawatan_ralan WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    catatan_keperawatan_ranap: `
+      SELECT * FROM catatan_keperawatan_ranap WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    follow_up_dbd: `
+      SELECT * FROM follow_up_dbd WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    catatan_cek_gds: `
+      SELECT * FROM catatan_cek_gds WHERE no_rawat = ? ORDER BY tgl_perawatan DESC, jam_rawat DESC`,
+    penilaian_ulang_nyeri: `
+      SELECT * FROM penilaian_ulang_nyeri WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    monitoring_reaksi_tranfusi: `
+      SELECT * FROM monitoring_reaksi_tranfusi WHERE no_rawat = ? ORDER BY tgl_perawatan DESC`,
+    catatan_persalinan: `
+      SELECT * FROM catatan_persalinan WHERE no_rawat = ?`,
+    rekonsiliasi_obat: `
+      SELECT rekonsiliasi_obat.*, petugas.nama FROM rekonsiliasi_obat LEFT JOIN petugas ON rekonsiliasi_obat.nip = petugas.nip WHERE rekonsiliasi_obat.no_rawat = ? ORDER BY rekonsiliasi_obat.tanggal_wawancara DESC`,
+    konseling_farmasi: `
+      SELECT konseling_farmasi.*, petugas.nama FROM konseling_farmasi LEFT JOIN petugas ON konseling_farmasi.nip = petugas.nip WHERE konseling_farmasi.no_rawat = ? ORDER BY konseling_farmasi.tanggal DESC`,
+    pelayanan_informasi_obat: `
+      SELECT pio.*, jawab.tanggal_jawab, jawab.metode AS metodejawab, jawab.penyampaian_jawaban, jawab.jawaban, jawab.referensi, jawab.nip AS apoteker_nip, petugas.nama AS apoteker_nama
+      FROM pelayanan_informasi_obat pio
+      INNER JOIN jawaban_pio_apoteker jawab ON jawab.no_permintaan = pio.no_permintaan
+      LEFT JOIN petugas ON jawab.nip = petugas.nip
+      WHERE pio.no_rawat = ? ORDER BY pio.tanggal DESC`,
+    konsultasi_medik: `
+      SELECT km.*, jawab.tanggal_jawab, jawab.jawaban AS jawaban_konsultasi, jawab.nip, petugas.nama AS nm_petugas
+      FROM konsultasi_medik km
+      LEFT JOIN jawaban_konsultasi_medik jawab ON jawab.no_permintaan = km.no_permintaan
+      LEFT JOIN petugas ON jawab.nip = petugas.nip
+      WHERE km.no_rawat = ? ORDER BY km.tanggal DESC`,
+    transfer_antar_ruang: `
+      SELECT * FROM transfer_pasien_antar_ruang WHERE no_rawat = ? ORDER BY tgl_masuk DESC`,
+    pengkajian_restrain: `
+      SELECT * FROM pengkajian_restrain WHERE no_rawat = ? ORDER BY tgl_pengkajian DESC`,
+    skrining_tb: `
+      SELECT * FROM skrining_tb WHERE no_rawat = ? ORDER BY tgl_skrining DESC`,
+    edukasi_pasien: `
+      SELECT * FROM edukasi_pasien_keluarga_rj WHERE no_rawat = ? ORDER BY tgl_edukasi DESC`,
+    perencanaan_pemulangan: `
+      SELECT * FROM perencanaan_pemulangan WHERE no_rawat = ? ORDER BY tgl_perencanaan DESC`,
+    uji_fungsi_kfr: `
+      SELECT uji_fungsi_kfr.*, petugas.nama AS nm_petugas
+      FROM uji_fungsi_kfr LEFT JOIN petugas ON uji_fungsi_kfr.nip = petugas.nip
+      WHERE uji_fungsi_kfr.no_rawat = ? ORDER BY uji_fungsi_kfr.tgl_uji DESC`,
+    hemodialisa: `
+      SELECT * FROM hemodialisa WHERE no_rawat = ? ORDER BY tgl_hemodialisa DESC`,
+    hasil_usg: `
+      SELECT * FROM hasil_pemeriksaan_usg WHERE no_rawat = ? ORDER BY tgl_pemeriksaan DESC`,
+    hasil_usg_urologi: `
+      SELECT * FROM hasil_pemeriksaan_usg_urologi WHERE no_rawat = ? ORDER BY tgl_pemeriksaan DESC`,
+    hasil_usg_gynecologi: `
+      SELECT * FROM hasil_pemeriksaan_usg_gynecologi WHERE no_rawat = ? ORDER BY tgl_pemeriksaan DESC`,
+    dokumentasi_eswl: `
+      SELECT * FROM hasil_tindakan_eswl WHERE no_rawat = ? ORDER BY tgl_tindakan DESC`,
+    penilaian_terminal: `
+      SELECT * FROM penilaian_pasien_terminal WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    penilaian_korban_kekerasan: `
+      SELECT * FROM penilaian_korban_kekerasan WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    penilaian_kecemasan_anak: `
+      SELECT * FROM penilaian_kecemasan_anak_ranap WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    penilaian_penyakit_menular: `
+      SELECT * FROM penilaian_pasien_penyakit_menular WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    penilaian_keracunan: `
+      SELECT * FROM penilaian_pasien_keracunan WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+
+    // Checklist / skor
+    pemantauan_ews_anak: `
+      SELECT * FROM pemantauan_pews_anak WHERE no_rawat = ? ORDER BY tgl_pemantauan DESC`,
+    pemantauan_ews_dewasa: `
+      SELECT * FROM pemantauan_pews_dewasa WHERE no_rawat = ? ORDER BY tgl_pemantauan DESC`,
+    pemantauan_meows_obstetri: `
+      SELECT * FROM pemantauan_meows_obstetri WHERE no_rawat = ? ORDER BY tgl_pemantauan DESC`,
+    pemantauan_ews_neonatus: `
+      SELECT * FROM pemantauan_ews_neonatus WHERE no_rawat = ? ORDER BY tgl_pemantauan DESC`,
+    pre_induksi: `
+      SELECT * FROM penilaian_pre_induksi WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    checklist_pre_operasi: `
+      SELECT * FROM checklist_pre_operasi WHERE no_rawat = ?`,
+    checklist_post_operasi: `
+      SELECT * FROM checklist_post_operasi WHERE no_rawat = ?`,
+    signin_sebelum_anestesi: `
+      SELECT * FROM signin_sebelum_anestesi WHERE no_rawat = ?`,
+    timeout_sebelum_insisi: `
+      SELECT * FROM timeout_sebelum_insisi WHERE no_rawat = ?`,
+    signout_sebelum_menutup_luka: `
+      SELECT * FROM signout_sebelum_menutup_luka WHERE no_rawat = ?`,
+    penilaian_pre_operasi: `
+      SELECT * FROM penilaian_pre_operasi WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    penilaian_pre_anestesi: `
+      SELECT * FROM penilaian_pre_anestesi WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    skor_aldrette: `
+      SELECT * FROM skor_aldrette_pasca_anestesi WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    skor_steward: `
+      SELECT * FROM skor_steward_pasca_anestesi WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    skor_bromage: `
+      SELECT * FROM skor_bromage_pasca_anestesi WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    kriteria_masuk_hcu: `
+      SELECT * FROM checklist_kriteria_masuk_hcu WHERE no_rawat = ?`,
+    kriteria_keluar_hcu: `
+      SELECT * FROM checklist_kriteria_keluar_hcu WHERE no_rawat = ?`,
+    kriteria_masuk_icu: `
+      SELECT * FROM checklist_kriteria_masuk_icu WHERE no_rawat = ?`,
+    kriteria_keluar_icu: `
+      SELECT * FROM checklist_kriteria_keluar_icu WHERE no_rawat = ?`,
+
+    // Resiko jatuh
+    risiko_jatuh_dewasa: `
+      SELECT * FROM penilaian_lanjutan_resiko_jatuh WHERE no_rawat = ? AND kategori = 'dewasa' ORDER BY tgl_pemeriksaan DESC`,
+    risiko_jatuh_anak: `
+      SELECT * FROM penilaian_lanjutan_resiko_jatuh WHERE no_rawat = ? AND kategori = 'anak' ORDER BY tgl_pemeriksaan DESC`,
+    risiko_jatuh_lansia: `
+      SELECT * FROM penilaian_lanjutan_resiko_jatuh WHERE no_rawat = ? AND kategori = 'lansia' ORDER BY tgl_pemeriksaan DESC`,
+    risiko_jatuh_geriatri: `
+      SELECT * FROM penilaian_lanjutan_resiko_jatuh_geriatri WHERE no_rawat = ? ORDER BY tgl_pemeriksaan DESC`,
+    risiko_jatuh_neonatus: `
+      SELECT * FROM penilaian_risiko_jatuh_neonatus WHERE no_rawat = ? ORDER BY tgl_pemeriksaan DESC`,
+    risiko_jatuh_psikiatri: `
+      SELECT * FROM penilaian_lanjutan_resiko_jatuh WHERE no_rawat = ? AND kategori = 'psikiatri' ORDER BY tgl_pemeriksaan DESC`,
+    skrining_fungsional: `
+      SELECT * FROM penilaian_lanjutan_skrining_fungsional WHERE no_rawat = ? ORDER BY tgl_pemeriksaan DESC`,
+    risiko_dekubitus: `
+      SELECT * FROM penilaian_risiko_dekubitus WHERE no_rawat = ? ORDER BY tgl_pemeriksaan DESC`,
+
+    // Tambahan
+    tambahan_geriatri: `
+      SELECT * FROM penilaian_tambahan_geriatri WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    tambahan_bunuh_diri: `
+      SELECT * FROM penilaian_tambahan_bunuh_diri WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    tambahan_perilaku_kekerasan: `
+      SELECT * FROM penilaian_tambahan_perilaku_kekerasan WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+    tambahan_melarikan_diri: `
+      SELECT * FROM penilaian_tambahan_beresiko_melarikan_diri WHERE no_rawat = ? ORDER BY tgl_penilaian DESC`,
+
+    // Awal keperawatan
+    asuhan_keperawatan_igd: `SELECT * FROM penilaian_awal_keperawatan_igd WHERE no_rawat = ?`,
+    asuhan_keperawatan_ralan: `SELECT * FROM penilaian_awal_keperawatan_ralan WHERE no_rawat = ?`,
+    asuhan_keperawatan_ralan_gigi: `SELECT * FROM penilaian_awal_keperawatan_gigi_ralan WHERE no_rawat = ?`,
+    asuhan_keperawatan_ralan_bayi: `SELECT * FROM penilaian_awal_keperawatan_bayi_ralan WHERE no_rawat = ?`,
+    asuhan_keperawatan_ranap_bayi: `SELECT * FROM penilaian_awal_keperawatan_bayi_ranap WHERE no_rawat = ?`,
+    asuhan_keperawatan_ralan_kandungan: `SELECT * FROM penilaian_awal_keperawatan_kebidanan_ralan WHERE no_rawat = ?`,
+    asuhan_keperawatan_ralan_psikiatri: `SELECT * FROM penilaian_awal_keperawatan_psikiatri_ralan WHERE no_rawat = ?`,
+    asuhan_keperawatan_ralan_geriatri: `SELECT * FROM penilaian_awal_keperawatan_geriatri_ralan WHERE no_rawat = ?`,
+    asuhan_keperawatan_ranap: `SELECT * FROM penilaian_awal_keperawatan_ranap WHERE no_rawat = ?`,
+    asuhan_keperawatan_ranap_kandungan: `SELECT * FROM penilaian_awal_keperawatan_kebidanan_ranap WHERE no_rawat = ?`,
+
+    // Awal medis
+    asuhan_medis_igd: `SELECT * FROM penilaian_awal_medis_igd WHERE no_rawat = ?`,
+    asuhan_medis_igd_psikiatri: `SELECT * FROM penilaian_awal_medis_igd_psikiatri WHERE no_rawat = ?`,
+    asuhan_medis_ralan: `SELECT * FROM penilaian_awal_medis_ralan WHERE no_rawat = ?`,
+    asuhan_medis_ralan_kandungan: `SELECT * FROM penilaian_awal_medis_ralan_kandungan WHERE no_rawat = ?`,
+    asuhan_medis_ralan_bayi: `SELECT * FROM penilaian_awal_medis_ralan_bayi WHERE no_rawat = ?`,
+    asuhan_medis_ralan_tht: `SELECT * FROM penilaian_awal_medis_ralan_tht WHERE no_rawat = ?`,
+    asuhan_medis_ralan_psikiatri: `SELECT * FROM penilaian_awal_medis_ralan_psikiatri WHERE no_rawat = ?`,
+    asuhan_medis_ralan_penyakit_dalam: `SELECT * FROM penilaian_awal_medis_ralan_penyakit_dalam WHERE no_rawat = ?`,
+    asuhan_medis_ralan_mata: `SELECT * FROM penilaian_awal_medis_ralan_mata WHERE no_rawat = ?`,
+    asuhan_medis_ralan_neurologi: `SELECT * FROM penilaian_awal_medis_ralan_neurologi WHERE no_rawat = ?`,
+    asuhan_medis_ralan_orthopedi: `SELECT * FROM penilaian_awal_medis_ralan_orthopedi WHERE no_rawat = ?`,
+    asuhan_medis_ralan_bedah: `SELECT * FROM penilaian_awal_medis_ralan_bedah WHERE no_rawat = ?`,
+    asuhan_medis_ralan_bedah_mulut: `SELECT * FROM penilaian_awal_medis_ralan_bedah_mulut WHERE no_rawat = ?`,
+    asuhan_medis_ralan_geriatri: `SELECT * FROM penilaian_awal_medis_ralan_geriatri WHERE no_rawat = ?`,
+    asuhan_medis_ralan_kulit_kelamin: `SELECT * FROM penilaian_awal_medis_ralan_kulit_kelamin WHERE no_rawat = ?`,
+    asuhan_medis_ralan_paru: `SELECT * FROM penilaian_awal_medis_ralan_paru WHERE no_rawat = ?`,
+    asuhan_medis_ralan_fisik_rehab: `SELECT * FROM penilaian_awal_medis_ralan_fisik_rehab WHERE no_rawat = ?`,
+    asuhan_medis_ranap: `SELECT * FROM penilaian_awal_medis_ranap WHERE no_rawat = ?`,
+    asuhan_medis_ranap_kandungan: `SELECT * FROM penilaian_awal_medis_ranap_kandungan WHERE no_rawat = ?`,
+    asuhan_medis_ranap_paru: `SELECT * FROM penilaian_awal_medis_ranap_paru WHERE no_rawat = ?`,
+    asuhan_medis_hemodialisa: `SELECT * FROM penilaian_awal_medis_hemodialisa WHERE no_rawat = ?`,
+
+    // Rehab
+    asuhan_fisioterapi: `SELECT * FROM penilaian_fisioterapi WHERE no_rawat = ?`,
+    penilaian_terapi_wicara: `SELECT * FROM penilaian_terapi_wicara WHERE no_rawat = ?`,
+    penilaian_psikolog: `SELECT * FROM penilaian_psikolog WHERE no_rawat = ?`,
+  };
+
+  const query = queries[sectionId];
+  if (!query) return { success: false, message: `Seksi ${sectionId} tidak dikenal`, data: [] };
+
+  try {
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: `Gagal mengambil ${sectionId}`, error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data operasi/VK lengkap dengan laporan operasi.
+ */
+export async function getOperasiLengkap(noRawat: string) {
+  try {
+    const query = `
+      SELECT operasi.tgl_operasi, operasi.jam_mulai, operasi.jam_selesai,
+             paket_operasi.nm_perawatan, operasi.status_operasi,
+             operasi.dokter_anak, operasi.dokter_utama,
+             operasi.dokter_mata, operasi.dokter_bedah,
+             laporan_operasi.diagnosa_pre_op, laporan_operasi.diagnosa_post_op,
+             laporan_operasi.jaringan_dieksekusi, laporan_operasi.permintaan_pa
+      FROM operasi
+      INNER JOIN paket_operasi ON operasi.kd_paket = paket_operasi.kd_paket
+      LEFT JOIN laporan_operasi ON laporan_operasi.no_rawat = operasi.no_rawat AND laporan_operasi.tgl_operasi = operasi.tgl_operasi
+      WHERE operasi.no_rawat = ?
+      ORDER BY operasi.tgl_operasi DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil data operasi lengkap", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data berkas digital perawatan.
+ */
+export async function getBerkasDigital(noRawat: string) {
+  try {
+    const query = `
+      SELECT berkas_digital_perawatan.*, master_berkas_digital.nama_berkas
+      FROM berkas_digital_perawatan
+      INNER JOIN master_berkas_digital ON berkas_digital_perawatan.kode_berkas = master_berkas_digital.kode_berkas
+      WHERE berkas_digital_perawatan.no_rawat = ?
+      ORDER BY berkas_digital_perawatan.tgl_perawatan DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil berkas digital", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data tindakan rawat jalan dokter.
+ */
+export async function getTindakanRalanDokter(noRawat: string) {
+  try {
+    const query = `
+      SELECT rawat_jl_dr.tgl_perawatan, rawat_jl_dr.jam_rawat, rawat_jl_dr.kd_jenis_prw,
+             jns_perawatan.nm_perawatan, dokter.nm_dokter, rawat_jl_dr.biaya_rawat
+      FROM rawat_jl_dr
+      INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw
+      INNER JOIN dokter ON rawat_jl_dr.kd_dokter = dokter.kd_dokter
+      WHERE rawat_jl_dr.no_rawat = ?
+      ORDER BY rawat_jl_dr.tgl_perawatan DESC, rawat_jl_dr.jam_rawat DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil tindakan ralan dokter", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data tindakan rawat jalan paramedis.
+ */
+export async function getTindakanRalanParamedis(noRawat: string) {
+  try {
+    const query = `
+      SELECT rawat_jl_pr.tgl_perawatan, rawat_jl_pr.jam_rawat, rawat_jl_pr.kd_jenis_prw,
+             jns_perawatan.nm_perawatan, petugas.nama, rawat_jl_pr.biaya_rawat
+      FROM rawat_jl_pr
+      INNER JOIN jns_perawatan ON rawat_jl_pr.kd_jenis_prw = jns_perawatan.kd_jenis_prw
+      INNER JOIN petugas ON rawat_jl_pr.nip = petugas.nip
+      WHERE rawat_jl_pr.no_rawat = ?
+      ORDER BY rawat_jl_pr.tgl_perawatan DESC, rawat_jl_pr.jam_rawat DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil tindakan ralan paramedis", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data tindakan rawat jalan dokter & paramedis.
+ */
+export async function getTindakanRalanDokterParamedis(noRawat: string) {
+  try {
+    const query = `
+      SELECT rawat_jl_drpr.tgl_perawatan, rawat_jl_drpr.jam_rawat, rawat_jl_drpr.kd_jenis_prw,
+             jns_perawatan.nm_perawatan, dokter.nm_dokter, petugas.nama, rawat_jl_drpr.biaya_rawat
+      FROM rawat_jl_drpr
+      INNER JOIN jns_perawatan ON rawat_jl_drpr.kd_jenis_prw = jns_perawatan.kd_jenis_prw
+      INNER JOIN dokter ON rawat_jl_drpr.kd_dokter = dokter.kd_dokter
+      INNER JOIN petugas ON rawat_jl_drpr.nip = petugas.nip
+      WHERE rawat_jl_drpr.no_rawat = ?
+      ORDER BY rawat_jl_drpr.tgl_perawatan DESC, rawat_jl_drpr.jam_rawat DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil tindakan ralan dokter paramedis", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data tindakan rawat inap dokter & paramedis.
+ */
+export async function getTindakanRanapDokterParamedis(noRawat: string) {
+  try {
+    const query = `
+      SELECT rawat_inap_drpr.tgl_perawatan, rawat_inap_drpr.jam_rawat, rawat_inap_drpr.kd_jenis_prw,
+             jns_perawatan_inap.nm_perawatan, dokter.nm_dokter, petugas.nama, rawat_inap_drpr.biaya_rawat
+      FROM rawat_inap_drpr
+      INNER JOIN jns_perawatan_inap ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
+      INNER JOIN dokter ON rawat_inap_drpr.kd_dokter = dokter.kd_dokter
+      INNER JOIN petugas ON rawat_inap_drpr.nip = petugas.nip
+      WHERE rawat_inap_drpr.no_rawat = ?
+      ORDER BY rawat_inap_drpr.tgl_perawatan DESC, rawat_inap_drpr.jam_rawat DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil tindakan ranap dokter paramedis", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data penggunaan obat/BHP operasi.
+ */
+export async function getPenggunaanObatOperasi(noRawat: string) {
+  try {
+    const query = `
+      SELECT beri_obat_operasi.tanggal, databarang.nama_brng, beri_obat_operasi.jumlah
+      FROM beri_obat_operasi
+      INNER JOIN databarang ON beri_obat_operasi.kd_obat = databarang.kd_brng
+      WHERE beri_obat_operasi.no_rawat = ?
+      ORDER BY beri_obat_operasi.tanggal DESC
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil penggunaan obat operasi", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data resume rawat jalan.
+ */
+export async function getResumePasien(noRawat: string) {
+  try {
+    const query = `
+      SELECT resume_pasien.*, dokter.nm_dokter
+      FROM resume_pasien
+      LEFT JOIN dokter ON resume_pasien.kd_dokter = dokter.kd_dokter
+      WHERE resume_pasien.no_rawat = ?
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil resume pasien", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data resume ICU.
+ */
+export async function getResumeICU(noRawat: string) {
+  try {
+    const query = `
+      SELECT resume_pasien_icu.*, dokter.nm_dokter
+      FROM resume_pasien_icu
+      LEFT JOIN dokter ON resume_pasien_icu.kd_dokter = dokter.kd_dokter
+      WHERE resume_pasien_icu.no_rawat = ?
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil resume ICU", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data resume Mata.
+ */
+export async function getResumeMata(noRawat: string) {
+  try {
+    const query = `
+      SELECT * FROM resume_pasien_mata WHERE no_rawat = ?
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil resume mata", error: error.message, data: [] };
+  }
+}
