@@ -114,6 +114,19 @@ function RiwayatPasienContent() {
   const [currentTime, setCurrentTime] = useState(new Date().toTimeString().slice(0, 8));
   const clockRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+  const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (isLoadingData) {
+      loadingTimerRef.current = setTimeout(() => setShowLoadingOverlay(true), 1000);
+    } else {
+      if (loadingTimerRef.current) { clearTimeout(loadingTimerRef.current); loadingTimerRef.current = null; }
+      setShowLoadingOverlay(false);
+    }
+    return () => { if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current); };
+  }, [isLoadingData]);
+
   useEffect(() => {
     if (isClockRunning) {
       const tick = () => {
@@ -1070,6 +1083,16 @@ function RiwayatPasienContent() {
                 </div>
                 {sidebarOpen && (
                   <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-0.5">
+                    <button onClick={() => {
+                      const allChecked = sectionDefs.every(s => checkedSections[s.id]);
+                      const newState: Record<string, boolean> = {};
+                      sectionDefs.forEach(s => { newState[s.id] = !allChecked; });
+                      setCheckedSections(newState);
+                    }}
+                      className="flex items-center gap-2 px-2 py-1.5 w-full text-left text-xs rounded transition-colors bg-brand-50 dark:bg-slate-700 text-brand-700 dark:text-brand-400 font-semibold mb-1 border border-brand-200 dark:border-slate-600">
+                      {sectionDefs.every(s => checkedSections[s.id]) ? <FaCheckSquare className="text-brand-500 shrink-0" /> : <FaSquare className="text-slate-400 shrink-0" />}
+                      <span>{sectionDefs.every(s => checkedSections[s.id]) ? 'Hapus Semua' : 'Pilih Semua'}</span>
+                    </button>
                     {sectionDefs.map((sec) => (
                       <button key={sec.id} onClick={() => setCheckedSections(prev => ({ ...prev, [sec.id]: !prev[sec.id] }))}
                         className={`flex items-center gap-2 px-2 py-1.5 w-full text-left text-xs rounded transition-colors ${checkedSections[sec.id] ? "bg-brand-50 dark:bg-slate-700 text-brand-700 dark:text-brand-400 font-semibold" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"}`}>
@@ -1157,6 +1180,21 @@ function RiwayatPasienContent() {
                   Konfirmasi
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Loading Overlay */}
+      <AnimatePresence>
+        {showLoadingOverlay && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+            onClick={() => {}}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 px-8 py-6 flex flex-col items-center gap-3">
+              <div className="w-8 h-8 border-[3px] border-brand-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">Memuat data...</span>
             </motion.div>
           </motion.div>
         )}
