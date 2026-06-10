@@ -8,11 +8,17 @@ import {
   FaUsers, FaBed, FaAmbulance,
   FaClipboard, FaArrowRight, FaBullhorn, FaCalendarAlt,
   FaInfoCircle, FaArrowUp, FaArrowDown, FaCheckCircle,
-  FaWalking, FaClock, FaUserMd,
+  FaWalking, FaClock, FaUserMd, FaImage, FaChartBar,
 } from "react-icons/fa";
 
 export default function Home() {
-  const { wallpaperUrl } = useSetting();
+  const { instansi, logoUrl, wallpaperUrl } = useSetting();
+  const [showWallpaper, setShowWallpaper] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("showWallpaper") === "true";
+    }
+    return false;
+  });
   const [username, setUsername] = useState("Supervisor");
   const [metrics, setMetrics] = useState<{
     pasienHariIni: number; rawatInap: number; igdUgd: number; rawatJalan: number; pendaftaran: number;
@@ -65,10 +71,61 @@ export default function Home() {
     });
   }, [fetchChart, chartJenis]);
 
+  const toggleWallpaper = () => {
+    setShowWallpaper((prev) => {
+      const next = !prev;
+      localStorage.setItem("showWallpaper", String(next));
+      return next;
+    });
+  };
+
+  const namaInstansi = instansi?.namaInstansi || "";
+  const alamatInstansi = [instansi?.alamatInstansi, instansi?.kabupaten, instansi?.propinsi].filter(Boolean).join(", ");
+
+  if (showWallpaper) {
+    return (
+      <div className="flex-1 relative w-full h-full overflow-hidden">
+        <div
+          className="absolute inset-0 z-0 bg-no-repeat bg-cover bg-center"
+          style={{ backgroundImage: `url('${wallpaperUrl}')` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent z-0" />
+        <div className="absolute inset-0 bg-black/0 dark:bg-black/35 z-0 transition-colors duration-300" />
+
+        <button
+          onClick={toggleWallpaper}
+          className="absolute top-4 right-4 z-20 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md hover:bg-white dark:hover:bg-slate-700 border border-white/50 dark:border-slate-600 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-md flex items-center gap-2 transition-all hover:shadow-lg"
+        >
+          <FaChartBar />
+          Tampilkan Dashboard
+        </button>
+
+        <div className="absolute bottom-16 left-4 sm:bottom-8 sm:left-8 z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5">
+          <div className="flex flex-row items-center gap-3 drop-shadow-lg bg-white/40 dark:bg-slate-800/60 backdrop-blur-sm px-4 sm:px-5 py-3 rounded-xl border border-white/70 dark:border-slate-700">
+            <img
+              src={logoUrl}
+              alt="Logo RS"
+              className="h-10 sm:h-14 w-10 sm:w-14 shrink-0 rounded-full object-cover"
+            />
+            <div className="flex flex-col">
+              <h1 className="text-base sm:text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight italic flex items-center gap-2">
+                {namaInstansi || "SIMRS KHANZA"}
+              </h1>
+              <p className="text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-300 mt-0.5 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-brand-500 inline-block animate-pulse"></span>
+                {alamatInstansi || "Sistem Informasi Manajemen Rumah Sakit"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Wallpaper Background */}
-      <div className="absolute inset-0 z-0 bg-no-repeat bg-cover bg-center opacity-[0.07] dark:opacity-[0.04] pointer-events-none"
+      <div className="absolute inset-0 z-0 bg-no-repeat bg-cover bg-center opacity-[0.1] dark:opacity-[0.04] pointer-events-none"
         style={{ backgroundImage: `url('${wallpaperUrl}')` }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-transparent dark:from-slate-900/50 z-0 pointer-events-none" />
@@ -81,6 +138,15 @@ export default function Home() {
         transition={{ duration: 0.3 }}
         className="bg-gradient-to-r from-brand-50/70 to-brand-100/20 dark:from-slate-800 dark:to-slate-700/60 rounded-3xl overflow-hidden border border-brand-100/30 dark:border-slate-700 p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative shadow-sm min-h-[180px] w-full"
       >
+        {/* Toggle Wallpaper */}
+        <button
+          onClick={toggleWallpaper}
+          className="absolute top-3 right-3 z-20 bg-white/70 dark:bg-slate-700/70 backdrop-blur-md hover:bg-white dark:hover:bg-slate-600 border border-slate-200/50 dark:border-slate-600 rounded-xl px-2.5 py-2 text-[10px] font-bold text-slate-600 dark:text-slate-300 shadow-sm flex items-center gap-1.5 transition-all hover:shadow-md"
+        >
+          <FaImage />
+          Wallpaper
+        </button>
+
         {/* Hospital Glass image on the right with a gradient overlay */}
         <div className="absolute right-0 top-0 bottom-0 w-full md:w-3/5 hidden md:block z-0 pointer-events-none rounded-r-3xl overflow-hidden">
           <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-brand-50/90 dark:from-slate-800 to-transparent z-10" />
