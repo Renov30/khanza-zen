@@ -708,39 +708,39 @@ function PemeriksaanContent() {
                 className={`flex flex-col gap-5 ${isVerifBlocked ? "opacity-50 pointer-events-none select-none" : ""}`}
               >
                 {/* Info Pasien & Tanggal */}
-                <FormSection className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-7 sm:w-10 shrink-0">
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">
                       Pasien
                     </label>
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 w-20 sm:w-24 lg:w-auto bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-28 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={noRawat}
                       readOnly
                     />
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 w-12 sm:w-14 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={isLoadingPatient ? "..." : noRM}
                       readOnly
                       placeholder="RM"
                     />
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 flex-1 min-w-0 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={isLoadingPatient ? "Memuat..." : namaPasien}
                       readOnly
                       placeholder="Nama"
                     />
                   </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap sm:flex-nowrap">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 sm:w-12 shrink-0">
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 sm:w-12 shrink-0">
                       Tanggal
                     </label>
                     <input
                       type="date"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 text-xs w-28 sm:w-32 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
                       value={currentDate}
                       onChange={(e) => {
                         if (!isClockRunning) setCurrentDate(e.target.value);
@@ -750,7 +750,7 @@ function PemeriksaanContent() {
                     <input
                       type="time"
                       step="1"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1 text-xs w-24 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
                       value={currentTime}
                       onChange={(e) => {
                         if (!isClockRunning) setCurrentTime(e.target.value);
@@ -941,6 +941,31 @@ function PemeriksaanContent() {
                         </div>
                       </div>
                     </div>
+                    {/* Dilakukan Oleh - desktop */}
+                    <FormSection className="hidden xl:flex flex-wrap items-center gap-1 sm:gap-2">
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 shrink-0 whitespace-nowrap">
+                        Dilakukan Oleh
+                      </label>
+                      <input
+                        type="text"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-16 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
+                        value={pegawaiNik}
+                        readOnly
+                      />
+                      <input
+                        type="text"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-20 sm:w-28 lg:w-36 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
+                        value={pegawaiNama}
+                        readOnly
+                      />
+                      <button
+                        onClick={() => setDialogPegawaiOpen(true)}
+                        className="p-1 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors shrink-0"
+                        title="Pilih Petugas"
+                      >
+                        <FaEdit />
+                      </button>
+                    </FormSection>
                   </div>
                   {/* Tengah: Alergi, Asesmen, Plan, Instruksi, Evaluasi */}
                   <div className="flex-1 min-w-0 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
@@ -1067,36 +1092,33 @@ function PemeriksaanContent() {
                       </Button>
                     </div>
                   </div>
-                </div>
-                {/* Petugas */}
-                <FormSection>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 sm:w-24 shrink-0">
+                  {/* Dilakukan Oleh - mobile */}
+                  <FormSection className="xl:hidden flex flex-wrap items-center gap-1 sm:gap-2">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 shrink-0 whitespace-nowrap">
                       Dilakukan Oleh
                     </label>
-                    <div className="flex gap-1 w-full sm:flex-1">
-                      <input
-                        type="text"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 w-20 sm:w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
-                        value={pegawaiNik}
-                        readOnly
-                      />
-                      <input
-                        type="text"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
-                        value={pegawaiNama}
-                        readOnly
-                      />
-                      <button
-                        onClick={() => setDialogPegawaiOpen(true)}
-                        className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors shrink-0"
-                        title="Pilih Petugas"
-                      >
-                        <FaEdit />
-                      </button>
-                    </div>
-                  </div>
-                </FormSection>
+                    <input
+                      type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-16 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
+                      value={pegawaiNik}
+                      readOnly
+                    />
+                    <input
+                      type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-20 sm:w-28 lg:w-36 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
+                      value={pegawaiNama}
+                      readOnly
+                    />
+                    <button
+                      onClick={() => setDialogPegawaiOpen(true)}
+                      className="p-1 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors shrink-0"
+                      title="Pilih Petugas"
+                    >
+                      <FaEdit />
+                    </button>
+                  </FormSection>
+                </div>
+
               </div>
             </TopFormContainer>
 
