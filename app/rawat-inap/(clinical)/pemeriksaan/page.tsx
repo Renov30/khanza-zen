@@ -767,9 +767,10 @@ function PemeriksaanContent() {
                     />
                   </div>
                 </FormSection>
-                {/* SOAP, Alergi & TTV */}
-                <div className="flex flex-col xl:flex-row gap-4">
-                  {/* Kiri: SOAP, TTV */}
+                <div className="flex flex-col gap-4">
+                  {/* SOAP, Alergi & TTV */}
+                  <div className="flex flex-col lg:flex-row gap-4">
+                    {/* Kiri: SOAP, TTV */}
                   <div className="flex-1 flex flex-col gap-4 min-w-0">
                     <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
                       <div className="flex flex-col gap-3">
@@ -803,8 +804,7 @@ function PemeriksaanContent() {
                         data-form="pemeriksaan"
                         className="flex flex-col gap-2"
                       >
-                        {/* Row 1: Suhu, Tensi, Berat */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
                               Suhu
@@ -820,7 +820,7 @@ function PemeriksaanContent() {
                             />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-20 shrink-0">
                               Tensi
                               <span className="hidden sm:inline"> (mmHg)</span>
                             </label>
@@ -847,9 +847,6 @@ function PemeriksaanContent() {
                               onKeyDown={handleEnterKeyDown}
                             />
                           </div>
-                        </div>
-                        {/* Row 2: TB, RR, Nadi */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
                               TB<span className="hidden sm:inline"> (Cm)</span>
@@ -864,7 +861,7 @@ function PemeriksaanContent() {
                             />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-20 shrink-0">
                               RR
                               <span className="hidden sm:inline"> (/mnt)</span>
                             </label>
@@ -891,9 +888,6 @@ function PemeriksaanContent() {
                               onKeyDown={handleEnterKeyDown}
                             />
                           </div>
-                        </div>
-                        {/* Row 3: SpO2, GCS, Kesadaran */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
                               SpO2<span className="hidden sm:inline"> (%)</span>
@@ -908,7 +902,7 @@ function PemeriksaanContent() {
                             />
                           </div>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-14 sm:w-20 shrink-0">
+                            <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-20 shrink-0">
                               GCS
                               <span className="hidden sm:inline"> (E,V,M)</span>
                             </label>
@@ -921,7 +915,7 @@ function PemeriksaanContent() {
                               onKeyDown={handleEnterKeyDown}
                             />
                           </div>
-                          <div className="flex items-center gap-1.5 min-w-0">
+                          <div className="md:col-span-2 xl:col-span-1 flex items-center gap-1.5 min-w-0">
                             <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-16 shrink-0">
                               Kesadaran
                             </label>
@@ -1029,7 +1023,7 @@ function PemeriksaanContent() {
                     </div>
                   </div>
                   {/* Shortcut */}
-                  <div className="xl:w-38 shrink-0 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
+                  <div className="xl:w-38 shrink-0 hidden xl:block bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
                     <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
                       Shortcut
                     </h3>
@@ -1093,8 +1087,74 @@ function PemeriksaanContent() {
                       </Button>
                     </div>
                   </div>
-                  {/* Dilakukan Oleh - mobile */}
-                  <FormSection className="xl:hidden flex flex-wrap items-center gap-1 sm:gap-2">
+                  </div>
+                  {/* Shortcut & Dilakukan Oleh - mobile (<xl) */}
+                  <div className="flex flex-col sm:flex-row gap-4 xl:hidden">
+                  <div className="flex-1 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
+                    <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
+                      Shortcut
+                    </h3>
+                    <div className="flex flex-row flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (!noRM.trim()) {
+                            alert("Silahkan pilih pasien terlebih dahulu");
+                            return;
+                          }
+                          window.open(
+                            `/rawat-inap/riwayat-pasien?noRawat=${encodeURIComponent(noRawat)}&noRM=${encodeURIComponent(noRM)}&nama=${encodeURIComponent(namaPasien)}`,
+                            "_blank",
+                          );
+                        }}
+                        title="Riwayat Pasien"
+                        className="flex-1 justify-center h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
+                      >
+                        <span className="text-sm">
+                          <FaHistory />
+                        </span>{" "}
+                        <span>Riwayat</span>
+                        <span className="hidden xl:inline"> Pasien</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (!noRM.trim()) {
+                            alert("Silahkan pilih pasien terlebih dahulu");
+                            return;
+                          }
+                          window.open(
+                            `/rawat-inap/riwayat-pasien?noRawat=${encodeURIComponent(noRawat)}&noRM=${encodeURIComponent(noRM)}&nama=${encodeURIComponent(namaPasien)}`,
+                            "_blank",
+                          );
+                        }}
+                        title="Resume Pasien"
+                        className="flex-1 justify-center h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
+                      >
+                        <span className="text-sm">
+                          <FaClipboardList />
+                        </span>{" "}
+                        <span>Resume</span>
+                        <span className="hidden xl:inline"> Pasien</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleShow5Soap}
+                        title="5 SOAP Terakhir"
+                        className="flex-1 justify-center h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95 bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200"
+                      >
+                        <span className="text-sm">
+                          <FaFileAlt />
+                        </span>{" "}
+                        <span>5 SOAP</span>
+                        <span className="hidden xl:inline"> Terakhir</span>
+                      </Button>
+                    </div>
+                  </div>
+                  <FormSection className="flex flex-wrap items-center gap-1 sm:gap-2">
                     <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 shrink-0 whitespace-nowrap">
                       Dilakukan Oleh
                     </label>
@@ -1119,6 +1179,7 @@ function PemeriksaanContent() {
                     </button>
                   </FormSection>
                 </div>
+              </div>
 
               </div>
             </TopFormContainer>
