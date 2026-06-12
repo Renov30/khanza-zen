@@ -299,22 +299,31 @@ function DietPasienContent() {
         <div className="flex flex-col min-h-full w-full">
           <TopFormContainer title="Form Input Diet Pasien" isOpen={formOpen}>
               <div data-form="diet" className="flex flex-col gap-5">
-                <FormSection className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={noRawat} readOnly />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
                   </div>
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
-                  <div className="ml-auto flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0" checked={isClockRunning} disabled title="Jam selalu real-time" />
                   </div>
                 </FormSection>
-              <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">Data Diet</h3>
+              <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Tanggal</label>
@@ -356,11 +365,11 @@ function DietPasienContent() {
               </div>
               <FormSection>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                   <div className="flex gap-1 flex-1">
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
-                    <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
+                    <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNik} readOnly />
+                    <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNama} readOnly />
+                    <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-600 rounded border border-transparent hover:border-brand-200 dark:hover:border-brand-600 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                   </div>
                 </div>
               </FormSection>
