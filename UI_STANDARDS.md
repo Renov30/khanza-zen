@@ -1289,3 +1289,5 @@ Sebelum menyelesaikan halaman baru, pastikan:
 - [ ] Tabel data full-width (di luar div padding form, tanpa `px-*` dari container utama)
 - [ ] `DataTableMulti` tanpa `rounded-*` (root div: `overflow-hidden` tanpa `rounded-xl`)
 - [ ] Halaman input data: padding form diterapkan via wrapper div, bukan container utama
+- [ ] Form padding wrapper: `<div className="px-2 sm:px-4 md:px-6 lg:px-8">` membungkus `TopFormContainer` (tabel data di luar wrapper)
+- [ ] Patient info menggunakan pola CPPT: label "Pasien" + 3 input (noRawat, RM, Nama) dalam satu baris, label "Tanggal" + date + time di grup terpisah — semua rata kiri dengan `flex flex-wrap` agar turun ke bawah otomatis saat layar kecil

@@ -297,6 +297,7 @@ function DietPasienContent() {
     <>
       <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 pt-0 pb-2 relative">
         <div className="flex flex-col min-h-full w-full">
+          <div className="px-2 sm:px-4 md:px-6 lg:px-8">
           <TopFormContainer title="Form Input Diet Pasien" isOpen={formOpen}>
               <div data-form="diet" className="flex flex-col gap-5">
                 <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -375,6 +376,7 @@ function DietPasienContent() {
               </FormSection>
             </div>
           </TopFormContainer>
+          </div>
 
           <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <DataTableMulti
