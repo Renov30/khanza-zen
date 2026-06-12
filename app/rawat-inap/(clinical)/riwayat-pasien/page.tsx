@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { FaHistory, FaClipboardList, FaNotesMedical, FaCheckSquare, FaSquare, FaBars, FaPrint, FaSearch, FaTimes, FaChevronDown, FaChevronUp, FaUserMd, FaPrescription, FaFlask, FaXRay, FaSyringe, FaProcedures, FaBed, FaStethoscope, FaHeartbeat, FaBrain, FaTooth, FaEye, FaBaby, FaFemale, FaMale, FaWalking, FaWheelchair, FaUserInjured, FaAmbulance, FaPills, FaLungs } from 'react-icons/fa';
+import { FaHistory, FaClipboardList, FaNotesMedical, FaCheckSquare, FaSquare, FaBars, FaPrint, FaSearch, FaTimes, FaChevronDown, FaChevronUp, FaUserMd, FaPrescription, FaFlask, FaXRay, FaSyringe, FaProcedures, FaBed, FaStethoscope, FaHeartbeat, FaBrain, FaTooth, FaEye, FaBaby, FaFemale, FaMale, FaWalking, FaWheelchair, FaUserInjured, FaAmbulance, FaPills, FaLungs, FaInfoCircle } from 'react-icons/fa';
 import BottomActionPanel from '@/components/BottomActionPanel';
 import DataTableMulti from '@/components/DataTableMulti';
 import { TableColumn } from '@/components/TableTypes';
@@ -24,6 +24,7 @@ import {
   getTindakanRalanDokterParamedis, getTindakanRanapDokterParamedis,
   getPenggunaanObatOperasi, getResumePasien, getResumeICU, getResumeMata,
 } from '@/lib/actions/ranap';
+import FormSection from "@/components/FormSection";
 import QRCodeDisplay from '@/components/QRCodeDisplay';
 
 interface KunjunganRow {
@@ -814,71 +815,44 @@ function RiwayatPasienContent() {
 
   return (
     <>
-      {/* Bar Info Pasien + Clock */}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-3 shrink-0 flex flex-wrap gap-2 items-center text-xs">
-        <div className="flex items-center gap-1 w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 dark:text-slate-300 shrink-0">Pasien :</label>
-          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-33 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500" value={noRawatParam || resolvedNoRM} readOnly />
+      {/* Info Pasien & Tanggal */}
+      <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">
+            Pasien
+          </label>
+          <input type="text" readOnly
+            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+            value={noRawatParam || resolvedNoRM} />
+          <input type="text" readOnly placeholder="RM"
+            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+            value={resolvedNoRM} />
+          <input type="text" readOnly placeholder="Nama"
+            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+            value={resolvedNmPasien} />
         </div>
-        <div className="flex items-center gap-1 w-full sm:w-auto">
-          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-16 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500" value={resolvedNoRM} readOnly placeholder="No. RM" />
-        </div>
-        <div className="flex items-center gap-1 w-full md:w-auto">
-          <input type="text" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 flex-1 lg:w-70 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:border-brand-500" value={resolvedNmPasien} readOnly placeholder="Nama Pasien" />
-        </div>
-        <div className="flex flex-wrap items-center gap-1 sm:ml-auto w-full sm:w-auto">
-          <label className="font-semibold text-slate-600 dark:text-slate-300">Tanggal :</label>
-          <input type="date" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 mr-1 focus:outline-none w-full sm:w-27 focus:border-brand-500 bg-white dark:bg-slate-700"
-            value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-          <input type="time" step="1" className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs w-27 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
-            value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-          <input type="checkbox" className="accent-brand-500 w-4 h-4 ml-2 opacity-60"
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">
+            Tanggal
+          </label>
+          <input type="date"
+            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+            value={currentDate}
+            onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }}
+            readOnly={isClockRunning} />
+          <input type="time" step="1"
+            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+            value={currentTime}
+            onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }}
+            readOnly={isClockRunning} />
+          <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
             checked={isClockRunning} disabled title="Jam selalu real-time" />
+          <button onClick={() => setShowPasienInfo(true)}
+            className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
+            <FaInfoCircle className="text-[11px]" /> Data Pasien
+          </button>
         </div>
-      </div>
-
-      {/* Toggle Data Pasien */}
-      <button onClick={() => setShowPasienInfo(!showPasienInfo)}
-        className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-1.5 text-xs font-semibold text-brand-700 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 shrink-0">
-        {showPasienInfo ? <FaChevronUp className="text-[10px]" /> : <FaChevronDown className="text-[10px]" />}
-        {showPasienInfo ? "Sembunyikan" : "Tampilkan"} Data Pasien
-      </button>
-
-      {/* Panel Data Pasien */}
-      <AnimatePresence>
-        {showPasienInfo && pasienInfo && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shrink-0 overflow-hidden">
-            <div className="px-4 py-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 text-xs">
-                {[
-                  ["No. RM", pasienInfo.no_rkm_medis],
-                  ["Nama Pasien", pasienInfo.nm_pasien],
-                  ["Jenis Kelamin", pasienInfo.jk],
-                  ["Tempat Lahir", pasienInfo.tmp_lahir],
-                  ["Tanggal Lahir", pasienInfo.tgl_lahir],
-                  ["Agama", pasienInfo.agama],
-                  ["Gol. Darah", pasienInfo.gol_darah],
-                  ["Status Nikah", pasienInfo.stts_nikah],
-                  ["Pendidikan", pasienInfo.pendidikan],
-                  ["Pekerjaan", pasienInfo.pekerjaan],
-                  ["Alamat", pasienInfo.alamat],
-                  ["Ibu Kandung", pasienInfo.nm_ibu],
-                  ["No. KTP", pasienInfo.no_ktp],
-                  ["No. HP", pasienInfo.no_tlp],
-                  ["Bahasa", pasienInfo.bahasa],
-                  ["Cacat Fisik", pasienInfo.cacat_fisik],
-                ].map(([label, value]) => (
-                  <div key={label} className="flex flex-col gap-0.5">
-                    <span className="font-semibold text-slate-500 dark:text-slate-400">{label}</span>
-                    <span className="text-slate-800 dark:text-slate-100">{value || '-'}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </FormSection>
 
       {/* Tab */}
       <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
@@ -1148,6 +1122,62 @@ function RiwayatPasienContent() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Modal Data Pasien */}
+      <AnimatePresence>
+        {showPasienInfo && pasienInfo && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm"
+            onClick={() => setShowPasienInfo(false)}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 w-[calc(100%-2rem)] sm:w-[600px] max-h-[85vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 dark:border-slate-700">
+                <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                  <FaInfoCircle className="text-brand-500" /> Data Pasien
+                </h3>
+                <button onClick={() => setShowPasienInfo(false)}
+                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-600 transition-colors">
+                  <FaTimes className="text-xs" />
+                </button>
+              </div>
+              <div className="p-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3 text-xs">
+                  {[
+                    ["No. RM", pasienInfo.no_rkm_medis],
+                    ["Nama Pasien", pasienInfo.nm_pasien],
+                    ["Jenis Kelamin", pasienInfo.jk],
+                    ["Tempat Lahir", pasienInfo.tmp_lahir],
+                    ["Tanggal Lahir", pasienInfo.tgl_lahir],
+                    ["Agama", pasienInfo.agama],
+                    ["Gol. Darah", pasienInfo.gol_darah],
+                    ["Status Nikah", pasienInfo.stts_nikah],
+                    ["Pendidikan", pasienInfo.pendidikan],
+                    ["Pekerjaan", pasienInfo.pekerjaan],
+                    ["Alamat", pasienInfo.alamat],
+                    ["Ibu Kandung", pasienInfo.nm_ibu],
+                    ["No. KTP", pasienInfo.no_ktp],
+                    ["No. HP", pasienInfo.no_tlp],
+                    ["Bahasa", pasienInfo.bahasa],
+                    ["Cacat Fisik", pasienInfo.cacat_fisik],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex flex-col gap-0.5">
+                      <span className="font-semibold text-slate-500 dark:text-slate-400">{label}</span>
+                      <span className="text-slate-800 dark:text-slate-100">{value || '-'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-end px-5 py-3 border-t border-slate-200 dark:border-slate-700">
+                <button onClick={() => setShowPasienInfo(false)}
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors">
+                  Tutup
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Confirm Dialog */}
       <AnimatePresence>
