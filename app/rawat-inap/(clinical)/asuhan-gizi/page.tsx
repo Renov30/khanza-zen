@@ -53,9 +53,9 @@ interface AsuhanGiziRow {
 }
 
 const columns: TableColumn[] = [
-  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold hover:underline', width: '140px' },
-  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 font-semibold', width: '70px' },
-  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
+  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 dark:text-brand-400 font-bold hover:underline', width: '140px' },
+  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 dark:text-brand-400 font-semibold', width: '70px' },
+  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 dark:text-slate-100 font-bold', width: '200px' },
   { header: 'J.K.', key: 'jk', width: '40px' },
   { header: 'Tgl.Lahir', key: 'tgl_lahir', width: '100px' },
   { header: 'Tgl.Asuhan', key: 'tgl_asuhan', width: '100px' },
@@ -86,9 +86,9 @@ const columns: TableColumn[] = [
 ];
 
 const monitoringColumns: TableColumn[] = [
-  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold hover:underline', width: '140px' },
-  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 font-semibold', width: '70px' },
-  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
+  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 dark:text-brand-400 font-bold hover:underline', width: '140px' },
+  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 dark:text-brand-400 font-semibold', width: '70px' },
+  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 dark:text-slate-100 font-bold', width: '200px' },
   { header: 'Umur', key: 'umurdaftar', width: '60px' },
   { header: 'JK', key: 'jk', width: '30px' },
   { header: 'Tanggal', key: 'tanggal', width: '160px' },
@@ -99,9 +99,9 @@ const monitoringColumns: TableColumn[] = [
 ];
 
 const skriningGiziLanjutColumns: TableColumn[] = [
-  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold hover:underline', width: '140px' },
-  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 font-semibold', width: '70px' },
-  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
+  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 dark:text-brand-400 font-bold hover:underline', width: '140px' },
+  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 dark:text-brand-400 font-semibold', width: '70px' },
+  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 dark:text-slate-100 font-bold', width: '200px' },
   { header: 'Umur', key: 'umurdaftar', width: '60px' },
   { header: 'JK', key: 'jk', width: '30px' },
   { header: 'Tanggal', key: 'tanggal', width: '160px' },
@@ -121,9 +121,9 @@ const skriningGiziLanjutColumns: TableColumn[] = [
 ];
 
 const catatanADIMEColumns: TableColumn[] = [
-  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold hover:underline', width: '140px' },
-  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 font-semibold', width: '70px' },
-  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 font-bold', width: '200px' },
+  { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 dark:text-brand-400 font-bold hover:underline', width: '140px' },
+  { header: 'No.R.M.', key: 'no_rkm_medis', className: 'text-brand-600 dark:text-brand-400 font-semibold', width: '70px' },
+  { header: 'Nama Pasien', key: 'nm_pasien', className: 'text-slate-800 dark:text-slate-100 font-bold', width: '200px' },
   { header: 'Umur', key: 'umurdaftar', width: '60px' },
   { header: 'JK', key: 'jk', width: '30px' },
   { header: 'Tanggal', key: 'tanggal', width: '160px' },
@@ -139,16 +139,16 @@ const catatanADIMEColumns: TableColumn[] = [
 
 function AllergyItem({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <div className="flex items-center justify-between gap-2 py-1 border-b border-slate-100 last:border-0 sm:border-0 sm:py-0">
-      <span className="text-[11px] text-slate-700 leading-tight pr-2">{label}</span>
+    <div className="flex items-center justify-between gap-2 py-1 border-b border-slate-100 dark:border-slate-600 last:border-0 sm:border-0 sm:py-0">
+      <span className="text-[11px] text-slate-700 dark:text-slate-300 leading-tight pr-2">{label}</span>
       <div className="flex items-center gap-3 shrink-0">
         <label className="flex items-center gap-1.5 cursor-pointer group">
           <input type="radio" name={label} checked={value} onChange={() => onChange(true)} className="accent-brand-500 w-3.5 h-3.5 cursor-pointer" />
-          <span className="text-[11px] text-slate-600 group-hover:text-brand-600 transition-colors">Ya</span>
+          <span className="text-[11px] text-slate-600 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Ya</span>
         </label>
         <label className="flex items-center gap-1.5 cursor-pointer group">
           <input type="radio" name={label} checked={!value} onChange={() => onChange(false)} className="accent-brand-500 w-3.5 h-3.5 cursor-pointer" />
-          <span className="text-[11px] text-slate-600 group-hover:text-brand-600 transition-colors">Tidak</span>
+          <span className="text-[11px] text-slate-600 dark:text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Tidak</span>
         </label>
       </div>
     </div>
@@ -160,9 +160,9 @@ function FormField({ label, value, onChange, unit, placeholder, type = 'text', r
 }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 flex items-center gap-1">
+      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0 flex items-center gap-1">
         {label}
-        {unit && <span className="text-[10px] text-slate-400 font-normal lowercase">({unit})</span>}
+        {unit && <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal lowercase">({unit})</span>}
       </label>
       <input
         type={type}
@@ -171,7 +171,7 @@ function FormField({ label, value, onChange, unit, placeholder, type = 'text', r
         onKeyDown={onKeyDown}
         placeholder={placeholder}
         readOnly={readOnly}
-        className={`flex-1 min-w-0 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors ${readOnly ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
+        className={`flex-1 min-w-0 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 transition-colors ${readOnly ? 'bg-slate-50 dark:bg-slate-700 cursor-not-allowed' : 'bg-white dark:bg-slate-700 dark:text-slate-100'}`}
       />
     </div>
   );
@@ -180,13 +180,13 @@ function FormField({ label, value, onChange, unit, placeholder, type = 'text', r
 function FormTextarea({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div className="flex items-start gap-2">
-      <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0 pt-2">{label}</label>
+      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0 pt-2">{label}</label>
       <textarea
         value={value}
         onChange={e => onChange(e.target.value)}
         rows={3}
         placeholder={placeholder}
-        className="flex-1 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white resize-y min-h-[80px]"
+        className="flex-1 border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100 resize-y min-h-[80px]"
       />
     </div>
   );
@@ -298,6 +298,12 @@ function AsuhanGiziContent() {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
+
+  const [alasanDialog, setAlasanDialog] = useState<{
+    open: boolean;
+    mode: "ganti" | "hapus";
+  }>({ open: false, mode: "ganti" });
+  const [alasanText, setAlasanText] = useState("");
 
   const [alergiTelur, setAlergiTelur] = useState(false);
   const [alergiSusuSapi, setAlergiSusuSapi] = useState(false);
@@ -623,13 +629,10 @@ function AsuhanGiziContent() {
     setFormOpen(true);
   };
 
-  const handleHapusAsuhanGizi = async () => {
-    if (selectedRowIdx === null || selectedRowIdx < 0 || selectedRowIdx >= dataGizi.length) {
-      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
-      return;
-    }
-    if (!confirm('Yakin akan menghapus data asuhan gizi ini?')) return;
-    const row = dataGizi[selectedRowIdx];
+  const confirmHapusAsuhanGizi = async () => {
+    if (!alasanText.trim()) { alert("Alasan tidak boleh kosong!"); return; }
+    setAlasanDialog({ open: false, mode: "hapus" });
+    const row = dataGizi[selectedRowIdx!];
     const result = await hapusAsuhanGiziRanap(row.no_rawat, row.tgl_asuhan);
     if (result.success) {
       resetFormAsuhanGizi();
@@ -637,14 +640,32 @@ function AsuhanGiziContent() {
     } else {
       alert(result.message || 'Gagal menghapus data');
     }
+    setAlasanText("");
   };
 
-  const handleGantiAsuhanGizi = async () => {
+  const handleHapusAsuhanGizi = () => {
+    if (selectedRowIdx === null || selectedRowIdx < 0 || selectedRowIdx >= dataGizi.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    setAlasanText("");
+    setAlasanDialog({ open: true, mode: "hapus" });
+  };
+
+  const confirmGantiAsuhanGizi = async () => {
+    if (!alasanText.trim()) { alert("Alasan tidak boleh kosong!"); return; }
+    setAlasanDialog({ open: false, mode: "ganti" });
+    await handleSimpanAsuhanGizi();
+    setAlasanText("");
+  };
+
+  const handleGantiAsuhanGizi = () => {
     if (!isEditMode || selectedRowIdx === null) {
       alert('Silakan pilih data yang akan diganti terlebih dahulu.');
       return;
     }
-    await handleSimpanAsuhanGizi();
+    setAlasanText("");
+    setAlasanDialog({ open: true, mode: "ganti" });
   };
 
   // === Monitoring Gizi CRUD ===
@@ -709,13 +730,10 @@ function AsuhanGiziContent() {
     setFormOpen(true);
   };
 
-  const handleHapusMonitoring = async () => {
-    if (selectedRowIdxMonitoring === null || selectedRowIdxMonitoring < 0 || selectedRowIdxMonitoring >= dataMonitoring.length) {
-      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
-      return;
-    }
-    if (!confirm('Yakin akan menghapus data monitoring gizi ini?')) return;
-    const row = dataMonitoring[selectedRowIdxMonitoring];
+  const confirmHapusMonitoring = async () => {
+    if (!alasanText.trim()) { alert("Alasan tidak boleh kosong!"); return; }
+    setAlasanDialog({ open: false, mode: "hapus" });
+    const row = dataMonitoring[selectedRowIdxMonitoring!];
     const result = await hapusMonitoringGiziRanap(row.tanggal, row.no_rawat);
     if (result.success) {
       resetFormMonitoring();
@@ -723,14 +741,32 @@ function AsuhanGiziContent() {
     } else {
       alert(result.message || 'Gagal menghapus data');
     }
+    setAlasanText("");
   };
 
-  const handleGantiMonitoring = async () => {
+  const handleHapusMonitoring = () => {
+    if (selectedRowIdxMonitoring === null || selectedRowIdxMonitoring < 0 || selectedRowIdxMonitoring >= dataMonitoring.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    setAlasanText("");
+    setAlasanDialog({ open: true, mode: "hapus" });
+  };
+
+  const confirmGantiMonitoring = async () => {
+    if (!alasanText.trim()) { alert("Alasan tidak boleh kosong!"); return; }
+    setAlasanDialog({ open: false, mode: "ganti" });
+    await handleSimpanMonitoring();
+    setAlasanText("");
+  };
+
+  const handleGantiMonitoring = () => {
     if (!isEditModeMonitoring || selectedRowIdxMonitoring === null) {
       alert('Silakan pilih data yang akan diganti terlebih dahulu.');
       return;
     }
-    await handleSimpanMonitoring();
+    setAlasanText("");
+    setAlasanDialog({ open: true, mode: "ganti" });
   };
 
   // === Skrining Gizi Lanjut CRUD ===
@@ -823,13 +859,10 @@ function AsuhanGiziContent() {
     setFormOpen(true);
   };
 
-  const handleHapusSkrining = async () => {
-    if (selectedRowIdxSkrining === null || selectedRowIdxSkrining < 0 || selectedRowIdxSkrining >= dataSkriningGizi.length) {
-      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
-      return;
-    }
-    if (!confirm('Yakin akan menghapus data skrining gizi lanjut ini?')) return;
-    const row = dataSkriningGizi[selectedRowIdxSkrining];
+  const confirmHapusSkrining = async () => {
+    if (!alasanText.trim()) { alert("Alasan tidak boleh kosong!"); return; }
+    setAlasanDialog({ open: false, mode: "hapus" });
+    const row = dataSkriningGizi[selectedRowIdxSkrining!];
     const result = await hapusSkriningGiziLanjutRanap(row.tanggal, row.no_rawat);
     if (result.success) {
       resetFormSkrining();
@@ -837,14 +870,32 @@ function AsuhanGiziContent() {
     } else {
       alert(result.message || 'Gagal menghapus data');
     }
+    setAlasanText("");
   };
 
-  const handleGantiSkrining = async () => {
+  const handleHapusSkrining = () => {
+    if (selectedRowIdxSkrining === null || selectedRowIdxSkrining < 0 || selectedRowIdxSkrining >= dataSkriningGizi.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    setAlasanText("");
+    setAlasanDialog({ open: true, mode: "hapus" });
+  };
+
+  const confirmGantiSkrining = async () => {
+    if (!alasanText.trim()) { alert("Alasan tidak boleh kosong!"); return; }
+    setAlasanDialog({ open: false, mode: "ganti" });
+    await handleSimpanSkrining();
+    setAlasanText("");
+  };
+
+  const handleGantiSkrining = () => {
     if (!isEditModeSkrining || selectedRowIdxSkrining === null) {
       alert('Silakan pilih data yang akan diganti terlebih dahulu.');
       return;
     }
-    await handleSimpanSkrining();
+    setAlasanText("");
+    setAlasanDialog({ open: true, mode: "ganti" });
   };
 
   // === Catatan ADIME Gizi CRUD ===
@@ -922,13 +973,10 @@ function AsuhanGiziContent() {
     setFormOpen(true);
   };
 
-  const handleHapusADIME = async () => {
-    if (selectedRowIdxADIME === null || selectedRowIdxADIME < 0 || selectedRowIdxADIME >= dataADIME.length) {
-      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
-      return;
-    }
-    if (!confirm('Yakin akan menghapus data catatan ADIME gizi ini?')) return;
-    const row = dataADIME[selectedRowIdxADIME];
+  const confirmHapusADIME = async () => {
+    if (!alasanText.trim()) { alert("Alasan tidak boleh kosong!"); return; }
+    setAlasanDialog({ open: false, mode: "hapus" });
+    const row = dataADIME[selectedRowIdxADIME!];
     const result = await hapusCatatanADIMEGiziRanap(row.tanggal, row.no_rawat);
     if (result.success) {
       resetFormADIME();
@@ -936,14 +984,32 @@ function AsuhanGiziContent() {
     } else {
       alert(result.message || 'Gagal menghapus data');
     }
+    setAlasanText("");
   };
 
-  const handleGantiADIME = async () => {
+  const handleHapusADIME = () => {
+    if (selectedRowIdxADIME === null || selectedRowIdxADIME < 0 || selectedRowIdxADIME >= dataADIME.length) {
+      alert('Silakan pilih data yang akan dihapus terlebih dahulu.');
+      return;
+    }
+    setAlasanText("");
+    setAlasanDialog({ open: true, mode: "hapus" });
+  };
+
+  const confirmGantiADIME = async () => {
+    if (!alasanText.trim()) { alert("Alasan tidak boleh kosong!"); return; }
+    setAlasanDialog({ open: false, mode: "ganti" });
+    await handleSimpanADIME();
+    setAlasanText("");
+  };
+
+  const handleGantiADIME = () => {
     if (!isEditModeADIME || selectedRowIdxADIME === null) {
       alert('Silakan pilih data yang akan diganti terlebih dahulu.');
       return;
     }
-    await handleSimpanADIME();
+    setAlasanText("");
+    setAlasanDialog({ open: true, mode: "ganti" });
   };
 
   const tabs = [
@@ -956,13 +1022,13 @@ function AsuhanGiziContent() {
   return (
     <>
       {/* Tab */}
-      <div className="flex bg-white border-b border-slate-200 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
+      <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-600 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
         {tabs.map(tab => {
           const tabId = tab.toLowerCase().replace(/[^a-z0-9]/g, '');
           const isActive = activeTab === tabId;
           return (
             <button key={tab} onClick={() => { setActiveTab(tabId); setIsTableExpanded(false); setSelectedRows([]); }}
-              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 font-bold' : 'text-slate-500 hover:text-brand-600'}`}>
+              className={`px-2 md:px-4 py-2 md:py-2.5 text-[10px] md:text-xs font-semibold transition-all whitespace-nowrap relative ${isActive ? 'text-brand-700 dark:text-brand-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400'}`}>
               {tab}
               {isActive && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-full" />}
             </button>
@@ -971,60 +1037,68 @@ function AsuhanGiziContent() {
       </div>
 
       {/* Konten Tab */}
-      <div className="flex-1 overflow-auto bg-white pt-0 pb-2 relative">
+      <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 pt-0 pb-2 relative">
         {activeTab === 'asuhangizi' && (
           <div className="flex flex-col min-h-full w-full">
+            <div className="px-2 sm:px-4 md:px-6 lg:px-8">
             <TopFormContainer title="Form Input Asuhan Gizi" isOpen={formOpen}>
               <div data-form="gizi" className="flex flex-col gap-5">
-                {/* Info Pasien & Tanggal */}
-                <FormSection className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                {/* Info Pasien & Tanggal — CPPT style */}
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={noRawat} readOnly />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
                   </div>
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
-                  <div className="ml-auto flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0" checked={isClockRunning} disabled title="Jam selalu real-time" />
                   </div>
                 </FormSection>
-                {/* Antropometri */}
-                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
-                    Pengukuran Antropometri
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                    <FormField label="BB" value={bb} onChange={setBb} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="TB" value={tb} onChange={setTb} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="IMT" value={imt} onChange={setImt} unit="Kg/m²" placeholder="0" readOnly onKeyDown={handleEnterKeyDown} />
-                    <FormField label="LLA" value={lla} onChange={setLla} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="TL" value={tl} onChange={setTl} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="ULNA" value={ulna} onChange={setUlna} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="BB Ideal" value={bbIdeal} onChange={setBbIdeal} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="BB/U" value={bbU} onChange={setBbU} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="TKU" value={tku} onChange={setTku} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="BB/TB" value={bbTb} onChange={setBbTb} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
-                    <FormField label="LLA/U" value={llaUPersen} onChange={setLlaUPersen} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
+
+                {/* Antropometri + Biokimia / Fisik */}
+                <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
+                  <div className="flex flex-col gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                      <FormField label="BB" value={bb} onChange={setBb} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="TB" value={tb} onChange={setTb} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="IMT" value={imt} onChange={setImt} unit="Kg/m²" placeholder="0" readOnly onKeyDown={handleEnterKeyDown} />
+                      <FormField label="LLA" value={lla} onChange={setLla} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="TL" value={tl} onChange={setTl} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="ULNA" value={ulna} onChange={setUlna} unit="Cm" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="BB Ideal" value={bbIdeal} onChange={setBbIdeal} unit="Kg" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="BB/U" value={bbU} onChange={setBbU} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="TKU" value={tku} onChange={setTku} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="BB/TB" value={bbTb} onChange={setBbTb} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                      <FormField label="LLA/U" value={llaUPersen} onChange={setLlaUPersen} unit="SD" placeholder="0" onKeyDown={handleEnterKeyDown} />
+                    </div>
+                    <div className="border-t border-brand-100/50 dark:border-slate-600 pt-3">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <FormTextarea label="Biokimia" value={biokimia} onChange={setBiokimia} placeholder="Masukkan hasil lab/biokimia..." />
+                        <FormTextarea label="Fisik / Klinis" value={fisikKlinis} onChange={setFisikKlinis} placeholder="Masukkan kondisi fisik/klinis pasien..." />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Biokimia & Fisik */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <FormTextarea label="Pemeriksaan Biokimia" value={biokimia} onChange={setBiokimia} placeholder="Masukkan hasil lab/biokimia..." />
-                  <FormTextarea label="Pemeriksaan Fisik / Klinis" value={fisikKlinis} onChange={setFisikKlinis} placeholder="Masukkan kondisi fisik/klinis pasien..." />
-                </div>
-
-                {/* Riwayat Gizi */}
-                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">
-                    Riwayat Gizi & Diet
-                  </h3>
+                {/* Alergi & Riwayat Gizi */}
+                <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
                   <div className="space-y-4">
                     <div>
-                      <span className="text-xs font-semibold text-slate-600 block mb-3">Alergi Makanan :</span>
+                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 block mb-3">Alergi Makanan :</span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-12 px-2">
                         <div className="space-y-1">
                           <AllergyItem label="Telur" value={alergiTelur} onChange={setAlergiTelur} />
@@ -1040,7 +1114,7 @@ function AsuhanGiziContent() {
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-brand-100/30">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-brand-100/30 dark:border-slate-600">
                       <FormField label="Pola Makan" value={polaMakan} onChange={setPolaMakan} placeholder="Contoh: 3x makan utama, porsi habis" onKeyDown={handleEnterKeyDown} />
                       <FormField label="Riwayat Personal" value={riwayatPersonal} onChange={setRiwayatPersonal} placeholder="Riwayat penyakit keluarga/personal..." onKeyDown={handleEnterKeyDown} />
                     </div>
@@ -1048,25 +1122,30 @@ function AsuhanGiziContent() {
                 </div>
 
                 {/* Diagnosa & Intervensi */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <FormTextarea label="Diagnosa Gizi (ADIME)" value={diagnosaGizi} onChange={setDiagnosaGizi} placeholder="Diagnosa gizi..." />
-                  <FormTextarea label="Intervensi Gizi" value={intervensiGizi} onChange={setIntervensiGizi} placeholder="Intervensi gizi..." />
-                  <FormTextarea label="Instruksi Medis" value={instruksi} onChange={setInstruksi} placeholder="Instruksi medis..." />
-                  <FormTextarea label="Monitoring & Evaluasi" value={monitoringEvaluasi} onChange={setMonitoringEvaluasi} placeholder="Monitoring dan evaluasi..." />
+                <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormTextarea label="Diagnosa Gizi (ADIME)" value={diagnosaGizi} onChange={setDiagnosaGizi} placeholder="Diagnosa gizi..." />
+                    <FormTextarea label="Intervensi Gizi" value={intervensiGizi} onChange={setIntervensiGizi} placeholder="Intervensi gizi..." />
+                    <FormTextarea label="Instruksi Medis" value={instruksi} onChange={setInstruksi} placeholder="Instruksi medis..." />
+                    <FormTextarea label="Monitoring & Evaluasi" value={monitoringEvaluasi} onChange={setMonitoringEvaluasi} placeholder="Monitoring dan evaluasi..." />
+                  </div>
                 </div>
 
                 <FormSection>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNik} />
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNama} />
                       <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                     </div>
                   </div>
                 </FormSection>
               </div>
             </TopFormContainer>
+            </div>
 
             {/* Tabel Inline */}
             <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -1096,15 +1175,15 @@ function AsuhanGiziContent() {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
                   className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsTableExpanded(false)} />
                 <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.15 }}
-                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 p-4 shadow-2xl rounded-xl border border-slate-300 flex flex-col">
-                  <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
-                    <h3 className="font-bold text-slate-700 text-[13px]">Tabel Data Asuhan Gizi</h3>
+                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 dark:bg-slate-800 p-4 shadow-2xl rounded-xl border border-slate-300 dark:border-slate-600 flex flex-col">
+                  <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-t-lg px-3 py-2 shrink-0">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">Tabel Data Asuhan Gizi</h3>
                     <button onClick={() => setIsTableExpanded(false)}
-                      className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                      className="px-2 py-1 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-slate-600 dark:text-slate-300 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
                       <FaCompress className="text-[10px]" /> Perkecil
                     </button>
                   </div>
-                  <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
+                  <div className="border border-slate-300 dark:border-slate-600 border-t-0 overflow-auto bg-white dark:bg-slate-800 rounded-b-lg flex-1">
                     <DataTableMulti
                       columns={columns}
                       data={dataGizi}
@@ -1126,40 +1205,56 @@ function AsuhanGiziContent() {
 
         {activeTab === 'monitoringgizi' && (
           <div className="flex flex-col min-h-full w-full">
+            <div className="px-2 sm:px-4 md:px-6 lg:px-8">
             <TopFormContainer title="Form Input Monitoring & Evaluasi Gizi" isOpen={formOpen}>
               <div className="flex flex-col gap-5">
-                {/* Info Pasien & Tanggal */}
-                <FormSection className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                {/* Info Pasien & Tanggal — CPPT style */}
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={noRawat} readOnly />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
                   </div>
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
-                  <div className="ml-auto flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0" checked={isClockRunning} disabled title="Jam selalu real-time" />
                   </div>
                 </FormSection>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <FormTextarea label="Monitoring" value={monitoringText} onChange={setMonitoringText} placeholder="Catatan monitoring asuhan gizi..." />
-                  <FormTextarea label="Evaluasi" value={evaluasiText} onChange={setEvaluasiText} placeholder="Catatan evaluasi asuhan gizi..." />
+                <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormTextarea label="Monitoring" value={monitoringText} onChange={setMonitoringText} placeholder="Catatan monitoring asuhan gizi..." />
+                    <FormTextarea label="Evaluasi" value={evaluasiText} onChange={setEvaluasiText} placeholder="Catatan evaluasi asuhan gizi..." />
+                  </div>
                 </div>
 
                 <FormSection>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNik} />
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNama} />
                       <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                     </div>
                   </div>
                 </FormSection>
               </div>
             </TopFormContainer>
+            </div>
 
             <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                 <DataTableMulti
@@ -1187,15 +1282,15 @@ function AsuhanGiziContent() {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
                   className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsTableExpanded(false)} />
                 <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.15 }}
-                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 p-4 shadow-2xl rounded-xl border border-slate-300 flex flex-col">
-                  <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
-                    <h3 className="font-bold text-slate-700 text-[13px]">Tabel Data Monitoring & Evaluasi Gizi</h3>
+                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 dark:bg-slate-800 p-4 shadow-2xl rounded-xl border border-slate-300 dark:border-slate-600 flex flex-col">
+                  <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-t-lg px-3 py-2 shrink-0">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">Tabel Data Monitoring & Evaluasi Gizi</h3>
                     <button onClick={() => setIsTableExpanded(false)}
-                      className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                      className="px-2 py-1 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-slate-600 dark:text-slate-300 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
                       <FaCompress className="text-[10px]" /> Perkecil
                     </button>
                   </div>
-                  <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
+                  <div className="border border-slate-300 dark:border-slate-600 border-t-0 overflow-auto bg-white dark:bg-slate-800 rounded-b-lg flex-1">
                     <DataTableMulti
                       columns={monitoringColumns}
                       data={dataMonitoring}
@@ -1217,101 +1312,112 @@ function AsuhanGiziContent() {
 
         {activeTab === 'skrininggizilanjut' && (
           <div className="flex flex-col min-h-full w-full">
+            <div className="px-2 sm:px-4 md:px-6 lg:px-8">
             <TopFormContainer title="Form Input Skrining Gizi Lanjut" isOpen={formOpen}>
               <div data-form="skrining" className="flex flex-col gap-5">
-                {/* Info Pasien & Tanggal */}
-                <FormSection className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                {/* Info Pasien & Tanggal — CPPT style */}
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={noRawat} readOnly />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
                   </div>
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
-                  <div className="ml-auto flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0" checked={isClockRunning} disabled title="Jam selalu real-time" />
                   </div>
                 </FormSection>
-                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Data Skrining Gizi</h3>
-                  {/* Baris BB + TB + IMT + Alergi */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
-                    <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">BB</label>
-                    <input type="text" value={skriningGiziBB} onChange={e => setSkriningGiziBB(e.target.value)} onKeyDown={handleEnterKeyDown}
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
-                    <span className="text-[10px] text-slate-400 -ml-2 w-6">Kg</span>
-                    <label className="text-xs font-semibold text-slate-600 w-8 shrink-0">TB</label>
-                    <input type="text" value={skriningGiziTB} onChange={e => setSkriningGiziTB(e.target.value)} onKeyDown={handleEnterKeyDown}
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
-                    <span className="text-[10px] text-slate-400 -ml-2 w-6">Cm</span>
-                    <label className="text-xs font-semibold text-slate-600 w-8 shrink-0">IMT</label>
-                    <input type="text" value={skriningGiziIMT} readOnly
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 focus:outline-none focus:border-brand-500 w-20" />
-                    <span className="text-[10px] text-slate-400 -ml-2 w-14">Kg/Cm</span>
-                    <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">Alergi</label>
-                    <input type="text" value={skriningGiziAlergi} onChange={e => setSkriningGiziAlergi(e.target.value)} onKeyDown={handleEnterKeyDown}
-                      className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[120px]" placeholder="Alergi makanan/obat..." />
-                  </div>
-                </div>
-
-                {/* Tiga baris skor (seperti Java: baris y=100,130,160) */}
-                <div className="bg-brand-50/40 p-4 rounded-lg border border-brand-100/50">
-                  <h3 className="text-[13px] font-bold text-brand-700 mb-4 flex items-center gap-2 border-b border-brand-100 pb-2">Penilaian Skrining</h3>
-                  <div className="flex flex-col gap-3">
-                    {/* Skor 1: IMT /z Score */}
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 1</label>
-                      <span className="text-xs text-slate-700 w-[300px] shrink-0">1. Skor IMT /z Score</span>
-                      <select value={skriningGiziSkor1} onChange={e => setSkriningGiziSkor1(e.target.value)}
-                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
-                        <option>IMT &gt; 20/z score &gt; 2</option>
-                        <option>IMT 18,5-20/-2 =&lt; z score =&lt; 2</option>
-                        <option>IMT &lt; 18,5/z score &lt; -2</option>
-                      </select>
-                      <label className="text-xs font-semibold text-slate-600">Skor :</label>
-                      <input type="text" value={skriningGiziSkor1Val} readOnly
-                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
+                {/* Data Skrining + Penilaian Skor */}
+                <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
+                  <div className="flex flex-col gap-4">
+                    {/* Baris BB + TB + IMT + Alergi */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">BB</label>
+                      <input type="text" value={skriningGiziBB} onChange={e => setSkriningGiziBB(e.target.value)} onKeyDown={handleEnterKeyDown}
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-6">Kg</span>
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 shrink-0">TB</label>
+                      <input type="text" value={skriningGiziTB} onChange={e => setSkriningGiziTB(e.target.value)} onKeyDown={handleEnterKeyDown}
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" placeholder="0" />
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-6">Cm</span>
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-8 shrink-0">IMT</label>
+                      <input type="text" value={skriningGiziIMT} readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 w-20" />
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 -ml-2 w-14">Kg/Cm</span>
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 shrink-0">Alergi</label>
+                      <input type="text" value={skriningGiziAlergi} onChange={e => setSkriningGiziAlergi(e.target.value)} onKeyDown={handleEnterKeyDown}
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[120px]" placeholder="Alergi makanan/obat..." />
                     </div>
 
-                    {/* Skor 2: Kehilangan BB */}
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 2</label>
-                      <span className="text-xs text-slate-700 w-[300px] shrink-0">2. Skor kehilangan BB yang tidak direncanakan 3-6 bulan terakhir</span>
-                      <select value={skriningGiziSkor2} onChange={e => setSkriningGiziSkor2(e.target.value)}
-                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
-                        <option>BB Hilang &lt; 5%</option>
-                        <option>BB Hilang 5 - 10 %</option>
-                        <option>BB Hilang &gt; 10 %</option>
-                      </select>
-                      <label className="text-xs font-semibold text-slate-600">Skor :</label>
-                      <input type="text" value={skriningGiziSkor2Val} readOnly
-                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
-                    </div>
+                    <div className="border-t border-brand-100/50 dark:border-slate-600 pt-3">
+                      <div className="flex flex-col gap-3">
+                        {/* Skor 1: IMT /z Score */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 1</label>
+                          <span className="text-xs text-slate-700 dark:text-slate-300 w-[300px] shrink-0">1. Skor IMT /z Score</span>
+                          <select value={skriningGiziSkor1} onChange={e => setSkriningGiziSkor1(e.target.value)}
+                            className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                            <option>IMT &gt; 20/z score &gt; 2</option>
+                            <option>IMT 18,5-20/-2 =&lt; z score =&lt; 2</option>
+                            <option>IMT &lt; 18,5/z score &lt; -2</option>
+                          </select>
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
+                          <input type="text" value={skriningGiziSkor1Val} readOnly
+                            className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100 w-12 text-center font-bold" />
+                        </div>
 
-                    {/* Skor 3: Efek penyakit akut */}
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Skor 3</label>
-                      <span className="text-xs text-slate-700 w-[300px] shrink-0">3. Skor efek penyakit akut</span>
-                      <select value={skriningGiziSkor3} onChange={e => setSkriningGiziSkor3(e.target.value)}
-                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-white focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
-                        <option>Ada asupan nutrisi &gt; 5 hari</option>
-                        <option>Tidak ada asupan nutrisi &gt; 5 hari</option>
-                      </select>
-                      <label className="text-xs font-semibold text-slate-600">Skor :</label>
-                      <input type="text" value={skriningGiziSkor3Val} readOnly
-                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold" />
-                    </div>
+                        {/* Skor 2: Kehilangan BB */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 2</label>
+                          <span className="text-xs text-slate-700 dark:text-slate-300 w-[300px] shrink-0">2. Skor kehilangan BB yang tidak direncanakan 3-6 bulan terakhir</span>
+                          <select value={skriningGiziSkor2} onChange={e => setSkriningGiziSkor2(e.target.value)}
+                            className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                            <option>BB Hilang &lt; 5%</option>
+                            <option>BB Hilang 5 - 10 %</option>
+                            <option>BB Hilang &gt; 10 %</option>
+                          </select>
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
+                          <input type="text" value={skriningGiziSkor2Val} readOnly
+                            className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100 w-12 text-center font-bold" />
+                        </div>
 
-                    {/* Total Skor + Kesimpulan (seperti Java: baris y=190) */}
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 border-t border-brand-100/50 mt-1">
-                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Total Skor</label>
-                      <input type="text" value={skriningGiziTotal} readOnly
-                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 w-12 text-center font-bold text-brand-700" />
-                      <label className="text-xs font-semibold text-slate-600 w-20 shrink-0">Kesimpulan</label>
-                      <input type="text" value={skriningGiziKesimpulan} readOnly
-                        className="border border-slate-300 rounded px-2 py-1.5 text-xs bg-slate-50 text-slate-700 flex-1 min-w-[200px]" />
+                        {/* Skor 3: Efek penyakit akut */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Skor 3</label>
+                          <span className="text-xs text-slate-700 dark:text-slate-300 w-[300px] shrink-0">3. Skor efek penyakit akut</span>
+                          <select value={skriningGiziSkor3} onChange={e => setSkriningGiziSkor3(e.target.value)}
+                            className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:border-brand-500 flex-1 min-w-[200px]">
+                            <option>Ada asupan nutrisi &gt; 5 hari</option>
+                            <option>Tidak ada asupan nutrisi &gt; 5 hari</option>
+                          </select>
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Skor :</label>
+                          <input type="text" value={skriningGiziSkor3Val} readOnly
+                            className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100 w-12 text-center font-bold" />
+                        </div>
+
+                        {/* Total Skor + Kesimpulan */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 border-t border-brand-100/50 dark:border-slate-600">
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Total Skor</label>
+                          <input type="text" value={skriningGiziTotal} readOnly
+                            className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 w-12 text-center font-bold text-brand-700 dark:text-brand-400" />
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 shrink-0">Kesimpulan</label>
+                          <input type="text" value={skriningGiziKesimpulan} readOnly
+                            className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex-1 min-w-[200px]" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1319,16 +1425,19 @@ function AsuhanGiziContent() {
                 {/* Petugas (Dilakukan Oleh) */}
                 <FormSection>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNik} />
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNama} />
                       <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                     </div>
                   </div>
                 </FormSection>
               </div>
             </TopFormContainer>
+            </div>
 
             <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
@@ -1356,15 +1465,15 @@ function AsuhanGiziContent() {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
                   className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsTableExpanded(false)} />
                 <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.15 }}
-                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 p-4 shadow-2xl rounded-xl border border-slate-300 flex flex-col">
-                  <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
-                    <h3 className="font-bold text-slate-700 text-[13px]">Tabel Data Skrining Gizi Lanjut</h3>
+                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 dark:bg-slate-800 p-4 shadow-2xl rounded-xl border border-slate-300 dark:border-slate-600 flex flex-col">
+                  <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-t-lg px-3 py-2 shrink-0">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">Tabel Data Skrining Gizi Lanjut</h3>
                     <button onClick={() => setIsTableExpanded(false)}
-                      className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                      className="px-2 py-1 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-slate-600 dark:text-slate-300 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
                       <FaCompress className="text-[10px]" /> Perkecil
                     </button>
                   </div>
-                  <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
+                  <div className="border border-slate-300 dark:border-slate-600 border-t-0 overflow-auto bg-white dark:bg-slate-800 rounded-b-lg flex-1">
                     <DataTableMulti
                       columns={skriningGiziLanjutColumns}
                       data={dataSkriningGizi}
@@ -1386,44 +1495,60 @@ function AsuhanGiziContent() {
 
         {activeTab === 'catatanadimegizi' && (
           <div className="flex flex-col min-h-full w-full">
+            <div className="px-2 sm:px-4 md:px-6 lg:px-8">
             <TopFormContainer title="Form Input Catatan ADIME Gizi" isOpen={formOpen}>
               <div className="flex flex-col gap-5">
-                {/* Info Pasien & Tanggal */}
-                <FormSection className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-18 sm:w-20 shrink-0">Nama Pasien</label>
-                    <input type="text" className="border border-slate-300 rounded px-2 py-1 w-35 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={noRawat} readOnly />
+                {/* Info Pasien & Tanggal — CPPT style */}
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={noRawat} readOnly />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
+                    <input type="text"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500 dark:text-slate-100"
+                      value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
                   </div>
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-16 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? '...' : noRM} readOnly placeholder="RM" />
-                  <input type="text" className="border border-slate-300 rounded px-2 py-1 w-75 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" value={isLoadingPatient ? 'Memuat...' : namaPasien} readOnly placeholder="Nama" />
-                  <div className="ml-auto flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-10 sm:w-12 shrink-0">Tanggal</label>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 text-xs w-30 focus:outline-none focus:border-brand-500 bg-white" value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="time" step="1" className="border border-slate-300 rounded px-2 py-1 text-xs w-25 focus:outline-none focus:border-brand-500 bg-white" value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60" checked={isClockRunning} disabled title="Jam selalu real-time" />
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 sm:w-12 shrink-0">Tanggal</label>
+                    <input type="date"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100"
+                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0" checked={isClockRunning} disabled title="Jam selalu real-time" />
                   </div>
                 </FormSection>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <FormTextarea label="Asesmen (A)" value={adimeAsesmen} onChange={setAdimeAsesmen} placeholder="Hasil asesmen gizi..." />
-                  <FormTextarea label="Diagnosis (D)" value={adimeDiagnosis} onChange={setAdimeDiagnosis} placeholder="Diagnosis gizi..." />
-                  <FormTextarea label="Intervensi (I)" value={adimeIntervensi} onChange={setAdimeIntervensi} placeholder="Intervensi gizi..." />
-                  <FormTextarea label="Monitoring (M)" value={adimeMonitoring} onChange={setAdimeMonitoring} placeholder="Monitoring gizi..." />
-                  <FormTextarea label="Evaluasi (E)" value={adimeEvaluasi} onChange={setAdimeEvaluasi} placeholder="Evaluasi gizi..." />
-                  <FormTextarea label="Instruksi" value={adimeInstruksi} onChange={setAdimeInstruksi} placeholder="Instruksi medis/diet..." />
+                <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border border-brand-100/50 dark:border-slate-600 p-3">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormTextarea label="Asesmen (A)" value={adimeAsesmen} onChange={setAdimeAsesmen} placeholder="Hasil asesmen gizi..." />
+                    <FormTextarea label="Diagnosis (D)" value={adimeDiagnosis} onChange={setAdimeDiagnosis} placeholder="Diagnosis gizi..." />
+                    <FormTextarea label="Intervensi (I)" value={adimeIntervensi} onChange={setAdimeIntervensi} placeholder="Intervensi gizi..." />
+                    <FormTextarea label="Monitoring (M)" value={adimeMonitoring} onChange={setAdimeMonitoring} placeholder="Monitoring gizi..." />
+                    <FormTextarea label="Evaluasi (E)" value={adimeEvaluasi} onChange={setAdimeEvaluasi} placeholder="Evaluasi gizi..." />
+                    <FormTextarea label="Instruksi" value={adimeInstruksi} onChange={setAdimeInstruksi} placeholder="Instruksi medis/diet..." />
+                  </div>
                 </div>
 
                 <FormSection>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-600 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-20 sm:w-24 shrink-0">Dilakukan Oleh</label>
                     <div className="flex gap-1 flex-1">
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNik} readOnly />
-                      <input type="text" className="border border-slate-300 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50" value={pegawaiNama} readOnly />
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-24 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNik} />
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 w-75 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-100" value={pegawaiNama} />
                       <button onClick={() => setDialogPegawaiOpen(true)} className="px-2 text-brand-500 hover:bg-brand-50 rounded border border-transparent hover:border-brand-200 transition-colors" title="Pilih Petugas"><FaEdit /></button>
                     </div>
                   </div>
                 </FormSection>
               </div>
             </TopFormContainer>
+            </div>
 
             <div className={`flex flex-col flex-1 min-h-0 transition-all duration-150 ${isTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <DataTableMulti
@@ -1451,15 +1576,15 @@ function AsuhanGiziContent() {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
                   className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsTableExpanded(false)} />
                 <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.15 }}
-                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 p-4 shadow-2xl rounded-xl border border-slate-300 flex flex-col">
-                  <div className="flex items-center justify-between bg-slate-100 border border-slate-300 rounded-t-lg px-3 py-2 shrink-0">
-                    <h3 className="font-bold text-slate-700 text-[13px]">Tabel Data Catatan ADIME Gizi</h3>
+                  className="fixed top-12 bottom-12 left-12 right-12 lg:top-16 lg:bottom-16 lg:left-24 lg:right-24 z-50 bg-slate-50 dark:bg-slate-800 p-4 shadow-2xl rounded-xl border border-slate-300 dark:border-slate-600 flex flex-col">
+                  <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-t-lg px-3 py-2 shrink-0">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">Tabel Data Catatan ADIME Gizi</h3>
                     <button onClick={() => setIsTableExpanded(false)}
-                      className="px-2 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                      className="px-2 py-1 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-slate-600 dark:text-slate-300 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
                       <FaCompress className="text-[10px]" /> Perkecil
                     </button>
                   </div>
-                  <div className="border border-slate-300 border-t-0 overflow-auto bg-white rounded-b-lg flex-1">
+                  <div className="border border-slate-300 dark:border-slate-600 border-t-0 overflow-auto bg-white dark:bg-slate-800 rounded-b-lg flex-1">
                     <DataTableMulti
                       columns={catatanADIMEColumns}
                       data={dataADIME}
@@ -1485,6 +1610,66 @@ function AsuhanGiziContent() {
           </div>
         )}
       </div>
+
+      {/* Dialog Alasan untuk Ganti/Hapus */}
+      <AnimatePresence>
+        {alasanDialog.open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm"
+            onClick={() => setAlasanDialog({ ...alasanDialog, open: false })}
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 w-[calc(100%-2rem)] sm:w-96 p-5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200 mb-3">
+                {alasanDialog.mode === "ganti"
+                  ? "Masukkan alasan edit data:"
+                  : "Masukkan alasan hapus data:"}
+              </h3>
+              <textarea
+                className="border border-slate-300 dark:border-slate-600 rounded p-2 w-full h-20 resize-none focus:outline-none focus:border-brand-500 text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                placeholder="Alasan..."
+                value={alasanText}
+                onChange={(e) => setAlasanText(e.target.value)}
+                autoFocus
+              />
+              <div className="flex justify-end gap-2 mt-3">
+                <button
+                  onClick={() => setAlasanDialog({ ...alasanDialog, open: false })}
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={() => {
+                    if (alasanDialog.mode === "ganti") {
+                      if (activeTab === 'asuhangizi') confirmGantiAsuhanGizi();
+                      else if (activeTab === 'monitoringgizi') confirmGantiMonitoring();
+                      else if (activeTab === 'skrininggizilanjut') confirmGantiSkrining();
+                      else if (activeTab === 'catatanadimegizi') confirmGantiADIME();
+                    } else {
+                      if (activeTab === 'asuhangizi') confirmHapusAsuhanGizi();
+                      else if (activeTab === 'monitoringgizi') confirmHapusMonitoring();
+                      else if (activeTab === 'skrininggizilanjut') confirmHapusSkrining();
+                      else if (activeTab === 'catatanadimegizi') confirmHapusADIME();
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded text-xs font-semibold transition-colors"
+                >
+                  Konfirmasi
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Dialog Pilih Pegawai */}
       <DialogPilihPegawai

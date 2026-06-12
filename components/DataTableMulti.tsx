@@ -60,7 +60,7 @@ export default function DataTableMulti({
       {title && (
         <div className={`bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between z-10 shrink-0 dark:from-slate-700 dark:to-slate-800 dark:border-slate-600 ${onTitleClick ? 'cursor-pointer select-none' : ''}`}
           onClick={onTitleClick}>
-          <h2 className="text-brand-800 font-bold text-sm flex items-center gap-2 tracking-wide">
+          <h2 className="text-brand-800 dark:text-brand-300 font-bold text-sm flex items-center gap-2 tracking-wide">
             {icon && <span className="text-brand-600">{icon}</span>}
             {title}
             {onTitleClick && (
@@ -68,14 +68,14 @@ export default function DataTableMulti({
                 animate={{ rotate: titleChevronOpen ? 180 : 0 }}
                 transition={{ duration: 0.15 }}
               >
-                <FaChevronDown className="text-xs text-brand-800" />
+                <FaChevronDown className="text-xs text-brand-800 dark:text-brand-300" />
               </motion.span>
             )}
           </h2>
           {onRefresh && (
             <button
               onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
-              className="p-1.5 hover:bg-brand-200 rounded-full transition-colors text-brand-700"
+              className="p-1.5 hover:bg-brand-200 dark:hover:bg-brand-600 rounded-full transition-colors text-brand-700 dark:text-brand-300"
               title="Refresh Data"
             >
               <FaSync className={isLoading ? "animate-spin" : ""} />
