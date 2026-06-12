@@ -676,7 +676,7 @@ function PemeriksaanContent() {
       {/* Konten Tab */}
       <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 pt-0 pb-2 relative">
         {activeTab === "cppt" && (
-          <div className="flex flex-col min-h-full w-full max-w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex flex-col min-h-full w-full max-w-full mx-auto">
             {/* Warning banner jika SOAP sebelumnya belum diverifikasi */}
             <AnimatePresence>
               {isVerifBlocked && (
@@ -700,6 +700,7 @@ function PemeriksaanContent() {
                 </motion.div>
               )}
             </AnimatePresence>
+            <div className="px-2 sm:px-4 md:px-6 lg:px-8">
             <TopFormContainer
               title="Form Input Pemeriksaan / CPPT"
               isOpen={formOpen}
@@ -715,20 +716,20 @@ function PemeriksaanContent() {
                     </label>
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-28 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={noRawat}
                       readOnly
                     />
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={isLoadingPatient ? "..." : noRM}
                       readOnly
                       placeholder="RM"
                     />
                     <input
                       type="text"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
                       value={isLoadingPatient ? "Memuat..." : namaPasien}
                       readOnly
                       placeholder="Nama"
@@ -954,7 +955,7 @@ function PemeriksaanContent() {
                       />
                       <input
                         type="text"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-20 sm:w-28 lg:w-36 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-20 sm:w-28 lg:w-60 focus:outline-none focus:border-brand-500 text-xs bg-slate-50 dark:bg-slate-700"
                         value={pegawaiNama}
                         readOnly
                       />
@@ -1121,6 +1122,7 @@ function PemeriksaanContent() {
 
               </div>
             </TopFormContainer>
+            </div>
 
             {/* Tabel Inline */}
             <div

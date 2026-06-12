@@ -56,7 +56,7 @@ export default function DataTableMulti({
   };
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden h-full rounded-xl">
+    <div className="flex flex-col flex-1 overflow-hidden h-full">
       {title && (
         <div className={`bg-gradient-to-r from-brand-100 to-slate-50 px-4 py-1 border-b border-brand-100 flex items-center justify-between z-10 shrink-0 dark:from-slate-700 dark:to-slate-800 dark:border-slate-600 ${onTitleClick ? 'cursor-pointer select-none' : ''}`}
           onClick={onTitleClick}>

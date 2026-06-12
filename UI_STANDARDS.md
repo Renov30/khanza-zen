@@ -629,7 +629,637 @@ const renderForm = (data) => data.map(row => (
 
 ---
 
-## 19. Checklist Review UI
+## 19. Referensi Implementasi: Halaman Pemeriksaan / CPPT
+
+> Halaman `app/rawat-inap/(clinical)/pemeriksaan/page.tsx` adalah **acuan utama** untuk semua halaman input data CRUD.
+> Setiap pola di bawah ini **harus** ditiru oleh halaman input data lainnya.
+
+### 19.1 Arsitektur Halaman
+
+```
+┌─ Tabs (underline navigation) ──────────────────────────────┐
+│ Tab1 │ Tab2 │ Pemeriksaan / CPPT │ Tab4                      │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─ px-2 sm:px-4 md:px-6 lg:px-8 ───────────────────────┐  │
+│  │ ▼ Sembunyikan Form Input (TopFormContainer)            │  │
+│  │ ┌───────────────────────────────────────────────────┐ │  │
+│  │ │ [Info Pasien Read-only] No.Rawat | RM | Nama      │ │  │
+│  │ │ [Tanggal & Jam — real-time clock]                │ │  │
+│  │ │                                                     │ │  │
+│  │ │ ┌─ SOAPIE ────────┐  ┌─ Alergi/Asesmen/Plan ────┐ │ │  │
+│  │ │ │ Subjek          │  │ Alergi                    │ │ │  │
+│  │ │ │ Objek           │  │ Asesmen                   │ │ │  │
+│  │ │ └─────────────────┘  │ Plan                      │ │ │  │
+│  │ │ ┌─ TTV ───────────┐  │ Instruksi                 │ │ │  │
+│  │ │ │ Suhu│Tensi│BB   │  │ Evaluasi                  │ │ │  │
+│  │ │ │ TB  │RR   │Nadi │  └───────────────────────────┘ │ │  │
+│  │ │ │ SpO2│GCS  │Kes  │  ┌─ Shortcut ────────────────┐ │ │  │
+│  │ │ └─────────────────┘  │ Riwayat│Resume│SOAP        │ │ │  │
+│  │ │ [Dilakukan Oleh]    └─────────────────────────────┘ │ │  │
+│  │ └───────────────────────────────────────────────────┘ │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                                                               │
+│ ┌─ Riwayat Pemeriksaan / CPPT (DataTableMulti) — FULL WIDTH ─┐│
+│ │ [checkbox] No | No.Rawat | Nama | ...                        ││
+│ └──────────────────────────────────────────────────────────────┘│
+├─────────────────────────────────────────────────────────────┤ │
+│ BottomActionPanel (filter periode + search + buttons)         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Aturan Full-Width Table:**
+- Container form memiliki padding: `px-2 sm:px-4 md:px-6 lg:px-8` — membungkus warning banner + `TopFormContainer`
+- Tabel data (`DataTableMulti`) berada **di luar** container berpadding = full-width (ujung ke ujung)
+- Tabel tidak memiliki `rounded-*` — tepinya rata dengan kontainer halaman
+- `DataTableMulti` root div: `flex flex-col flex-1 overflow-hidden h-full` (tanpa `rounded-xl`)
+
+### 19.2 Tab Navigation dengan Mapping Label
+
+Gunakan mapping dari label display → tab ID agar tab aktif konsisten:
+
+```tsx
+// File: app/rawat-inap/(clinical)/pemeriksaan/page.tsx:647-674
+{[
+  "Penanganan Dokter",
+  "Petugas",
+  "Dokter & Petugas",
+  "Pemeriksaan / CPPT",
+  "Pemeriksaan Obstetri",
+  "Pemeriksaan Ginekologi",
+].map((tab) => {
+  const tabId = tab.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const isActive = activeTab === (tab === "Pemeriksaan / CPPT" ? "cppt" : tabId);
+  return (
+    <button
+      key={tab}
+      onClick={() => setActiveTab(tab === "Pemeriksaan / CPPT" ? "cppt" : tabId)}
+      className={`px-1.5 sm:px-3 lg:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs
+        font-semibold transition-all whitespace-nowrap relative
+        ${isActive ? "text-brand-700 dark:text-brand-400 font-bold"
+          : "text-slate-500 dark:text-slate-400 hover:text-brand-600"}`}
+    >
+      {tab}
+      {isActive && (
+        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-full" />
+      )}
+    </button>
+  );
+})}
+```
+
+**Aturan:**
+- Tab yang belum diimplementasikan tampilkan pesan: `"Menu {tab} belum tersedia (Demo)"` (lihat `:1304-1308`)
+- Cukup gunakan `setActiveTab` — routing per-tab tidak perlu URL-based
+
+### 19.3 TopFormContainer — Collapsible Form Panel
+
+Semua form input harus menggunakan `TopFormContainer` yang bisa dilipat:
+
+```tsx
+import TopFormContainer from "@/components/TopFormContainer";
+
+// Controlled mode dengan localStorage persistence:
+const [formOpen, setFormOpen] = useState(() => {
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("khanza_cppt_form_open");
+    if (saved !== null) return JSON.parse(saved);
+  }
+  return true; // default: form terbuka
+});
+
+const toggleForm = useCallback(() => {
+  setFormOpen((prev) => {
+    const next = !prev;
+    if (typeof window !== "undefined")
+      localStorage.setItem("khanza_cppt_form_open", JSON.stringify(next));
+    return next;
+  });
+}, []);
+
+<TopFormContainer
+  title="Form Input Pemeriksaan / CPPT"
+  isOpen={formOpen}
+>
+  {/* konten form */}
+</TopFormContainer>
+```
+
+### 19.4 Info Pasien — Read-Only Header Bar
+
+Info pasien (no. rawat, RM, nama) **harus read-only** dan ditempatkan sebagai `FormSection` pertama di dalam `TopFormContainer`:
+
+```tsx
+<FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">
+      Pasien
+    </label>
+    <input type="text" readOnly
+      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1
+        w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs
+        focus:outline-none focus:border-brand-500"
+      value={noRawat} />
+    <input type="text" readOnly placeholder="RM"
+      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1
+        w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs
+        focus:outline-none focus:border-brand-500"
+      value={noRM} />
+    <input type="text" readOnly placeholder="Nama"
+      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1
+        w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs
+        focus:outline-none focus:border-brand-500"
+      value={namaPasien} />
+  </div>
+  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300
+      w-10 sm:w-12 shrink-0">Tanggal</label>
+    <input type="date" readOnly
+      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1
+        text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500
+        bg-white dark:bg-slate-700"
+      value={currentDate} />
+    <input type="time" step="1" readOnly
+      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1
+        text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500
+        bg-white dark:bg-slate-700"
+      value={currentTime} />
+    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
+      checked={isClockRunning} disabled title="Jam selalu real-time" />
+  </div>
+</FormSection>
+```
+
+### 19.5 Real-Time Clock Pattern
+
+Gunakan interval 1 detik untuk jam real-time dengan opsi pause (saat edit data lama):
+
+```tsx
+// File: app/rawat-inap/(clinical)/pemeriksaan/page.tsx:243-267
+const [isClockRunning, setIsClockRunning] = useState(true);
+const [currentDate, setCurrentDate] = useState(today);
+const [currentTime, setCurrentTime] = useState(
+  new Date().toTimeString().slice(0, 8),
+);
+const clockRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+useEffect(() => {
+  if (isClockRunning) {
+    const tick = () => {
+      const now = new Date();
+      setCurrentDate(now.toISOString().split("T")[0]);
+      setCurrentTime(now.toTimeString().slice(0, 8));
+    };
+    tick();
+    clockRef.current = setInterval(tick, 1000);
+  } else if (clockRef.current) {
+    clearInterval(clockRef.current);
+    clockRef.current = null;
+  }
+  return () => {
+    if (clockRef.current) clearInterval(clockRef.current);
+  };
+}, [isClockRunning]);
+```
+
+**Aturan:**
+- Clock berjalan saat `isClockRunning === true` (default input baru)
+- Saat populate form dari row data lama, set `isClockRunning = false` agar tanggal/jam bisa diedit
+- Saat reset form (tombol Baru), nyalakan clock kembali
+- Tampilkan checkbox disabled yang menunjukkan status clock (centang = real-time)
+
+### 19.6 Form Layout Dua Kolom (Responsif)
+
+Form kompleks dengan grup SOAPIE + TTV + Asesmen menggunakan layout **flex column → row di xl**:
+
+```tsx
+<div className="flex flex-col xl:flex-row gap-4">
+  {/* Kiri: SOAP + TTV */}
+  <div className="flex-1 flex flex-col gap-4 min-w-0">
+    {/* SOAP section */}
+    <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border
+      border-brand-100/50 dark:border-slate-600 p-3">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start gap-1.5 sm:gap-2">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300
+            w-12 sm:w-16 shrink-0 pt-2">Subjek</label>
+          <textarea className="border border-slate-300 dark:border-slate-600
+            rounded p-1.5 sm:p-2 flex-1 resize-y min-h-[50px] sm:min-h-[60px]
+            focus:outline-none focus:border-brand-500 text-xs
+            bg-white dark:bg-slate-700 dark:text-slate-100" />
+        </div>
+        <div className="flex items-start gap-1.5 sm:gap-2">
+          <label className="...">Objek</label>
+          <textarea className="..." />
+        </div>
+      </div>
+    </div>
+    {/* TTV section — 3-column grid */}
+    <div className="bg-brand-50/40 dark:bg-slate-700/40 rounded-lg border
+      border-brand-100/50 dark:border-slate-600 p-3">
+      <div data-form="pemeriksaan" className="flex flex-col gap-2">
+        {/* 3-column grid rows untuk vital signs */}
+      </div>
+    </div>
+  </div>
+
+  {/* Kanan: Alergi, Asesmen, Plan, Instruksi, Evaluasi */}
+  <div className="flex-1 min-w-0 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg
+    border border-brand-100/50 dark:border-slate-600 p-3">
+    {/* textarea fields */}
+  </div>
+
+  {/* Shortcut panel */}
+  <div className="xl:w-38 shrink-0 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg
+    border border-brand-100/50 dark:border-slate-600 p-3">
+    <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2
+      flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
+      Shortcut
+    </h3>
+    <div className="flex flex-row flex-wrap xl:flex-col gap-2">
+      {/* action buttons */}
+    </div>
+  </div>
+</div>
+```
+
+### 19.7 Grid Input TTV (Vital Signs) — 3 Kolom
+
+Setiap baris TTV menggunakan `grid grid-cols-2 sm:grid-cols-3 gap-2`:
+
+```tsx
+<div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+  <div className="flex items-center gap-1.5 min-w-0">
+    <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600
+      dark:text-slate-300 w-12 sm:w-16 shrink-0">
+      Suhu<span className="hidden sm:inline"> (°C)</span>
+    </label>
+    <input type="text" placeholder="°C"
+      className="border border-slate-300 dark:border-slate-600 rounded
+        px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none
+        focus:border-brand-500 text-xs bg-white dark:bg-slate-700
+        dark:text-slate-100"
+      onKeyDown={handleEnterKeyDown} />
+  </div>
+  <div className="flex items-center gap-1.5 min-w-0">
+    <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600
+      dark:text-slate-300 w-14 sm:w-20 shrink-0">
+      Tensi<span className="hidden sm:inline"> (mmHg)</span>
+    </label>
+    <input type="text" placeholder="mmHg" className="..."
+      onKeyDown={handleEnterKeyDown} />
+  </div>
+  <div className="flex items-center gap-1.5 min-w-0">
+    <label className="text-[10px] sm:text-[11px] font-semibold text-slate-600
+      dark:text-slate-300 w-12 sm:w-16 shrink-0">
+      Berat<span className="hidden sm:inline"> (Kg)</span>
+    </label>
+    <input type="text" placeholder="Kg" className="..."
+      onKeyDown={handleEnterKeyDown} />
+  </div>
+</div>
+```
+
+**Aturan:**
+- Label unit dalam `<span className="hidden sm:inline">` agar di mobile tidak penuh
+- Setiap input punya `onKeyDown={handleEnterKeyDown}` untuk navigasi Enter
+- Input TTV adalah `<input type="text">` biasa (bukan number) — biarkan server validasi
+
+### 19.8 Shortcut Panel (Sidebar Actions)
+
+Letakkan shortcut aksi di panel terpisah di sebelah kanan form (desktop) atau di bawah (mobile):
+
+```tsx
+<div className="xl:w-38 shrink-0 bg-brand-50/40 dark:bg-slate-700/40 rounded-lg
+  border border-brand-100/50 dark:border-slate-600 p-3">
+  <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-2
+    flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-1.5">
+    Shortcut
+  </h3>
+  <div className="flex flex-row flex-wrap xl:flex-col gap-2">
+    <Button variant="outline" size="sm"
+      className="flex-1 xl:flex-none xl:w-full justify-center xl:justify-start
+        h-7.5 font-bold text-[10px] sm:text-[11px] transition-all active:scale-95
+        bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50
+        text-slate-700 dark:bg-slate-700 dark:border-slate-600
+        dark:hover:border-brand-400 dark:hover:bg-slate-700 dark:text-slate-200">
+      <span className="text-sm"><FaHistory /></span>
+      <span>Riwayat</span>
+      <span className="hidden xl:inline"> Pasien</span>
+    </Button>
+  </div>
+</div>
+```
+
+### 19.9 DataTableMulti — Inline Data Table Full-Width (tanpa rounded)
+
+Gunakan `DataTableMulti` komponen untuk menampilkan data CRUD. Tabel full-width (tanpa padding container) dan tanpa rounded corners.
+
+**Root component `DataTableMulti.tsx`** — tidak boleh ada `rounded-*`:
+```tsx
+<div className="flex flex-col flex-1 overflow-hidden h-full">
+  {/* title bar + table body */}
+</div>
+```
+
+**Penggunaan di halaman** — tabel di luar div padding form:
+```tsx
+// Container form (dengan padding)
+<div className="px-2 sm:px-4 md:px-6 lg:px-8">
+  <TopFormContainer title="Form Input ..." isOpen={formOpen}>
+    {/* ... */}
+  </TopFormContainer>
+</div>
+
+// Tabel full-width (tanpa padding)
+<div className="flex flex-col flex-1 min-h-0 ...">
+  <DataTableMulti
+    title="Riwayat Pemeriksaan / CPPT"
+    icon={<FaBed />}
+    onRefresh={handleRefresh}
+    onTitleClick={toggleForm}
+    titleChevronOpen={formOpen}
+    columns={columns}
+    data={pemeriksaanData}
+    idKey="id"
+    selectedIds={selectedRows}
+    onSelectionChange={setSelectedRows}
+    isLoading={isLoadingData}
+    emptyMessage="Tidak ada data yang ditemukan."
+    onRowClick={(row) => { /* populate form */ }}
+  />
+</div>
+
+// Expanded (full-screen) table via AnimatePresence
+<AnimatePresence>
+  {isTableExpanded && (
+    <>
+      <motion.div ... className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm"
+        onClick={() => setIsTableExpanded(false)} />
+      <motion.div ... className="fixed inset-0 ... z-50 ... flex flex-col">
+        <div className="flex items-center justify-between ...">
+          <h3 className="font-bold text-slate-700 text-[13px]">
+            Tabel Riwayat Pemeriksaan / CPPT
+          </h3>
+          <button onClick={() => setIsTableExpanded(false)}>
+            <FaCompress /> Perkecil
+          </button>
+        </div>
+        <DataTableMulti columns={columns} data={pemeriksaanData} ... />
+      </motion.div>
+    </>
+  )}
+</AnimatePresence>
+```
+
+### 19.10 Warning/Alert Banner (AnimatePresence)
+
+Banner peringatan yang muncul/menghilang dengan animasi:
+
+```tsx
+<AnimatePresence>
+  {isWarningActive && (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      className="mx-2 mt-2 px-4 py-3 bg-red-50 dark:bg-red-900/20
+        border border-red-200 dark:border-red-800 rounded-lg
+        flex items-start gap-3 shadow-sm"
+    >
+      <FaExclamationTriangle className="text-red-500 dark:text-red-400 mt-0.5 shrink-0" />
+      <div className="text-xs text-red-700 dark:text-red-300">
+        <p className="font-semibold">Judul Peringatan</p>
+        <p className="mt-0.5">{message}</p>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+```
+
+### 19.11 Modal Konfirmasi (Alasan Dialog)
+
+Gunakan dialog konfirmasi — bukan `alert()` — untuk aksi Ganti/Hapus:
+
+```tsx
+<AnimatePresence>
+  {alasanDialog.open && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center
+        bg-slate-900/30 backdrop-blur-sm"
+      onClick={() => setAlasanDialog({ ...alasanDialog, open: false })}
+    >
+      <motion.div
+        initial={{ scale: 0.95 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0.95 }}
+        className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl
+          border border-slate-300 dark:border-slate-700
+          w-[calc(100%-2rem)] sm:w-96 p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200 mb-3">
+          {mode === "ganti" ? "Masukkan alasan edit data:" : "Masukkan alasan hapus data:"}
+        </h3>
+        <textarea className="border border-slate-300 dark:border-slate-600
+          rounded p-2 w-full h-20 resize-none focus:outline-none
+          focus:border-brand-500 text-xs bg-white dark:bg-slate-700
+          dark:text-slate-100" placeholder="Alasan..." />
+        <div className="flex justify-end gap-2 mt-3">
+          <button className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700
+            hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-300
+            dark:border-slate-600 rounded text-xs font-semibold
+            text-slate-600 dark:text-slate-300">Batal</button>
+          <button className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600
+            text-white rounded text-xs font-semibold">Konfirmasi</button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+```
+
+### 19.12 Dialog Pilih Pegawai
+
+Gunakan komponen `DialogPilihPegawai` untuk memilih pegawai:
+
+```tsx
+import DialogPilihPegawai from "@/components/DialogPilihPegawai";
+
+const [dialogPegawaiOpen, setDialogPegawaiOpen] = useState(false);
+
+const handlePilihPegawai = (nik: string, nama: string) => {
+  setPegawaiNik(nik);
+  setPegawaiNama(nama);
+  setDialogPegawaiOpen(false);
+};
+
+<DialogPilihPegawai
+  open={dialogPegawaiOpen}
+  onClose={() => setDialogPegawaiOpen(false)}
+  onSelect={handlePilihPegawai}
+/>
+```
+
+### 19.13 Modal Pemilihan Data Historis
+
+Modal untuk memilih data historis yang bisa mengisi form (contoh: 5 SOAP Terakhir):
+
+```tsx
+<AnimatePresence>
+  {showModal && (
+    <motion.div ... className="fixed inset-0 z-50 flex items-center justify-center
+      bg-slate-900/30 backdrop-blur-sm">
+      <motion.div ... className="w-[720px] max-h-[90vh] overflow-y-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FaHistory className="text-brand-500" /> Judul Modal
+            </CardTitle>
+            <span className="text-xs text-muted-foreground">
+              {data.length} data ditemukan — klik baris untuk mengisi form
+            </span>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>...</TableHeader>
+              <TableBody>
+                {data.map((row, i) => (
+                  <TableRow key={i} onClick={() => selectRow(row)}
+                    className="cursor-pointer">...</TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+          <CardFooter className="justify-end">
+            <Button variant="outline" onClick={() => setShowModal(false)}>Tutup</Button>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+```
+
+### 19.14 Select Dropdown untuk Opsi Tetap
+
+Gunakan `<select>` untuk opsi yang tetap (bukan data dinamis), dengan value default `""`:
+
+```tsx
+<select className="border border-slate-300 dark:border-slate-600 rounded
+  px-1.5 sm:px-2 py-1.5 flex-1 min-w-0 focus:outline-none
+  focus:border-brand-500 text-xs bg-white dark:bg-slate-700
+  dark:text-slate-100"
+  value={formValue} onChange={(e) => setFormValue(e.target.value)}
+>
+  <option value="">-</option>
+  <option value="Compos Mentis">Compos Mentis</option>
+  <option value="Somnolence">Somnolence</option>
+  <option value="Sopor">Sopor</option>
+  <option value="Coma">Coma</option>
+</select>
+```
+
+### 19.15 Form State Management Pattern
+
+```tsx
+// 1. Reset form — kosongkan semua state + clock real-time
+const resetForm = () => {
+  setFormField1("");
+  setFormField2("");
+  // ... reset semua field
+  setSelectedRowIdx(null);
+  setIsEditMode(false);
+  if (isClockRunning) {
+    const now = new Date();
+    setCurrentDate(now.toISOString().split("T")[0]);
+    setCurrentTime(now.toTimeString().slice(0, 8));
+  }
+};
+
+// 2. Populate form dari row yang dipilih
+const populateFormFromRow = (row: RowType, idx: number) => {
+  setFormField1(row.field1 || "");
+  setFormField2(row.field2 || "");
+  // ... semua field
+  setCurrentDate(row.tgl_perawatan || today);
+  setCurrentTime(row.jam_rawat || "00:00:00");
+  setSelectedRowIdx(idx);
+  setIsEditMode(true);
+};
+
+// 3. Cek form kosong
+const isFormEmpty = () => {
+  return !formField1.trim() && !formField2.trim() && ...;
+};
+
+// 4. Validasi sebelum simpan
+const handleSave = async () => {
+  if (/* kondisi blok */) { alert("Tidak dapat menyimpan..."); return; }
+  if (isFormEmpty()) { alert("Isi minimal satu data terlebih dahulu!"); return; }
+  if (!pegawaiNik.trim()) { alert("Dokter/Paramedis masih kosong!"); return; }
+  // ... simpan data
+};
+```
+
+### 19.16 Column Definitions untuk DataTableMulti
+
+Definisikan kolom sebagai array `TableColumn[]` di luar komponen (tidak perlu re-render):
+
+```tsx
+import { TableColumn } from "@/components/TableTypes";
+
+const columns: TableColumn[] = [
+  {
+    header: "No.Rawat",
+    key: "no_rawat",
+    className: "text-brand-600 font-bold hover:underline",
+    width: "140px",
+  },
+  {
+    header: "Nama Pasien",
+    key: "nm_pasien",
+    className: "text-slate-800 dark:text-slate-100 font-bold",
+    width: "200px",
+  },
+  { header: "Tgl.Rawat", key: "tgl_perawatan", width: "100px" },
+  { header: "Subjek", key: "keluhan", width: "180px", className: "truncate" },
+  // ...
+];
+```
+
+### 19.17 Dilakukan Oleh (Pegawai) — Read-Only + Picker
+
+Tampilkan NIP dan nama pegawai dalam input read-only dengan tombol edit untuk memilih:
+
+```tsx
+<FormSection className="flex flex-wrap items-center gap-1 sm:gap-2">
+  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300
+    shrink-0 whitespace-nowrap">Dilakukan Oleh</label>
+  <input type="text" readOnly
+    className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1
+      w-14 sm:w-16 bg-slate-50 dark:bg-slate-700 text-xs
+      focus:outline-none focus:border-brand-500"
+    value={pegawaiNik} />
+  <input type="text" readOnly
+    className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1
+      w-20 sm:w-28 lg:w-60 bg-slate-50 dark:bg-slate-700 text-xs
+      focus:outline-none focus:border-brand-500"
+    value={pegawaiNama} />
+  <button onClick={() => setDialogPegawaiOpen(true)}
+    className="p-1 text-brand-500 hover:bg-brand-50 rounded border border-transparent
+      hover:border-brand-200 transition-colors shrink-0"
+    title="Pilih Petugas">
+    <FaEdit />
+  </button>
+</FormSection>
+```
+
+---
+
+## 20. Checklist Review UI
 
 Sebelum menyelesaikan halaman baru, pastikan:
 
@@ -648,3 +1278,14 @@ Sebelum menyelesaikan halaman baru, pastikan:
 - [ ] Record count ditempatkan di baris filter (sebelah kanan pencarian), bukan di baris tombol
 - [ ] Shortcut bar menggunakan `flex-row` untuk label & icon, text `text-[10px] md:text-xs`
 - [ ] Avatar berukuran `w-7 h-7`, dropdown icons `text-[11px]`
+- [ ] Info pasien ditempatkan di dalam `TopFormContainer` (bukan bar terpisah)
+- [ ] Form menggunakan real-time clock dengan interval 1 detik
+- [ ] Aksi Ganti/Hapus menggunakan modal konfirmasi (bukan `alert()`)
+- [ ] Kolom tabel didefinisikan sebagai `TableColumn[]` di luar komponen
+- [ ] Pegawai dipilih melalui `DialogPilihPegawai` (read-only input + tombol edit)
+- [ ] Form layout menggunakan flex-column di mobile dan flex-row di desktop (`xl:flex-row`)
+- [ ] Grid input menggunakan `grid-cols-2 sm:grid-cols-3` untuk vital signs / field pendek
+- [ ] Label unit teks pendek menggunakan `hidden sm:inline` untuk hemat ruang mobile
+- [ ] Tabel data full-width (di luar div padding form, tanpa `px-*` dari container utama)
+- [ ] `DataTableMulti` tanpa `rounded-*` (root div: `overflow-hidden` tanpa `rounded-xl`)
+- [ ] Halaman input data: padding form diterapkan via wrapper div, bukan container utama
