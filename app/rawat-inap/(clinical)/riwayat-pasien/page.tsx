@@ -815,44 +815,7 @@ function RiwayatPasienContent() {
 
   return (
     <>
-      {/* Info Pasien & Tanggal */}
-      <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1 shrink-0">
-        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">
-            Pasien
-          </label>
-          <input type="text" readOnly
-            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-            value={noRawatParam || resolvedNoRM} />
-          <input type="text" readOnly placeholder="RM"
-            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-            value={resolvedNoRM} />
-          <input type="text" readOnly placeholder="Nama"
-            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-            value={resolvedNmPasien} />
-        </div>
-        <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
-          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">
-            Tanggal
-          </label>
-          <input type="date"
-            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
-            value={currentDate}
-            onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }}
-            readOnly={isClockRunning} />
-          <input type="time" step="1"
-            className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
-            value={currentTime}
-            onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }}
-            readOnly={isClockRunning} />
-          <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
-            checked={isClockRunning} disabled title="Jam selalu real-time" />
-          <button onClick={() => setShowPasienInfo(true)}
-            className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
-            <FaInfoCircle className="text-[11px]" /> Data Pasien
-          </button>
-        </div>
-      </FormSection>
+
 
       {/* Tab */}
       <div className="flex bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-2 md:px-3 shrink-0 overflow-x-auto custom-scrollbar">
@@ -874,25 +837,89 @@ function RiwayatPasienContent() {
         <AnimatePresence mode="wait">
           {activeTab === "kunjungan" && (
             <motion.div key="kunjungan" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}
-              className="flex-1 overflow-auto p-4">
-              <DataTableMulti
-                title="Riwayat Kunjungan"
-                icon={<FaHistory />}
-                onRefresh={handleBottomSearch}
-                columns={kunjunganColumns}
-                data={kunjunganData}
-                idKey="id"
-                selectedIds={selectedRows}
-                onSelectionChange={setSelectedRows}
-                isLoading={isLoadingData}
-                emptyMessage="Tidak ada riwayat kunjungan ditemukan."
-              />
+              className="flex-1 flex flex-col overflow-hidden">
+              <div className="px-2 sm:px-4 md:px-6 lg:px-8 pt-2 shrink-0">
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                    <input type="text" readOnly
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={noRawatParam || resolvedNoRM} />
+                    <input type="text" readOnly placeholder="RM"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={resolvedNoRM} />
+                    <input type="text" readOnly placeholder="Nama"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={resolvedNmPasien} />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">Tanggal</label>
+                    <input type="date"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
+                      checked={isClockRunning} disabled title="Jam selalu real-time" />
+                    <button onClick={() => setShowPasienInfo(true)}
+                      className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
+                      <FaInfoCircle className="text-[11px]" /> Data Pasien
+                    </button>
+                  </div>
+                </FormSection>
+              </div>
+              <div className="flex-1 overflow-auto">
+                <DataTableMulti
+                  title="Riwayat Kunjungan"
+                  icon={<FaHistory />}
+                  onRefresh={handleBottomSearch}
+                  columns={kunjunganColumns}
+                  data={kunjunganData}
+                  idKey="id"
+                  selectedIds={selectedRows}
+                  onSelectionChange={setSelectedRows}
+                  isLoading={isLoadingData}
+                  emptyMessage="Tidak ada riwayat kunjungan ditemukan."
+                />
+              </div>
             </motion.div>
           )}
 
           {activeTab === "soapie" && (
             <motion.div key="soapie" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}
               className="flex-1 overflow-auto p-4">
+              <div className="mb-3">
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                    <input type="text" readOnly
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={noRawatParam || resolvedNoRM} />
+                    <input type="text" readOnly placeholder="RM"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={resolvedNoRM} />
+                    <input type="text" readOnly placeholder="Nama"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={resolvedNmPasien} />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">Tanggal</label>
+                    <input type="date"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
+                      checked={isClockRunning} disabled title="Jam selalu real-time" />
+                    <button onClick={() => setShowPasienInfo(true)}
+                      className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
+                      <FaInfoCircle className="text-[11px]" /> Data Pasien
+                    </button>
+                  </div>
+                </FormSection>
+              </div>
               {isLoadingData ? (
                 <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" /></div>
               ) : soapieData.length === 0 ? (
@@ -1072,7 +1099,39 @@ function RiwayatPasienContent() {
               </motion.div>
 
               {/* Panel Kanan */}
-              <div className="flex-1 overflow-auto p-4">
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="px-4 pt-2 shrink-0">
+                  <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                        value={noRawatParam || resolvedNoRM} />
+                      <input type="text" readOnly placeholder="RM"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                        value={resolvedNoRM} />
+                      <input type="text" readOnly placeholder="Nama"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                        value={resolvedNmPasien} />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">Tanggal</label>
+                      <input type="date"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                        value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                      <input type="time" step="1"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                        value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                      <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
+                        checked={isClockRunning} disabled title="Jam selalu real-time" />
+                      <button onClick={() => setShowPasienInfo(true)}
+                        className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
+                        <FaInfoCircle className="text-[11px]" /> Data Pasien
+                      </button>
+                    </div>
+                  </FormSection>
+                </div>
+                <div className="flex-1 overflow-auto p-4">
                 {/* Visit Selector */}
                 {perawatanVisits.length > 0 && (
                   <div className="mb-4 flex items-center gap-2 text-xs flex-wrap">
@@ -1118,6 +1177,7 @@ function RiwayatPasienContent() {
                   </div>
                 )}
               </div>
+            </div>
             </motion.div>
           )}
         </AnimatePresence>
