@@ -27,11 +27,9 @@ import {
 import QRCodeDisplay from '@/components/QRCodeDisplay';
 
 interface KunjunganRow {
-  id: string; no_rawat: string; tgl_registrasi: string; jam_reg: string;
-  kd_dokter: string; nm_dokter: string; umur: string; nm_poli: string;
-  png_jawab: string; dpjp: string;
-  referrals: Array<{ nm_dokter: string; nm_poli: string }>;
-  kamar_inap: Array<{ tgl_masuk: string; jam_masuk: string; nm_bangsal: string }>;
+  id: string; rowType: string; no_rawat: string; tgl: string; jam: string;
+  kd_dokter: string; nm_dokter: string; umur: string; poli_kamar: string;
+  png_jawab: string;
 }
 
 interface SoapEntry {
@@ -311,22 +309,17 @@ function RiwayatPasienContent() {
 
   const kunjunganColumns: TableColumn[] = [
     { header: 'No.Rawat', key: 'no_rawat', className: 'text-brand-600 font-bold', width: '140px' },
-    { header: 'Tanggal', key: 'tgl_registrasi', width: '100px' },
-    { header: 'Jam', key: 'jam_reg', width: '80px' },
+    { header: 'Tanggal', key: 'tgl', width: '100px' },
+    { header: 'Jam', key: 'jam', width: '80px' },
     { header: 'Kd.Dokter', key: 'kd_dokter', width: '80px' },
-    { header: 'Dokter Dituju/DPJP', key: 'nm_dokter', width: '200px', render: (row: any) => (
-      <div>
-        <div>{row.nm_dokter}</div>
-        {row.dpjp && <div className="text-[10px] text-brand-500">DPJP: {row.dpjp}</div>}
-      </div>
-    )},
+    { header: 'Dokter Dituju/DPJP', key: 'nm_dokter', width: '200px', render: (row: any) => {
+      let prefix = '';
+      if (row.rowType === 'rujukan') prefix = 'Rujukan: ';
+      else if (row.rowType === 'kamar') prefix = 'DPJP: ';
+      return <div><span className="text-[10px] text-slate-400 dark:text-slate-500">{prefix}</span>{row.nm_dokter}</div>;
+    }},
     { header: 'Umur', key: 'umur', width: '60px' },
-    { header: 'Poliklinik/Kamar', key: 'nm_poli', width: '140px', render: (row: any) => (
-      <div>
-        <div>{row.nm_poli}</div>
-        {row.kamar_inap?.length > 0 && <div className="text-[10px] text-slate-500 dark:text-slate-400">{row.kamar_inap.map((k: any) => k.nm_bangsal).join(', ')}</div>}
-      </div>
-    )},
+    { header: 'Poliklinik/Kamar', key: 'poli_kamar', width: '160px' },
     { header: 'Jenis Bayar', key: 'png_jawab', width: '100px' },
   ];
 

@@ -2049,8 +2049,9 @@ export async function getRiwayatKunjungan(
 
     const query = `
       SELECT reg_periksa.no_rawat, reg_periksa.tgl_registrasi, reg_periksa.jam_reg,
-             reg_periksa.kd_dokter, dokter.nm_dokter, reg_periksa.umurdaftar, reg_periksa.sttsumur,
-             poliklinik.nm_poli, penjab.png_jawab
+             reg_periksa.kd_dokter, reg_periksa.status_lanjut,
+             dokter.nm_dokter, reg_periksa.umurdaftar, reg_periksa.sttsumur,
+             poliklinik.kd_poli, poliklinik.nm_poli, penjab.png_jawab
       FROM reg_periksa
       INNER JOIN dokter ON reg_periksa.kd_dokter = dokter.kd_dokter
       INNER JOIN poliklinik ON reg_periksa.kd_poli = poliklinik.kd_poli
@@ -2061,53 +2062,91 @@ export async function getRiwayatKunjungan(
 
     const [rows]: any = await db.execute(query, params);
 
-    // For each visit, get internal referrals, DPJP, and kamar inap
-    const enriched = [];
+    // Flatten into rows like Java tampilKunjungan()
+    const enriched: any[] = [];
     for (const row of rows) {
       const noR = row.no_rawat;
+      const umurStr = `${row.umurdaftar} ${row.sttsumur}`;
+      const tglRegStr = row.tgl_registrasi instanceof Date ? row.tgl_registrasi.toISOString().split('T')[0] : row.tgl_registrasi;
 
       // Internal referral
       const [refRows]: any = await db.execute(`
-        SELECT dokter.nm_dokter, poliklinik.nm_poli
+        SELECT rujukan_internal_poli.kd_dokter, dokter.nm_dokter,
+               rujukan_internal_poli.kd_poli, poliklinik.nm_poli
         FROM rujukan_internal_poli
         INNER JOIN dokter ON rujukan_internal_poli.kd_dokter = dokter.kd_dokter
         INNER JOIN poliklinik ON rujukan_internal_poli.kd_poli = poliklinik.kd_poli
         WHERE rujukan_internal_poli.no_rawat = ?
       `, [noR]);
 
-      // DPJP Ranap
-      const [dpjpRows]: any = await db.execute(`
-        SELECT dokter.nm_dokter FROM dpjp_ranap
-        INNER JOIN dokter ON dpjp_ranap.kd_dokter = dokter.kd_dokter
-        WHERE dpjp_ranap.no_rawat = ?
-      `, [noR]);
+      // DPJP : if status_lanjut = Ranap, cari dpjp_ranap
+      let kddpjp = row.kd_dokter;
+      let dpjpNama = row.nm_dokter;
+      if (row.status_lanjut === 'Ranap') {
+        const [dpjpRows]: any = await db.execute(`
+          SELECT dpjp_ranap.kd_dokter, dokter.nm_dokter
+          FROM dpjp_ranap
+          INNER JOIN dokter ON dpjp_ranap.kd_dokter = dokter.kd_dokter
+          WHERE dpjp_ranap.no_rawat = ?
+        `, [noR]);
+        if (dpjpRows.length > 0) {
+          kddpjp = dpjpRows[0].kd_dokter;
+          dpjpNama = dpjpRows[0].nm_dokter;
+        }
+      }
 
       // Kamar inap
       const [kamarRows]: any = await db.execute(`
-        SELECT kamar_inap.tgl_masuk, kamar_inap.jam_masuk, bangsal.nm_bangsal
+        SELECT kamar_inap.tgl_masuk, kamar_inap.jam_masuk, kamar_inap.kd_kamar, bangsal.nm_bangsal
         FROM kamar_inap
         INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
         INNER JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
         WHERE kamar_inap.no_rawat = ?
       `, [noR]);
 
+      // Main row
       enriched.push({
-        no_rawat: row.no_rawat,
-        tgl_registrasi: row.tgl_registrasi instanceof Date ? row.tgl_registrasi.toISOString().split('T')[0] : row.tgl_registrasi,
-        jam_reg: row.jam_reg,
+        rowType: 'main',
+        no_rawat: noR,
+        tgl: tglRegStr,
+        jam: row.jam_reg,
         kd_dokter: row.kd_dokter,
         nm_dokter: row.nm_dokter,
-        umur: `${row.umurdaftar} ${row.sttsumur}`,
-        nm_poli: row.nm_poli,
+        umur: umurStr,
+        poli_kamar: row.kd_poli + ' ' + row.nm_poli,
         png_jawab: row.png_jawab,
-        referrals: refRows.map((r: any) => ({ nm_dokter: r.nm_dokter, nm_poli: r.nm_poli })),
-        dpjp: dpjpRows.map((r: any) => r.nm_dokter).join(', '),
-        kamar_inap: kamarRows.map((r: any) => ({
-          tgl_masuk: r.tgl_masuk instanceof Date ? r.tgl_masuk.toISOString().split('T')[0] : r.tgl_masuk,
-          jam_masuk: r.jam_masuk,
-          nm_bangsal: r.nm_bangsal,
-        })),
       });
+
+      // Referral rows (like Java: adds extra rows with referral doctor/poli)
+      for (const ref of refRows) {
+        enriched.push({
+          rowType: 'rujukan',
+          no_rawat: noR,
+          tgl: tglRegStr,
+          jam: '',
+          kd_dokter: ref.kd_dokter,
+          nm_dokter: ref.nm_dokter,
+          umur: umurStr,
+          poli_kamar: ref.kd_poli + ' ' + ref.nm_poli,
+          png_jawab: row.png_jawab,
+        });
+      }
+
+      // Kamar inap rows (like Java: uses DPJP, kamar date/jam, kamar as poli)
+      for (const kamar of kamarRows) {
+        const tglMasukStr = kamar.tgl_masuk instanceof Date ? kamar.tgl_masuk.toISOString().split('T')[0] : kamar.tgl_masuk;
+        enriched.push({
+          rowType: 'kamar',
+          no_rawat: noR,
+          tgl: tglMasukStr,
+          jam: kamar.jam_masuk,
+          kd_dokter: kddpjp,
+          nm_dokter: dpjpNama,
+          umur: umurStr,
+          poli_kamar: kamar.kd_kamar + ' ' + kamar.nm_bangsal,
+          png_jawab: row.png_jawab,
+        });
+      }
     }
 
     return { success: true, data: enriched };
