@@ -83,12 +83,7 @@ function RiwayatPasienContent() {
 
   // Sidebar checkbox state
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [checkedSections, setCheckedSections] = useState<Record<string, boolean>>({
-    triase: true, catatan_dokter: true, pemeriksaan_ralan: true, pemeriksaan: true,
-    catatan_observasi_ranap: true, catatan_keperawatan_ranap: true,
-    diagnosa: true, prosedur: true, kamar: true, resume: true, operasi: true,
-    radiologi: true, laborat: true, obat: true,
-  });
+  const [checkedSections, setCheckedSections] = useState<Record<string, boolean>>({});
 
   const [resolvedNoRM, setResolvedNoRM] = useState(noRMParam);
   const [resolvedNmPasien, setResolvedNmPasien] = useState(nmPasienParam);
@@ -171,42 +166,6 @@ function RiwayatPasienContent() {
     setIsLoadingData(false);
   }, [resolvedNoRM, filterMode, tglAwal, tglAkhir, filterNoRawat]);
 
-  const fetchSectionData = useCallback(async (noRawat: string, sectionId: string) => {
-    setLoadingSection(sectionId);
-    const fetchers: Record<string, (nr: string) => Promise<any>> = {
-      diagnosa: getDiagnosaPasien, prosedur: getProsedurPasien,
-      triase: getTriaseIGD, pemeriksaan: getPemeriksaanRanapRiwayat,
-      tindakan_dokter: getTindakanRanapDokter,
-      tindakan_paramedis: getTindakanRanapParamedis,
-      kamar: getPenggunaanKamar, resume: getResumeRanap,
-      operasi: getOperasiLengkap, radiologi: getRadiologiPasien,
-      laborat: getLaboratPasien, obat: getPemberianObat,
-      tindakan_ralan_dokter: getTindakanRalanDokter,
-      tindakan_ralan_paramedis: getTindakanRalanParamedis,
-      tindakan_ralan_dokter_paramedis: getTindakanRalanDokterParamedis,
-      tindakan_ranap_dokter_paramedis: getTindakanRanapDokterParamedis,
-      penggunaan_obat_operasi: getPenggunaanObatOperasi,
-      resume_ralan: getResumePasien,
-      resume_icu: getResumeICU,
-      resume_mata: getResumeMata,
-      berkas_digital: getBerkasDigital,
-    };
-    const fetcher = fetchers[sectionId];
-    if (fetcher) {
-      const result = await fetcher(noRawat);
-      if (result.success) {
-        setSectionData(prev => ({ ...prev, [sectionId]: result.data }));
-      }
-    } else {
-      // Gunakan getSectionData untuk seksi yang tidak punya fetcher spesifik
-      const result = await getSectionData(sectionId, noRawat);
-      if (result.success) {
-        setSectionData(prev => ({ ...prev, [sectionId]: result.data }));
-      }
-    }
-    setLoadingSection(null);
-  }, []);
-
   useEffect(() => {
     setMounted(true);
 
@@ -246,15 +205,7 @@ function RiwayatPasienContent() {
   useEffect(() => {
     if (activeTab === "kunjungan") fetchKunjungan();
     else if (activeTab === "soapie") fetchSoapie();
-    else if (activeTab === "perawatan") fetchPerawatan();
-  }, [activeTab, fetchKunjungan, fetchSoapie, fetchPerawatan]);
-
-  useEffect(() => {
-    if (selectedVisit) {
-      const enabled = Object.entries(checkedSections).filter(([, v]) => v).map(([k]) => k);
-      enabled.forEach(s => fetchSectionData(selectedVisit, s));
-    }
-  }, [selectedVisit, checkedSections, fetchSectionData]);
+  }, [activeTab, fetchKunjungan, fetchSoapie]);
 
   // Cache DPJP per no_rawat saat soapieData berubah
   useEffect(() => {
@@ -367,450 +318,6 @@ function RiwayatPasienContent() {
   };
 
   const sectionDefs: PerawatanSection[] = [
-    { id: 'diagnosa', label: 'Diagnosa/Penyakit (ICD 10)', icon: <FaStethoscope />,
-      fetchData: getDiagnosaPasien,
-      render: (data) => renderTable(data, [
-        { key: 'kd_penyakit', label: 'Kode' }, { key: 'nm_penyakit', label: 'Diagnosa' },
-        { key: 'status', label: 'Status' }, { key: 'nm_dokter', label: 'Dokter' },
-      ])},
-    { id: 'prosedur', label: 'Prosedur/Tindakan (ICD 9)', icon: <FaProcedures />,
-      fetchData: getProsedurPasien,
-      render: (data) => renderTable(data, [
-        { key: 'kd_icd9', label: 'Kode' }, { key: 'nm_icd9_1', label: 'Prosedur' },
-      ])},
-    { id: 'triase', label: 'Triase IGD/UGD', icon: <FaAmbulance />,
-      fetchData: getTriaseIGD,
-      render: (data) => renderTable(data, [
-        { key: 'nama_pemeriksaan', label: 'Pemeriksaan', render: (v: any, r: any) => v || r.pemeriksaan },
-        { key: 'hasil', label: 'Hasil' }, { key: 'nm_pegawai', label: 'Petugas' },
-      ])},
-    { id: 'catatan_dokter', label: 'Catatan Dokter', icon: <FaNotesMedical />,
-      fetchData: (nr: string) => getSectionData('catatan_dokter', nr),
-      render: (data) => renderTable(data, [
-        { key: 'tanggal', label: 'Tanggal', render: (v: any, r: any) => `${v || ''} ${r.jam || ''}` },
-        { key: 'kd_dokter', label: 'Kode' }, { key: 'nm_dokter', label: 'Dokter' },
-        { key: 'catatan', label: 'Catatan' },
-      ])},
-    { id: 'pemeriksaan_ralan', label: 'Pemeriksaan Ralan', icon: <FaHeartbeat />,
-      fetchData: (nr: string) => getSectionData('pemeriksaan_ralan', nr),
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl', render: (v: any, r: any) => `${v || ''} ${r.jam_rawat || ''}` },
-        { key: 'keluhan', label: 'Subjektif' }, { key: 'pemeriksaan', label: 'Objek' },
-        { key: 'penilaian', label: 'Asesmen' }, { key: 'rtl', label: 'Plan' },
-        { key: 'nm_pegawai', label: 'Petugas' },
-      ])},
-    { id: 'pemeriksaan_obstetri_ralan', label: 'Pemeriksaan Obstetri Ralan', icon: <FaFemale />,
-      fetchData: (nr: string) => getSectionData('pemeriksaan_obstetri_ralan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pemeriksaan_genekologi_ralan', label: 'Pemeriksaan Genekologi Ralan', icon: <FaFemale />,
-      fetchData: (nr: string) => getSectionData('pemeriksaan_genekologi_ralan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pemeriksaan', label: 'Pemeriksaan Ranap', icon: <FaHeartbeat />,
-      fetchData: getPemeriksaanRanapRiwayat,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl', render: (v: any, r: any) => `${v || ''} ${r.jam_rawat || ''}` },
-        { key: 'keluhan', label: 'Subjektif' }, { key: 'pemeriksaan', label: 'Objek' },
-        { key: 'penilaian', label: 'Asesmen' }, { key: 'rtl', label: 'Plan' },
-        { key: 'nm_pegawai', label: 'Petugas' },
-      ])},
-    { id: 'pemeriksaan_obstetri_ranap', label: 'Pemeriksaan Obstetri Ranap', icon: <FaFemale />,
-      fetchData: (nr: string) => getSectionData('pemeriksaan_obstetri_ranap', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pemeriksaan_genekologi_ranap', label: 'Pemeriksaan Genekologi Ranap', icon: <FaFemale />,
-      fetchData: (nr: string) => getSectionData('pemeriksaan_genekologi_ranap', nr),
-      render: (data) => renderForm(data)},
-    { id: 'catatan_observasi_ranap', label: 'Catatan Observasi Ranap', icon: <FaNotesMedical />,
-      fetchData: (nr: string) => getSectionData('catatan_observasi_ranap', nr),
-      render: (data) => renderTable(data, [
-        { key: 'tgl_observasi', label: 'Tgl' }, { key: 'jam_observasi', label: 'Jam' },
-        { key: 'hasil_observasi', label: 'Hasil' }, { key: 'nip', label: 'Petugas' },
-      ])},
-    { id: 'catatan_observasi_ranap_kebidanan', label: 'Observasi Ranap Kebidanan', icon: <FaFemale />,
-      fetchData: (nr: string) => getSectionData('catatan_observasi_ranap_kebidanan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'catatan_observasi_ranap_postpartum', label: 'Observasi Post Partum', icon: <FaBaby />,
-      fetchData: (nr: string) => getSectionData('catatan_observasi_ranap_postpartum', nr),
-      render: (data) => renderForm(data)},
-    { id: 'catatan_keperawatan_ranap', label: 'Catatan Keperawatan Ranap', icon: <FaNotesMedical />,
-      fetchData: (nr: string) => getSectionData('catatan_keperawatan_ranap', nr),
-      render: (data) => renderForm(data)},
-    { id: 'catatan_observasi_igd', label: 'Catatan Observasi IGD', icon: <FaAmbulance />,
-      fetchData: (nr: string) => getSectionData('catatan_observasi_igd', nr),
-      render: (data) => renderForm(data)},
-    { id: 'catatan_keperawatan_ralan', label: 'Catatan Keperawatan Ralan', icon: <FaNotesMedical />,
-      fetchData: (nr: string) => getSectionData('catatan_keperawatan_ralan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'follow_up_dbd', label: 'Follow Up DBD', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('follow_up_dbd', nr),
-      render: (data) => renderForm(data)},
-    { id: 'catatan_cek_gds', label: 'Catatan Cek GDS', icon: <FaFlask />,
-      fetchData: (nr: string) => getSectionData('catatan_cek_gds', nr),
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl', render: (v: any, r: any) => `${v || ''} ${r.jam_rawat || ''}` },
-        { key: 'gds', label: 'GDS' }, { key: 'nip', label: 'Petugas' },
-      ])},
-    { id: 'penilaian_ulang_nyeri', label: 'Penilaian Ulang Nyeri', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('penilaian_ulang_nyeri', nr),
-      render: (data) => renderForm(data)},
-    { id: 'monitoring_reaksi_tranfusi', label: 'Monitoring Reaksi Tranfusi', icon: <FaPills />,
-      fetchData: (nr: string) => getSectionData('monitoring_reaksi_tranfusi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'catatan_persalinan', label: 'Catatan Persalinan', icon: <FaBaby />,
-      fetchData: (nr: string) => getSectionData('catatan_persalinan', nr),
-      render: (data) => renderForm(data)},
-
-    // Tindakan
-    { id: 'tindakan_dokter', label: 'Tindakan Ranap Dokter', icon: <FaUserMd />,
-      fetchData: getTindakanRanapDokter,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl' }, { key: 'nm_perawatan', label: 'Tindakan' },
-        { key: 'biaya_rawat', label: 'Biaya', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-        { key: 'nm_dokter', label: 'Dokter' },
-      ])},
-    { id: 'tindakan_paramedis', label: 'Tindakan Ranap Paramedis', icon: <FaUserInjured />,
-      fetchData: getTindakanRanapParamedis,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl' }, { key: 'nm_perawatan', label: 'Tindakan' },
-        { key: 'biaya_rawat', label: 'Biaya', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-        { key: 'nm_petugas', label: 'Petugas' },
-      ])},
-    { id: 'tindakan_ralan_dokter', label: 'Tindakan Ralan Dokter', icon: <FaUserMd />,
-      fetchData: getTindakanRalanDokter,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl', render: (v: any, r: any) => `${v || ''} ${r.jam_rawat || ''}` },
-        { key: 'nm_perawatan', label: 'Tindakan' }, { key: 'nm_dokter', label: 'Dokter' },
-      ])},
-    { id: 'tindakan_ralan_paramedis', label: 'Tindakan Ralan Paramedis', icon: <FaUserInjured />,
-      fetchData: getTindakanRalanParamedis,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl', render: (v: any, r: any) => `${v || ''} ${r.jam_rawat || ''}` },
-        { key: 'nm_perawatan', label: 'Tindakan' }, { key: 'nama', label: 'Paramedis' },
-      ])},
-    { id: 'tindakan_ralan_dokter_paramedis', label: 'Tindakan Ralan Dokter & Paramedis', icon: <FaUserMd />,
-      fetchData: getTindakanRalanDokterParamedis,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl', render: (v: any, r: any) => `${v || ''} ${r.jam_rawat || ''}` },
-        { key: 'nm_perawatan', label: 'Tindakan' }, { key: 'nm_dokter', label: 'Dokter' },
-        { key: 'nama', label: 'Paramedis' },
-      ])},
-    { id: 'tindakan_ranap_dokter_paramedis', label: 'Tindakan Ranap Dokter & Paramedis', icon: <FaUserMd />,
-      fetchData: getTindakanRanapDokterParamedis,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl', render: (v: any, r: any) => `${v || ''} ${r.jam_rawat || ''}` },
-        { key: 'nm_perawatan', label: 'Tindakan' }, { key: 'nm_dokter', label: 'Dokter' },
-        { key: 'nama', label: 'Paramedis' },
-      ])},
-    { id: 'kamar', label: 'Penggunaan Kamar', icon: <FaBed />,
-      fetchData: getPenggunaanKamar,
-      render: (data) => renderTable(data, [
-        { key: 'kamar', label: 'Kamar' }, { key: 'tgl_masuk', label: 'Masuk', render: (v: any, r: any) => `${v || ''} ${r.jam_masuk || ''}` },
-        { key: 'tgl_keluar', label: 'Keluar', render: (v: any, r: any) => (v && v !== '0000-00-00') ? `${v} ${r.jam_keluar || ''}` : '-' },
-        { key: 'lama', label: 'Lama', align: 'right' },
-        { key: 'ttl_biaya', label: 'Biaya', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-      ])},
-    { id: 'operasi', label: 'Operasi/VK', icon: <FaProcedures />,
-      fetchData: getOperasiLengkap,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_operasi', label: 'Tgl' }, { key: 'jam_mulai', label: 'Jam', render: (v: any, r: any) => `${v || ''} - ${r.jam_selesai || ''}` },
-        { key: 'nm_perawatan', label: 'Tindakan' }, { key: 'status_operasi', label: 'Status' },
-        { key: 'dokter_utama', label: 'Dokter Utama' },
-      ])},
-
-    // Penunjang
-    { id: 'radiologi', label: 'Pemeriksaan Radiologi', icon: <FaXRay />,
-      fetchData: getRadiologiPasien,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_periksa', label: 'Tgl' }, { key: 'nm_perawatan', label: 'Pemeriksaan' },
-        { key: 'biaya', label: 'Biaya', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-        { key: 'nm_dokter', label: 'Dokter', render: (v: any, r: any) => v || r.nm_petugas || '-' },
-      ])},
-    { id: 'laborat', label: 'Pemeriksaan Laboratorium', icon: <FaFlask />,
-      fetchData: getLaboratPasien,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_periksa', label: 'Tgl' }, { key: 'nm_perawatan', label: 'Pemeriksaan' },
-        { key: 'biaya', label: 'Biaya', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-        { key: 'nm_dokter', label: 'Dokter', render: (v: any, r: any) => v || r.nm_petugas || '-' },
-      ])},
-    { id: 'hasil_usg', label: 'Hasil USG Kandungan', icon: <FaBaby />,
-      fetchData: (nr: string) => getSectionData('hasil_usg', nr),
-      render: (data) => renderForm(data)},
-    { id: 'hasil_usg_urologi', label: 'Hasil USG Urologi', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('hasil_usg_urologi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'hasil_usg_gynecologi', label: 'Hasil USG Gynecologi', icon: <FaFemale />,
-      fetchData: (nr: string) => getSectionData('hasil_usg_gynecologi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'dokumentasi_eswl', label: 'Dokumentasi Tindakan ESWL', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('dokumentasi_eswl', nr),
-      render: (data) => renderForm(data)},
-
-    // Obat & Farmasi
-    { id: 'obat', label: 'Pemberian Obat/BHP/Alkes', icon: <FaPills />,
-      fetchData: getPemberianObat,
-      render: (data) => renderTable(data, [
-        { key: 'tgl_perawatan', label: 'Tgl' }, { key: 'nama_brng', label: 'Nama Obat' },
-        { key: 'jumlah', label: 'Jml', align: 'right' },
-        { key: 'harga_satuan', label: 'Harga', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-        { key: 'subtotal', label: 'Subtotal', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-      ])},
-    { id: 'resep_pulang', label: 'Resep Pulang', icon: <FaPrescription />,
-      fetchData: (nr: string) => getSectionData('resep_pulang', nr),
-      render: (data) => renderTable(data, [
-        { key: 'kode_brng', label: 'Kode' }, { key: 'nama_brng', label: 'Obat' },
-        { key: 'dosis', label: 'Dosis' }, { key: 'jml_barang', label: 'Jumlah', render: (v: any, r: any) => `${v || 0} ${r.kode_sat || ''}` },
-      ])},
-    { id: 'gas_medik', label: 'Gas Medik', icon: <FaPills />,
-      fetchData: (nr: string) => getSectionData('gas_medik', nr),
-      render: (data) => renderTable(data, [
-        { key: 'tanggal', label: 'Tgl' }, { key: 'nm_obat', label: 'Gas Medik' },
-        { key: 'jumlah', label: 'Jml', align: 'right' },
-        { key: 'hargasatuan', label: 'Harga', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-      ])},
-    { id: 'penggunaan_obat_operasi', label: 'Penggunaan Obat/BHP Operasi', icon: <FaPills />,
-      fetchData: getPenggunaanObatOperasi,
-      render: (data) => renderTable(data, [
-        { key: 'tanggal', label: 'Tgl' }, { key: 'nama_brng', label: 'Obat' },
-        { key: 'jumlah', label: 'Jml', align: 'right' },
-      ])},
-    { id: 'rekonsiliasi_obat', label: 'Rekonsiliasi Obat', icon: <FaPills />,
-      fetchData: (nr: string) => getSectionData('rekonsiliasi_obat', nr),
-      render: (data) => renderForm(data)},
-    { id: 'konseling_farmasi', label: 'Konseling Farmasi', icon: <FaPills />,
-      fetchData: (nr: string) => getSectionData('konseling_farmasi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pelayanan_informasi_obat', label: 'Pelayanan Informasi Obat', icon: <FaPills />,
-      fetchData: (nr: string) => getSectionData('pelayanan_informasi_obat', nr),
-      render: (data) => renderForm(data)},
-
-    // Biaya
-    { id: 'tambahan_biaya', label: 'Tambahan Biaya', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('tambahan_biaya', nr),
-      render: (data) => renderTable(data, [
-        { key: 'nama_biaya', label: 'Nama Tambahan' },
-        { key: 'besar_biaya', label: 'Besar', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-      ])},
-    { id: 'potongan_biaya', label: 'Potongan Biaya', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('potongan_biaya', nr),
-      render: (data) => renderTable(data, [
-        { key: 'nama_pengurangan', label: 'Nama Potongan' },
-        { key: 'besar_pengurangan', label: 'Besar', align: 'right', render: (v: any) => v ? Number(v).toLocaleString() : '-' },
-      ])},
-
-    // Resume
-    { id: 'resume', label: 'Resume Pasien Ranap', icon: <FaClipboardList />,
-      fetchData: getResumeRanap,
-      render: (data) => data.length === 0 ? <span className="text-slate-400 dark:text-slate-500 italic">Tidak ada data</span> : data.map((d: any, i: number) => (
-        <div key={i} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-xs space-y-1">
-          <div className="flex gap-2"><span className="font-semibold text-slate-500 dark:text-slate-400 w-32">Tanggal Resume:</span><span>{d.tgl_resume}</span></div>
-          <div className="flex gap-2"><span className="font-semibold text-slate-500 dark:text-slate-400 w-32">Diagnosa Utama:</span><span className="font-bold text-brand-700 dark:text-brand-400">{d.diagnosa_utama}</span></div>
-          <div className="flex gap-2"><span className="font-semibold text-slate-500 dark:text-slate-400 w-32">Diagnosa Sekunder:</span><span>{d.diagnosa_sekunder || '-'}</span></div>
-          <div className="flex gap-2"><span className="font-semibold text-slate-500 dark:text-slate-400 w-32">Prosedur Utama:</span><span>{d.prosedur_utama || '-'}</span></div>
-          <div className="flex gap-2"><span className="font-semibold text-slate-500 dark:text-slate-400 w-32">Prosedur Sekunder:</span><span>{d.prosedur_sekunder || '-'}</span></div>
-          <div className="flex gap-2"><span className="font-semibold text-slate-500 dark:text-slate-400 w-32">Tgl Keluar:</span><span>{d.tgl_keluar} {d.jam_keluar}</span></div>
-          <div className="flex gap-2"><span className="font-semibold text-slate-500 dark:text-slate-400 w-32">Status Keluar:</span><span className="font-semibold">{d.status_keluar}</span></div>
-          <div className="flex gap-2"><span className="font-semibold text-slate-500 dark:text-slate-400 w-32">Dokter:</span><span>{d.nm_dokter}</span></div>
-        </div>
-      ))},
-    { id: 'resume_ralan', label: 'Resume Pasien Ralan', icon: <FaClipboardList />,
-      fetchData: getResumePasien,
-      render: (data) => renderForm(data)},
-    { id: 'resume_icu', label: 'Resume ICU', icon: <FaClipboardList />,
-      fetchData: getResumeICU,
-      render: (data) => renderForm(data)},
-    { id: 'resume_mata', label: 'Resume Mata', icon: <FaEye />,
-      fetchData: getResumeMata,
-      render: (data) => renderForm(data)},
-
-    // EWS & Skor
-    { id: 'pemantauan_ews_anak', label: 'Pemantauan PEWS Anak', icon: <FaHeartbeat />,
-      fetchData: (nr: string) => getSectionData('pemantauan_ews_anak', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pemantauan_ews_dewasa', label: 'Pemantauan EWS Dewasa', icon: <FaHeartbeat />,
-      fetchData: (nr: string) => getSectionData('pemantauan_ews_dewasa', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pemantauan_meows_obstetri', label: 'Pemantauan MEOWS Obstetri', icon: <FaHeartbeat />,
-      fetchData: (nr: string) => getSectionData('pemantauan_meows_obstetri', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pemantauan_ews_neonatus', label: 'Pemantauan EWS Neonatus', icon: <FaHeartbeat />,
-      fetchData: (nr: string) => getSectionData('pemantauan_ews_neonatus', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pre_induksi', label: 'Penilaian Pre Induksi', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('pre_induksi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'checklist_pre_operasi', label: 'Check List Pre Operasi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('checklist_pre_operasi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'checklist_post_operasi', label: 'Check List Post Operasi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('checklist_post_operasi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'signin_sebelum_anestesi', label: 'Sign-In Sebelum Anestesi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('signin_sebelum_anestesi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'timeout_sebelum_insisi', label: 'Time-Out Sebelum Insisi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('timeout_sebelum_insisi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'signout_sebelum_menutup_luka', label: 'Sign-Out Sebelum Menutup Luka', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('signout_sebelum_menutup_luka', nr),
-      render: (data) => renderForm(data)},
-    { id: 'penilaian_pre_operasi', label: 'Penilaian Pre Operasi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('penilaian_pre_operasi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'penilaian_pre_anestesi', label: 'Penilaian Pre Anestesi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('penilaian_pre_anestesi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'skor_aldrette', label: 'Skor Aldrette Pasca Anestesi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('skor_aldrette', nr),
-      render: (data) => renderForm(data)},
-    { id: 'skor_steward', label: 'Skor Steward Pasca Anestesi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('skor_steward', nr),
-      render: (data) => renderForm(data)},
-    { id: 'skor_bromage', label: 'Skor Bromage Pasca Anestesi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('skor_bromage', nr),
-      render: (data) => renderForm(data)},
-    { id: 'kriteria_masuk_hcu', label: 'Kriteria Masuk HCU', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('kriteria_masuk_hcu', nr),
-      render: (data) => renderForm(data)},
-    { id: 'kriteria_keluar_hcu', label: 'Kriteria Keluar HCU', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('kriteria_keluar_hcu', nr),
-      render: (data) => renderForm(data)},
-    { id: 'kriteria_masuk_icu', label: 'Kriteria Masuk ICU', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('kriteria_masuk_icu', nr),
-      render: (data) => renderForm(data)},
-    { id: 'kriteria_keluar_icu', label: 'Kriteria Keluar ICU', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('kriteria_keluar_icu', nr),
-      render: (data) => renderForm(data)},
-
-    // Risiko Jatuh
-    { id: 'risiko_jatuh_dewasa', label: 'Risiko Jatuh Dewasa', icon: <FaWalking />,
-      fetchData: (nr: string) => getSectionData('risiko_jatuh_dewasa', nr),
-      render: (data) => renderForm(data)},
-    { id: 'risiko_jatuh_anak', label: 'Risiko Jatuh Anak', icon: <FaBaby />,
-      fetchData: (nr: string) => getSectionData('risiko_jatuh_anak', nr),
-      render: (data) => renderForm(data)},
-    { id: 'risiko_jatuh_lansia', label: 'Risiko Jatuh Lansia', icon: <FaWalking />,
-      fetchData: (nr: string) => getSectionData('risiko_jatuh_lansia', nr),
-      render: (data) => renderForm(data)},
-    { id: 'risiko_jatuh_geriatri', label: 'Risiko Jatuh Geriatri', icon: <FaWalking />,
-      fetchData: (nr: string) => getSectionData('risiko_jatuh_geriatri', nr),
-      render: (data) => renderForm(data)},
-    { id: 'risiko_jatuh_neonatus', label: 'Risiko Jatuh Neonatus', icon: <FaBaby />,
-      fetchData: (nr: string) => getSectionData('risiko_jatuh_neonatus', nr),
-      render: (data) => renderForm(data)},
-    { id: 'risiko_jatuh_psikiatri', label: 'Risiko Jatuh Psikiatri', icon: <FaWalking />,
-      fetchData: (nr: string) => getSectionData('risiko_jatuh_psikiatri', nr),
-      render: (data) => renderForm(data)},
-    { id: 'skrining_fungsional', label: 'Skrining Fungsional', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('skrining_fungsional', nr),
-      render: (data) => renderForm(data)},
-    { id: 'risiko_dekubitus', label: 'Risiko Dekubitus', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('risiko_dekubitus', nr),
-      render: (data) => renderForm(data)},
-
-    // Konsultasi & Edukasi
-    { id: 'konsultasi_medik', label: 'Konsultasi Medik', icon: <FaUserMd />,
-      fetchData: (nr: string) => getSectionData('konsultasi_medik', nr),
-      render: (data) => renderForm(data)},
-    { id: 'transfer_antar_ruang', label: 'Transfer Antar Ruang', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('transfer_antar_ruang', nr),
-      render: (data) => renderForm(data)},
-    { id: 'pengkajian_restrain', label: 'Pengkajian Restrain', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('pengkajian_restrain', nr),
-      render: (data) => renderForm(data)},
-    { id: 'edukasi_pasien', label: 'Edukasi Pasien Terintegrasi', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('edukasi_pasien', nr),
-      render: (data) => renderForm(data)},
-    { id: 'perencanaan_pemulangan', label: 'Perencanaan Pemulangan', icon: <FaClipboardList />,
-      fetchData: (nr: string) => getSectionData('perencanaan_pemulangan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'skrining_tb', label: 'Skrining Tuberkulosis', icon: <FaLungs />,
-      fetchData: (nr: string) => getSectionData('skrining_tb', nr),
-      render: (data) => renderForm(data)},
-
-    // Penilaian Khusus
-    { id: 'penilaian_terminal', label: 'Penilaian Pasien Terminal', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('penilaian_terminal', nr),
-      render: (data) => renderForm(data)},
-    { id: 'penilaian_korban_kekerasan', label: 'Penilaian Korban Kekerasan', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('penilaian_korban_kekerasan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'penilaian_kecemasan_anak', label: 'Penilaian Kecemasan Anak', icon: <FaBaby />,
-      fetchData: (nr: string) => getSectionData('penilaian_kecemasan_anak', nr),
-      render: (data) => renderForm(data)},
-    { id: 'penilaian_penyakit_menular', label: 'Penilaian Penyakit Menular', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('penilaian_penyakit_menular', nr),
-      render: (data) => renderForm(data)},
-    { id: 'penilaian_keracunan', label: 'Penilaian Keracunan', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('penilaian_keracunan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'tambahan_geriatri', label: 'Tambahan Geriatri', icon: <FaWalking />,
-      fetchData: (nr: string) => getSectionData('tambahan_geriatri', nr),
-      render: (data) => renderForm(data)},
-    { id: 'tambahan_bunuh_diri', label: 'Tambahan Bunuh Diri', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('tambahan_bunuh_diri', nr),
-      render: (data) => renderForm(data)},
-    { id: 'tambahan_perilaku_kekerasan', label: 'Tambahan Perilaku Kekerasan', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('tambahan_perilaku_kekerasan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'tambahan_melarikan_diri', label: 'Tambahan Melarikan Diri', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('tambahan_melarikan_diri', nr),
-      render: (data) => renderForm(data)},
-
-    // Penunjang Medis
-    { id: 'uji_fungsi_kfr', label: 'Uji Fungsi/Prosedur KFR', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('uji_fungsi_kfr', nr),
-      render: (data) => renderForm(data)},
-    { id: 'hemodialisa', label: 'Hemodialisa', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('hemodialisa', nr),
-      render: (data) => renderForm(data)},
-
-    // Berkas Digital
-    { id: 'berkas_digital', label: 'Berkas Digital Perawatan', icon: <FaClipboardList />,
-      fetchData: getBerkasDigital,
-      render: (data) => data.length === 0 ? <span className="text-slate-400 dark:text-slate-500 italic">Tidak ada data</span> : (
-        <div className="space-y-1">
-          {data.map((d: any, i: number) => (
-            <div key={i} className="flex items-center gap-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2">
-              <span className="font-semibold text-brand-600">{d.nama_berkas || d.kode_berkas}</span>
-              <span className="text-slate-400">-</span>
-              <span>{d.tgl_perawatan}</span>
-              {d.lokasi_file && <a href={d.lokasi_file} target="_blank" rel="noopener noreferrer" className="ml-auto text-brand-500 hover:text-brand-700 underline">Lihat</a>}
-            </div>
-          ))}
-        </div>
-      )},
-
-    // Awal Keperawatan (ditampilkan sebagai form)
-    { id: 'asuhan_keperawatan_igd', label: 'Awal Keperawatan IGD', icon: <FaAmbulance />,
-      fetchData: (nr: string) => getSectionData('asuhan_keperawatan_igd', nr),
-      render: (data) => renderForm(data)},
-    { id: 'asuhan_keperawatan_ralan', label: 'Awal Keperawatan Ralan', icon: <FaUserInjured />,
-      fetchData: (nr: string) => getSectionData('asuhan_keperawatan_ralan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'asuhan_keperawatan_ranap', label: 'Awal Keperawatan Ranap', icon: <FaUserInjured />,
-      fetchData: (nr: string) => getSectionData('asuhan_keperawatan_ranap', nr),
-      render: (data) => renderForm(data)},
-
-    // Awal Medis
-    { id: 'asuhan_medis_igd', label: 'Awal Medis IGD', icon: <FaUserMd />,
-      fetchData: (nr: string) => getSectionData('asuhan_medis_igd', nr),
-      render: (data) => renderForm(data)},
-    { id: 'asuhan_medis_ralan', label: 'Awal Medis Ralan', icon: <FaUserMd />,
-      fetchData: (nr: string) => getSectionData('asuhan_medis_ralan', nr),
-      render: (data) => renderForm(data)},
-    { id: 'asuhan_medis_ranap', label: 'Awal Medis Ranap', icon: <FaUserMd />,
-      fetchData: (nr: string) => getSectionData('asuhan_medis_ranap', nr),
-      render: (data) => renderForm(data)},
-
-    // Fisioterapi & Rehab
-    { id: 'asuhan_fisioterapi', label: 'Awal Fisioterapi', icon: <FaWalking />,
-      fetchData: (nr: string) => getSectionData('asuhan_fisioterapi', nr),
-      render: (data) => renderForm(data)},
-    { id: 'penilaian_terapi_wicara', label: 'Penilaian Terapi Wicara', icon: <FaProcedures />,
-      fetchData: (nr: string) => getSectionData('penilaian_terapi_wicara', nr),
-      render: (data) => renderForm(data)},
-    { id: 'penilaian_psikolog', label: 'Penilaian Psikolog', icon: <FaBrain />,
-      fetchData: (nr: string) => getSectionData('penilaian_psikolog', nr),
-      render: (data) => renderForm(data)},
   ];
 
   return (
@@ -1063,151 +570,41 @@ function RiwayatPasienContent() {
 
           {activeTab === "perawatan" && (
             <motion.div key="perawatan" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}
-              className="flex-1 flex overflow-hidden">
-              {/* Sidebar Kiri - Checkbox Sections */}
-              <motion.div initial={false} animate={{ width: sidebarOpen ? 260 : 40 }}
-                className="bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden shrink-0">
-                <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2 h-10">
-                  <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-brand-50 rounded text-brand-700 shrink-0">
-                    <FaBars className="text-xs" />
-                  </button>
-                  {sidebarOpen && <span className="text-xs font-bold text-brand-700 truncate">Pilih Data</span>}
-                </div>
-                {sidebarOpen && (
-                  <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-0.5">
-                    <button onClick={() => {
-                      const allChecked = sectionDefs.every(s => checkedSections[s.id]);
-                      const newState: Record<string, boolean> = {};
-                      sectionDefs.forEach(s => { newState[s.id] = !allChecked; });
-                      setCheckedSections(newState);
-                    }}
-                      className="flex items-center gap-2 px-2 py-1.5 w-full text-left text-xs rounded transition-colors bg-brand-50 dark:bg-slate-700 text-brand-700 dark:text-brand-400 font-semibold mb-1 border border-brand-200 dark:border-slate-600">
-                      {sectionDefs.every(s => checkedSections[s.id]) ? <FaCheckSquare className="text-brand-500 shrink-0" /> : <FaSquare className="text-slate-400 shrink-0" />}
-                      <span>{sectionDefs.every(s => checkedSections[s.id]) ? 'Hapus Semua' : 'Pilih Semua'}</span>
+              className="flex-1 overflow-auto p-4">
+              <div className="mb-3">
+                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                    <input type="text" readOnly
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={noRawatParam || resolvedNoRM} />
+                    <input type="text" readOnly placeholder="RM"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={resolvedNoRM} />
+                    <input type="text" readOnly placeholder="Nama"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                      value={resolvedNmPasien} />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">Tanggal</label>
+                    <input type="date"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="time" step="1"
+                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
+                      checked={isClockRunning} disabled title="Jam selalu real-time" />
+                    <button onClick={() => setShowPasienInfo(true)}
+                      className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
+                      <FaInfoCircle className="text-[11px]" /> Data Pasien
                     </button>
-                    {sectionDefs.map((sec) => (
-                      <button key={sec.id} onClick={() => setCheckedSections(prev => ({ ...prev, [sec.id]: !prev[sec.id] }))}
-                        className={`flex items-center gap-2 px-2 py-1.5 w-full text-left text-xs rounded transition-colors ${checkedSections[sec.id] ? "bg-brand-50 dark:bg-slate-700 text-brand-700 dark:text-brand-400 font-semibold" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"}`}>
-                        {checkedSections[sec.id] ? <FaCheckSquare className="text-brand-500 shrink-0" /> : <FaSquare className="text-slate-300 shrink-0" />}
-                        <span className="truncate">{sec.label}</span>
-                      </button>
-                    ))}
                   </div>
-                )}
-              </motion.div>
-
-              {/* Panel Kanan */}
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="px-4 pt-2 shrink-0 mb-3">
-                  <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
-                      <input type="text" readOnly
-                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-                        value={noRawatParam || resolvedNoRM} />
-                      <input type="text" readOnly placeholder="RM"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-                        value={resolvedNoRM} />
-                      <input type="text" readOnly placeholder="Nama"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-                        value={resolvedNmPasien} />
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
-                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">Tanggal</label>
-                      <input type="date"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
-                        value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                      <input type="time" step="1"
-                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
-                        value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                      <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
-                        checked={isClockRunning} disabled title="Jam selalu real-time" />
-                      <button onClick={() => setShowPasienInfo(true)}
-                        className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
-                        <FaInfoCircle className="text-[11px]" /> Data Pasien
-                      </button>
-                    </div>
-                  </FormSection>
-                </div>
-                <div className="flex-1 overflow-auto p-4">
-                {/* Visit Selector */}
-                {perawatanVisits.length > 0 && (
-                  <div className="mb-4 flex items-center gap-2 text-xs flex-wrap">
-                    <span className="font-semibold text-slate-600 dark:text-slate-300">Pilih Kunjungan:</span>
-                    <select value={selectedVisit} onChange={e => setSelectedVisit(e.target.value)}
-                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-100">
-                      {perawatanVisits.map((v: any, i: number) => (
-                        <option key={i} value={v.no_rawat}>{v.no_rawat} - {v.tgl_registrasi} ({v.nm_poli})</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {!selectedVisit ? (
-                  <div className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center text-xs text-slate-400 dark:text-slate-500 italic">
-                    Pilih kunjungan pasien untuk menampilkan data perawatan lengkap
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Detail Registrasi */}
-                    {(() => {
-                      const visit = perawatanVisits.find(v => v.no_rawat === selectedVisit);
-                      if (!visit) return null;
-                      const refPoli = visit.referrals?.map((r: any) => r.nm_poli).filter(Boolean).join(', ') || '';
-                      const refDokter = visit.referrals?.map((r: any) => r.nm_dokter).filter(Boolean).join(', ') || '';
-                      const items = [
-                        ['No. Rawat', visit.no_rawat],
-                        ['No. Registrasi', visit.no_reg],
-                        ['Tanggal Registrasi', `${visit.tgl_registrasi} ${visit.jam_reg || ''}`],
-                        ['Umur Saat Daftar', `${visit.umurdaftar || ''} ${visit.sttsumur || ''}`],
-                        ['Unit/Poliklinik', visit.nm_poli + (refPoli ? `, ${refPoli}` : '')],
-                        ['Dokter Poli', visit.nm_dokter + (refDokter ? `, ${refDokter}` : '')],
-                        ...(visit.status_lanjut === 'Ranap' && visit.dpjp ? [['DPJP Ranap', visit.dpjp]] : []),
-                        ['Cara Bayar', visit.png_jawab],
-                        ['Penanggung Jawab', visit.p_jawab],
-                        ['Alamat P.J.', visit.almt_pj],
-                        ['Hubungan P.J.', visit.hubunganpj],
-                        ['Status', visit.status_lanjut],
-                      ];
-                      return (
-                        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                          <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 px-4 py-2.5">
-                            <FaClipboardList className="text-brand-500" /> Detail Registrasi
-                          </h3>
-                          <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                            {items.map(([label, value]) => (
-                              <div key={label} className="grid grid-cols-[120px_20px_1fr] gap-0 px-4 py-1.5 text-xs">
-                                <span className="font-semibold text-slate-600 dark:text-slate-300">{label}</span>
-                                <span className="text-slate-400 text-center">:</span>
-                                <span className="text-slate-800 dark:text-slate-100">{String(value || '-')}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Data Sections */}
-                    {sectionDefs.filter(sec => checkedSections[sec.id]).filter(sec => {
-                      if (loadingSection === sec.id) return true;
-                      const data = sectionData[sec.id];
-                      return Array.isArray(data) && data.length > 0;
-                    }).map((sec) => (
-                      <div key={sec.id} className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
-                        <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-3 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">
-                          <span className="text-brand-500 text-sm">{sec.icon}</span> {sec.label}
-                        </h3>
-                        {loadingSection === sec.id ? (
-                          <div className="flex justify-center py-4"><div className="w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" /></div>
-                        ) : (
-                          sec.render(sectionData[sec.id] || [])
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                </FormSection>
               </div>
-            </div>
+              <div className="text-center py-12 text-slate-400 dark:text-slate-500 text-xs italic">
+                Belum ada data — tambahkan section satu per satu.
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
