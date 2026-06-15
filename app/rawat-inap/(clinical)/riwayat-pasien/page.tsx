@@ -1150,17 +1150,49 @@ function RiwayatPasienContent() {
                 ) : (
                   <div className="space-y-6">
                     {/* Detail Registrasi */}
-                    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
-                      <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-3 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">
-                        <FaClipboardList className="text-brand-500" /> Detail Registrasi
-                      </h3>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 italic">
-                        No. Rawat: {selectedVisit}
-                      </div>
-                    </div>
+                    {(() => {
+                      const visit = perawatanVisits.find(v => v.no_rawat === selectedVisit);
+                      if (!visit) return null;
+                      const refPoli = visit.referrals?.map((r: any) => r.nm_poli).filter(Boolean).join(', ') || '';
+                      const refDokter = visit.referrals?.map((r: any) => r.nm_dokter).filter(Boolean).join(', ') || '';
+                      const items = [
+                        ['No. Rawat', visit.no_rawat],
+                        ['No. Registrasi', visit.no_reg],
+                        ['Tanggal Registrasi', `${visit.tgl_registrasi} ${visit.jam_reg || ''}`],
+                        ['Umur Saat Daftar', `${visit.umurdaftar || ''} ${visit.sttsumur || ''}`],
+                        ['Unit/Poliklinik', visit.nm_poli + (refPoli ? `, ${refPoli}` : '')],
+                        ['Dokter Poli', visit.nm_dokter + (refDokter ? `, ${refDokter}` : '')],
+                        ...(visit.status_lanjut === 'Ranap' && visit.dpjp ? [['DPJP Ranap', visit.dpjp]] : []),
+                        ['Cara Bayar', visit.png_jawab],
+                        ['Penanggung Jawab', visit.p_jawab],
+                        ['Alamat P.J.', visit.almt_pj],
+                        ['Hubungan P.J.', visit.hubunganpj],
+                        ['Status', visit.status_lanjut],
+                      ];
+                      return (
+                        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                          <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 px-4 py-2.5">
+                            <FaClipboardList className="text-brand-500" /> Detail Registrasi
+                          </h3>
+                          <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                            {items.map(([label, value]) => (
+                              <div key={label} className="grid grid-cols-[120px_20px_1fr] gap-0 px-4 py-1.5 text-xs">
+                                <span className="font-semibold text-slate-600 dark:text-slate-300">{label}</span>
+                                <span className="text-slate-400 text-center">:</span>
+                                <span className="text-slate-800 dark:text-slate-100">{String(value || '-')}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {/* Data Sections */}
-                    {sectionDefs.filter(sec => checkedSections[sec.id]).map((sec) => (
+                    {sectionDefs.filter(sec => checkedSections[sec.id]).filter(sec => {
+                      if (loadingSection === sec.id) return true;
+                      const data = sectionData[sec.id];
+                      return Array.isArray(data) && data.length > 0;
+                    }).map((sec) => (
                       <div key={sec.id} className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
                         <h3 className="text-[13px] font-bold text-brand-700 dark:text-brand-400 mb-3 flex items-center gap-2 border-b border-brand-100 dark:border-slate-600 pb-2">
                           <span className="text-brand-500 text-sm">{sec.icon}</span> {sec.label}
