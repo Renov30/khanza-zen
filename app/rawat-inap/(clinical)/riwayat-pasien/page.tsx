@@ -352,7 +352,7 @@ function RiwayatPasienContent() {
           </thead>
           <tbody>
             {data.map((row: any, i: number) => (
-              <tr key={i} className={i % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900'}>
+              <tr key={i} className='bg-white dark:bg-slate-800'>
                 {columns.map((col) => (
                   <td key={col.key} className={`p-2 border dark:border-slate-700 ${col.align === 'right' ? 'text-right' : ''}`}>
                     {col.render ? col.render(row[col.key], row) : row[col.key] !== null && row[col.key] !== undefined && row[col.key] !== '0000-00-00' ? String(row[col.key]) : '-'}
@@ -837,8 +837,8 @@ function RiwayatPasienContent() {
         <AnimatePresence mode="wait">
           {activeTab === "kunjungan" && (
             <motion.div key="kunjungan" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}
-              className="flex-1 flex flex-col overflow-hidden">
-              <div className="px-2 sm:px-4 md:px-6 lg:px-8 pt-2 shrink-0">
+              className="flex-1 overflow-auto p-4">
+              <div className="mb-3">
                 <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <div className="flex items-center gap-1 sm:gap-2 min-w-0">
                     <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
@@ -869,20 +869,18 @@ function RiwayatPasienContent() {
                   </div>
                 </FormSection>
               </div>
-              <div className="flex-1 overflow-auto">
-                <DataTableMulti
-                  title="Riwayat Kunjungan"
-                  icon={<FaHistory />}
-                  onRefresh={handleBottomSearch}
-                  columns={kunjunganColumns}
-                  data={kunjunganData}
-                  idKey="id"
-                  selectedIds={selectedRows}
-                  onSelectionChange={setSelectedRows}
-                  isLoading={isLoadingData}
-                  emptyMessage="Tidak ada riwayat kunjungan ditemukan."
-                />
-              </div>
+              <DataTableMulti
+                title="Riwayat Kunjungan"
+                icon={<FaHistory />}
+                onRefresh={handleBottomSearch}
+                columns={kunjunganColumns}
+                data={kunjunganData}
+                idKey="id"
+                selectedIds={selectedRows}
+                onSelectionChange={setSelectedRows}
+                isLoading={isLoadingData}
+                emptyMessage="Tidak ada riwayat kunjungan ditemukan."
+              />
             </motion.div>
           )}
 
@@ -945,7 +943,7 @@ function RiwayatPasienContent() {
                     </div>
                     {group.entries.map((entry, ei) => (
 
-                      <div key={ei} className={`grid grid-cols-12 gap-0 text-xs border-t border-slate-200 dark:border-slate-700 ${ei % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-900"}`}>
+                      <div key={ei} className="grid grid-cols-12 gap-0 text-xs border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                         <div className="col-span-1 p-2 border-r border-slate-200 dark:border-slate-700 text-center font-semibold text-brand-700 dark:text-brand-400">{entry.status}</div>
                         <div className="col-span-1 p-2 border-r border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">{entry.tglJam}</div>
                         <div className="col-span-2 p-2 border-r border-slate-200 dark:border-slate-700">
@@ -1100,7 +1098,7 @@ function RiwayatPasienContent() {
 
               {/* Panel Kanan */}
               <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="px-4 pt-2 shrink-0">
+                <div className="px-4 pt-2 shrink-0 mb-3">
                   <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <div className="flex items-center gap-1 sm:gap-2 min-w-0">
                       <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
