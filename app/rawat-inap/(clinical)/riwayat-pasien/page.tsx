@@ -58,6 +58,15 @@ const filterModes = [
   { id: "norawat", label: "No.Rawat" },
 ];
 
+function PatientInfoField({ label, value }: { label: string; value?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="font-semibold text-slate-500 dark:text-slate-400 text-[10px]">{label}</span>
+      <span className="text-slate-800 dark:text-slate-100 text-[11px]">{value || '-'}</span>
+    </div>
+  );
+}
+
 function RiwayatPasienContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -642,45 +651,54 @@ function RiwayatPasienContent() {
                 </div>
 
                 {/* Section content */}
-                <div className="flex-1 overflow-y-auto p-3 pt-0 custom-scrollbar">
-                  {Object.keys(checkedSections).filter(k => checkedSections[k]).length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                      <div className="text-slate-300 dark:text-slate-600 mb-3">
-                        <FaClipboardList className="text-4xl" />
+                <div className="flex-1 overflow-y-auto p-3 pt-0 custom-scrollbar space-y-4">
+                  {/* Informasi Umum Pasien — always visible */}
+                  {pasienInfo && (
+                    <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                      <div className="bg-slate-50 dark:bg-slate-800 px-3 py-2 border-b border-slate-200 dark:border-slate-700">
+                        <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                          Informasi Umum Pasien
+                        </span>
                       </div>
-                      <p className="text-slate-400 dark:text-slate-500 text-xs italic mb-1">
-                        Belum ada section yang dipilih.
-                      </p>
-                      <p className="text-slate-400 dark:text-slate-500 text-[11px]">
-                        Klik tombol <strong>&laquo;</strong> di kiri untuk membuka menu section.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {Object.entries(checkedSections)
-                        .filter(([_, checked]) => checked)
-                        .map(([sectionId]) => {
-                          const sectionInfo = allSectionIds.includes(sectionId)
-                            ? sectionGroups.flatMap(g => g.sections).find(s => s.id === sectionId)
-                            : null;
-                          return (
-                            <div key={sectionId} id={`section-${sectionId}`} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
-                              <div className="bg-slate-50 dark:bg-slate-800 px-3 py-2 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
-                                {sectionInfo?.icon && (
-                                  <span className="text-slate-500 text-xs">{sectionInfo.icon}</span>
-                                )}
-                                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                                  {sectionInfo?.label || sectionId}
-                                </span>
-                              </div>
-                              <div className="p-3 bg-white dark:bg-slate-800/50">
-                                {renderSection(sectionId, [])}
-                              </div>
-                            </div>
-                          );
-                        })}
+                      <div className="p-3 bg-white dark:bg-slate-800/50">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 text-xs">
+                          <PatientInfoField label="Pasien" value={`${pasienInfo.no_rkm_medis} — ${pasienInfo.nm_pasien}`} />
+                          <PatientInfoField label="J.K." value={pasienInfo.jk} />
+                          <PatientInfoField label="Tempat & Tgl.Lahir" value={`${pasienInfo.tmp_lahir}, ${pasienInfo.tgl_lahir || '-'}`} />
+                          <PatientInfoField label="Alamat" value={pasienInfo.alamat} />
+                          <PatientInfoField label="G.D." value={pasienInfo.gol_darah} />
+                          <PatientInfoField label="Nama Ibu Kandung" value={pasienInfo.nm_ibu} />
+                          <PatientInfoField label="NIK/No.KTP" value={pasienInfo.no_ktp} />
+                          <PatientInfoField label="No.HP" value={pasienInfo.no_tlp} />
+                          <PatientInfoField label="Agama" value={pasienInfo.agama} />
+                          <PatientInfoField label="Stts.Nikah" value={pasienInfo.stts_nikah} />
+                          <PatientInfoField label="Pendidikan" value={pasienInfo.pendidikan} />
+                          <PatientInfoField label="Bahasa" value={pasienInfo.bahasa} />
+                          <PatientInfoField label="Cacat Fisik" value={pasienInfo.cacat_fisik} />
+                          <PatientInfoField label="Pekerjaan" value={pasienInfo.pekerjaan} />
+                        </div>
+                      </div>
                     </div>
                   )}
+
+                  {/* Checked sections */}
+                  {Object.entries(checkedSections).filter(([_, checked]) => checked).map(([sectionId]) => {
+                    const sectionInfo = allSectionIds.includes(sectionId)
+                      ? sectionGroups.flatMap(g => g.sections).find(s => s.id === sectionId)
+                      : null;
+                    return (
+                      <div key={sectionId} id={`section-${sectionId}`} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                        <div className="bg-slate-50 dark:bg-slate-800 px-3 py-2 border-b border-slate-200 dark:border-slate-700">
+                          <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                            {sectionInfo?.label || sectionId}
+                          </span>
+                        </div>
+                        <div className="p-3 bg-white dark:bg-slate-800/50">
+                          {renderSection(sectionId, [])}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>
