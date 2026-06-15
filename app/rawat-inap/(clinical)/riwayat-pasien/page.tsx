@@ -26,6 +26,9 @@ import {
 } from '@/lib/actions/ranap';
 import FormSection from "@/components/FormSection";
 import QRCodeDisplay from '@/components/QRCodeDisplay';
+import SectionsSidebar from './SectionsSidebar';
+import { renderSection } from './section-renderers';
+import { sectionGroups, allSectionIds } from './section-groups';
 
 interface KunjunganRow {
   id: string; rowType: string; no_rawat: string; tgl: string; jam: string;
@@ -205,7 +208,8 @@ function RiwayatPasienContent() {
   useEffect(() => {
     if (activeTab === "kunjungan") fetchKunjungan();
     else if (activeTab === "soapie") fetchSoapie();
-  }, [activeTab, fetchKunjungan, fetchSoapie]);
+    else if (activeTab === "perawatan") fetchPerawatan();
+  }, [activeTab, fetchKunjungan, fetchSoapie, fetchPerawatan]);
 
   // Cache DPJP per no_rawat saat soapieData berubah
   useEffect(() => {
@@ -317,8 +321,7 @@ function RiwayatPasienContent() {
     );
   };
 
-  const sectionDefs: PerawatanSection[] = [
-  ];
+  // sectionDefs will be defined in future implementation
 
   return (
     <>
@@ -570,40 +573,115 @@ function RiwayatPasienContent() {
 
           {activeTab === "perawatan" && (
             <motion.div key="perawatan" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}
-              className="flex-1 overflow-auto p-4">
-              <div className="mb-3">
-                <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
-                    <input type="text" readOnly
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-                      value={noRawatParam || resolvedNoRM} />
-                    <input type="text" readOnly placeholder="RM"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-                      value={resolvedNoRM} />
-                    <input type="text" readOnly placeholder="Nama"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
-                      value={resolvedNmPasien} />
+              className="flex-1 flex overflow-hidden relative">
+              {/* Sidebar */}
+              <SectionsSidebar
+                checkedSections={checkedSections}
+                setCheckedSections={setCheckedSections}
+                sidebarOpen={sidebarOpen}
+                setSidebarOpen={setSidebarOpen}
+              />
+
+              {/* Main content area */}
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Header info */}
+                <div className="p-3 pb-0 shrink-0">
+                  <FormSection className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 shrink-0">Pasien</label>
+                      <input type="text" readOnly
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-14 sm:w-20 lg:w-35 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                        value={noRawatParam || resolvedNoRM} />
+                      <input type="text" readOnly placeholder="RM"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-12 sm:w-14 lg:w-18 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                        value={resolvedNoRM} />
+                      <input type="text" readOnly placeholder="Nama"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 w-24 sm:w-28 lg:w-70 bg-slate-50 dark:bg-slate-700 text-xs focus:outline-none focus:border-brand-500"
+                        value={resolvedNmPasien} />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
+                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">Tanggal</label>
+                      <input type="date"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                        value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
+                      <input type="time" step="1"
+                        className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
+                        value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
+                      <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
+                        checked={isClockRunning} disabled title="Jam selalu real-time" />
+                      <button onClick={() => setShowPasienInfo(true)}
+                        className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
+                        <FaInfoCircle className="text-[11px]" /> Data Pasien
+                      </button>
+                    </div>
+                  </FormSection>
+                </div>
+
+                {/* Visit picker */}
+                <div className="px-3 py-2 shrink-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 shrink-0">Kunjungan:</label>
+                    <select
+                      value={selectedVisit}
+                      onChange={e => setSelectedVisit(e.target.value)}
+                      className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs bg-white dark:bg-slate-700 min-w-[200px] focus:outline-none focus:border-brand-500"
+                    >
+                      <option value="">Pilih Kunjungan</option>
+                      {perawatanVisits.map((v: any, i: number) => (
+                        <option key={i} value={v.no_rawat}>
+                          {v.no_rawat} — {v.tgl_registrasi} ({v.nm_dokter || '-'})
+                        </option>
+                      ))}
+                    </select>
+                    {selectedVisit && (
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">
+                        {perawatanVisits.find((v: any) => v.no_rawat === selectedVisit)?.nm_pasien || ''}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 shrink-0">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12 sm:w-14 shrink-0">Tanggal</label>
-                    <input type="date"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-26 sm:w-28 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
-                      value={currentDate} onChange={e => { if (!isClockRunning) setCurrentDate(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="time" step="1"
-                      className="border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-xs w-22 sm:w-24 focus:outline-none focus:border-brand-500 bg-white dark:bg-slate-700"
-                      value={currentTime} onChange={e => { if (!isClockRunning) setCurrentTime(e.target.value); }} readOnly={isClockRunning} />
-                    <input type="checkbox" className="accent-brand-500 w-3.5 h-3.5 opacity-60 shrink-0"
-                      checked={isClockRunning} disabled title="Jam selalu real-time" />
-                    <button onClick={() => setShowPasienInfo(true)}
-                      className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
-                      <FaInfoCircle className="text-[11px]" /> Data Pasien
-                    </button>
-                  </div>
-                </FormSection>
-              </div>
-              <div className="text-center py-12 text-slate-400 dark:text-slate-500 text-xs italic">
-                Belum ada data — tambahkan section satu per satu.
+                </div>
+
+                {/* Section content */}
+                <div className="flex-1 overflow-y-auto p-3 pt-0 custom-scrollbar">
+                  {Object.keys(checkedSections).filter(k => checkedSections[k]).length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center py-12">
+                      <div className="text-slate-300 dark:text-slate-600 mb-3">
+                        <FaClipboardList className="text-4xl" />
+                      </div>
+                      <p className="text-slate-400 dark:text-slate-500 text-xs italic mb-1">
+                        Belum ada section yang dipilih.
+                      </p>
+                      <p className="text-slate-400 dark:text-slate-500 text-[11px]">
+                        Klik tombol <strong>&laquo;</strong> di kiri untuk membuka menu section.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {Object.entries(checkedSections)
+                        .filter(([_, checked]) => checked)
+                        .map(([sectionId]) => {
+                          const sectionInfo = allSectionIds.includes(sectionId)
+                            ? sectionGroups.flatMap(g => g.sections).find(s => s.id === sectionId)
+                            : null;
+                          return (
+                            <div key={sectionId} id={`section-${sectionId}`} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                              <div className="bg-slate-50 dark:bg-slate-800 px-3 py-2 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
+                                {sectionInfo?.icon && (
+                                  <span className="text-slate-500 text-xs">{sectionInfo.icon}</span>
+                                )}
+                                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                                  {sectionInfo?.label || sectionId}
+                                </span>
+                              </div>
+                              <div className="p-3 bg-white dark:bg-slate-800/50">
+                                {renderSection(sectionId, [])}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
