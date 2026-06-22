@@ -504,7 +504,7 @@ function RiwayatPasienContent() {
       </div>
 
       {/* Konten Tab */}
-      <div className="flex-1 overflow-hidden flex flex-col relative">
+      <div className="flex-1 overflow-hidden flex flex-col relative bg-white dark:bg-slate-900">
         <AnimatePresence mode="wait">
           {activeTab === "kunjungan" && (
             <motion.div key="kunjungan" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}
