@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback, memo } from "react";
 import {
-  FaBars, FaTimes, FaSquare, FaCheckSquare, FaMinusSquare,
+  FaTimes, FaSquare, FaCheckSquare, FaMinusSquare,
   FaSearch, FaSortAlphaDown, FaSortAlphaUp, FaTimesCircle,
 } from "react-icons/fa";
 import { sectionGroups, allSectionIds } from "./section-groups";
@@ -102,16 +102,6 @@ export default function SectionsSidebar({
 
   return (
     <>
-      {!sidebarOpen && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="absolute left-0 top-20 z-20 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 border-l-0 rounded-r-lg shadow-md px-2 py-3 text-slate-500 hover:text-brand-600 transition-colors"
-          title="Buka Menu Section"
-        >
-          <FaBars className="text-sm" />
-        </button>
-      )}
-
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-slate-900/20 z-30 lg:hidden"

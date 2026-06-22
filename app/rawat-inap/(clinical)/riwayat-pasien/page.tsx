@@ -774,6 +774,15 @@ function RiwayatPasienContent() {
                         className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
                         <FaInfoCircle className="text-[11px]" /> Data Pasien
                       </button>
+                      <button onClick={() => setSidebarOpen(o => !o)}
+                        className="ml-1 px-2 py-1 text-xs font-semibold bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded transition-colors flex items-center gap-1.5 shrink-0">
+                        <FaBars className="text-[11px]" /> Pilih Data
+                        {Object.values(checkedSections).filter(Boolean).length > 0 && (
+                          <span className="bg-brand-500 text-white text-[10px] font-bold rounded-full px-1.5 min-w-[16px] h-4 flex items-center justify-center leading-none">
+                            {Object.values(checkedSections).filter(Boolean).length}
+                          </span>
+                        )}
+                      </button>
                     </div>
                   </FormSection>
                 </div>
