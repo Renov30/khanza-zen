@@ -108,6 +108,22 @@ function PatientInfoField({ label, value }: { label: string; value?: string }) {
   );
 }
 
+function SectionSkeleton() {
+  return (
+    <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden animate-pulse">
+      <div className="bg-slate-50 dark:bg-slate-800 px-3 py-2 border-b border-slate-200 dark:border-slate-700">
+        <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-40" />
+      </div>
+      <div className="p-3 bg-white dark:bg-slate-800/50 space-y-2">
+        <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded w-full" />
+        <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded w-3/4" />
+        <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded w-5/6" />
+        <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded w-2/3" />
+      </div>
+    </div>
+  );
+}
+
 function RiwayatPasienContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -166,6 +182,10 @@ function RiwayatPasienContent() {
   const prevFetchKeyRef = useRef('');
   const autoDetectDoneRef = useRef<Record<string, boolean>>({});
 
+  // Per-section loading states
+  const [isAutoDetecting, setIsAutoDetecting] = useState(false);
+  const [fetchingSections, setFetchingSections] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     if (isLoadingData) {
       loadingTimerRef.current = setTimeout(() => setShowLoadingOverlay(true), 1000);
@@ -199,12 +219,19 @@ function RiwayatPasienContent() {
     autoDetectDoneRef.current[selectedVisit] = true;
 
     const run = async () => {
+      setIsAutoDetecting(true);
       const results: Record<string, any[]> = {};
       const sectionsWithData: string[] = [];
       const BATCH_SIZE = 15;
 
       for (let i = 0; i < allSectionIds.length; i += BATCH_SIZE) {
         const batch = allSectionIds.slice(i, i + BATCH_SIZE);
+        // Mark all sections in this batch as "fetching"
+        setFetchingSections(prev => {
+          const next = { ...prev };
+          batch.forEach(id => { next[id] = true; });
+          return next;
+        });
         const responses = await Promise.allSettled(
           batch.map(id => fetchSectionData(id, selectedVisit))
         );
@@ -216,7 +243,15 @@ function RiwayatPasienContent() {
             sectionsWithData.push(id);
           }
         }
+        // Clear fetching state for this batch
+        setFetchingSections(prev => {
+          const next = { ...prev };
+          batch.forEach(id => { delete next[id]; });
+          return next;
+        });
       }
+
+      setIsAutoDetecting(false);
 
       if (sectionsWithData.length === 0) return;
 
@@ -253,10 +288,12 @@ function RiwayatPasienContent() {
     const fetchAll = async () => {
       const results: Record<string, any[]> = {};
       for (const sectionId of checkedIds) {
+        setFetchingSections(prev => ({ ...prev, [sectionId]: true }));
         try {
           const res = await fetchSectionData(sectionId, selectedVisit);
           results[sectionId] = res.success ? res.data : [];
         } catch { results[sectionId] = []; }
+        setFetchingSections(prev => ({ ...prev, [sectionId]: false }));
       }
       setSectionData(prev => ({ ...prev, ...results }));
     };
@@ -795,11 +832,25 @@ function RiwayatPasienContent() {
                     </div>
                   )}
 
+                  {/* Auto-detection scanning indicator */}
+                  {isAutoDetecting && Object.keys(checkedSections).length === 0 && (
+                    <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 italic px-1">
+                      <div className="w-4 h-4 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
+                      Memindai data pasien...
+                    </div>
+                  )}
+
                   {/* Checked sections */}
                   {Object.entries(checkedSections).filter(([_, checked]) => checked).map(([sectionId]) => {
                     const sectionInfo = allSectionIds.includes(sectionId)
                       ? sectionGroups.flatMap(g => g.sections).find(s => s.id === sectionId)
                       : null;
+                    const isLoading = fetchingSections[sectionId];
+                    const hasData = sectionId in sectionData;
+                    // Show skeleton while loading and data isn't available yet
+                    if (isLoading && !hasData) {
+                      return <SectionSkeleton key={sectionId} />;
+                    }
                     return (
                       <div key={sectionId} id={`section-${sectionId}`} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                         <div className="bg-slate-50 dark:bg-slate-800 px-3 py-2 border-b border-slate-200 dark:border-slate-700">
