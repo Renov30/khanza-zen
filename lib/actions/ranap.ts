@@ -2389,20 +2389,193 @@ export async function getProsedurPasien(noRawat: string) {
  */
 export async function getTriaseIGD(noRawat: string) {
   try {
-    const query = `
-      SELECT data_triase_igdprimer.kd_triase_igdprimer, data_triase_igdprimer.pemeriksaan,
-             data_triase_igdprimer.hasil, master_triase_macam_kasus.macam_kasus,
-             master_triase_pemeriksaan.nama_pemeriksaan, data_triase_igdprimer.nip,
-             pegawai.nama AS nm_pegawai
-      FROM data_triase_igdprimer
-      LEFT JOIN master_triase_macam_kasus ON data_triase_igdprimer.kd_macam_kasus = master_triase_macam_kasus.kd_macam_kasus
-      LEFT JOIN master_triase_pemeriksaan ON data_triase_igdprimer.kd_pemeriksaan = master_triase_pemeriksaan.kd_pemeriksaan
-      LEFT JOIN pegawai ON data_triase_igdprimer.nip = pegawai.nik
-      WHERE data_triase_igdprimer.no_rawat = ?
-      ORDER BY data_triase_igdprimer.jam_masuk
+    const baseColumns = `
+      dt.tekanan_darah, dt.nadi, dt.pernapasan, dt.suhu, dt.saturasi_o2, dt.nyeri,
+      dt.cara_masuk, dt.alat_transportasi, dt.alasan_kedatangan,
+      dt.keterangan_kedatangan, dt.kode_kasus, mk.macam_kasus
     `;
-    const [rows]: any = await db.execute(query, [noRawat]);
-    return { success: true, data: rows };
+
+    const pegawaiColumns = `pg.nama AS nm_pegawai`;
+
+    // ── 1. Primer header ────────────────────────────────────────────────
+    const [primerRows]: any = await db.execute(`
+      SELECT dp.keluhan_utama, dp.kebutuhan_khusus, dp.catatan AS catatan_primer,
+             dp.plan AS plan_primer, dp.tanggaltriase AS tgl_triase_primer,
+             dp.nik AS nik_primer, ${pegawaiColumns},
+             ${baseColumns}
+      FROM data_triase_igdprimer dp
+      INNER JOIN data_triase_igd dt ON dt.no_rawat = dp.no_rawat
+      INNER JOIN master_triase_macam_kasus mk ON dt.kode_kasus = mk.kode_kasus
+      LEFT JOIN pegawai pg ON dp.nik = pg.nik
+      WHERE dp.no_rawat = ?
+    `, [noRawat]);
+
+    // ── 2. Sekunder header ──────────────────────────────────────────────
+    const [sekunderRows]: any = await db.execute(`
+      SELECT ds.anamnesa_singkat, ds.catatan AS catatan_sekunder,
+             ds.plan AS plan_sekunder, ds.tanggaltriase AS tgl_triase_sekunder,
+             ds.nik AS nik_sekunder, ${pegawaiColumns},
+             ${baseColumns}
+      FROM data_triase_igdsekunder ds
+      INNER JOIN data_triase_igd dt ON dt.no_rawat = ds.no_rawat
+      INNER JOIN master_triase_macam_kasus mk ON dt.kode_kasus = mk.kode_kasus
+      LEFT JOIN pegawai pg ON ds.nik = pg.nik
+      WHERE ds.no_rawat = ?
+    `, [noRawat]);
+
+    const result: any = {};
+
+    // ── 3. If primer exists, fetch skala1 & skala2 ──────────────────────
+    if (primerRows.length > 0) {
+      result.has_primer = true;
+      const p = primerRows[0];
+      result.primer = {
+        keluhan_utama: p.keluhan_utama,
+        kebutuhan_khusus: p.kebutuhan_khusus,
+        catatan: p.catatan_primer,
+        plan: p.plan_primer,
+        tgl_triase: p.tgl_triase_primer,
+        nik: p.nik_primer,
+        nm_pegawai: p.nm_pegawai,
+        cara_masuk: p.cara_masuk,
+        alat_transportasi: p.alat_transportasi,
+        alasan_kedatangan: p.alasan_kedatangan,
+        keterangan_kedatangan: p.keterangan_kedatangan,
+        macam_kasus: p.macam_kasus,
+        tekanan_darah: p.tekanan_darah,
+        nadi: p.nadi,
+        pernapasan: p.pernapasan,
+        suhu: p.suhu,
+        saturasi_o2: p.saturasi_o2,
+        nyeri: p.nyeri,
+      };
+
+      // Skala 1
+      const [skala1Rows]: any = await db.execute(`
+        SELECT mp.nama_pemeriksaan, ms1.pengkajian_skala1
+        FROM master_triase_pemeriksaan mp
+        INNER JOIN master_triase_skala1 ms1 ON mp.kode_pemeriksaan = ms1.kode_pemeriksaan
+        INNER JOIN data_triase_igddetail_skala1 d ON ms1.kode_skala1 = d.kode_skala1
+        WHERE d.no_rawat = ?
+        ORDER BY mp.kode_pemeriksaan, d.kode_skala1
+      `, [noRawat]);
+      const skala1Grouped: Record<string, string[]> = {};
+      for (const row of skala1Rows) {
+        if (!skala1Grouped[row.nama_pemeriksaan]) skala1Grouped[row.nama_pemeriksaan] = [];
+        skala1Grouped[row.nama_pemeriksaan].push(row.pengkajian_skala1);
+      }
+      result.primer.skala1 = Object.entries(skala1Grouped).map(([nama, items]) => ({
+        nama_pemeriksaan: nama,
+        items,
+      }));
+
+      // Skala 2
+      const [skala2Rows]: any = await db.execute(`
+        SELECT mp.nama_pemeriksaan, ms2.pengkajian_skala2
+        FROM master_triase_pemeriksaan mp
+        INNER JOIN master_triase_skala2 ms2 ON mp.kode_pemeriksaan = ms2.kode_pemeriksaan
+        INNER JOIN data_triase_igddetail_skala2 d ON ms2.kode_skala2 = d.kode_skala2
+        WHERE d.no_rawat = ?
+        ORDER BY mp.kode_pemeriksaan, d.kode_skala2
+      `, [noRawat]);
+      const skala2Grouped: Record<string, string[]> = {};
+      for (const row of skala2Rows) {
+        if (!skala2Grouped[row.nama_pemeriksaan]) skala2Grouped[row.nama_pemeriksaan] = [];
+        skala2Grouped[row.nama_pemeriksaan].push(row.pengkajian_skala2);
+      }
+      result.primer.skala2 = Object.entries(skala2Grouped).map(([nama, items]) => ({
+        nama_pemeriksaan: nama,
+        items,
+      }));
+    }
+
+    // ── 4. If sekunder exists, fetch skala3, skala4 & skala5 ────────────
+    if (sekunderRows.length > 0) {
+      result.has_sekunder = true;
+      const s = sekunderRows[0];
+      result.sekunder = {
+        anamnesa_singkat: s.anamnesa_singkat,
+        catatan: s.catatan_sekunder,
+        plan: s.plan_sekunder,
+        tgl_triase: s.tgl_triase_sekunder,
+        nik: s.nik_sekunder,
+        nm_pegawai: s.nm_pegawai,
+        cara_masuk: s.cara_masuk,
+        alat_transportasi: s.alat_transportasi,
+        alasan_kedatangan: s.alasan_kedatangan,
+        keterangan_kedatangan: s.keterangan_kedatangan,
+        macam_kasus: s.macam_kasus,
+        tekanan_darah: s.tekanan_darah,
+        nadi: s.nadi,
+        pernapasan: s.pernapasan,
+        suhu: s.suhu,
+        saturasi_o2: s.saturasi_o2,
+        nyeri: s.nyeri,
+      };
+
+      // Skala 3
+      const [skala3Rows]: any = await db.execute(`
+        SELECT mp.nama_pemeriksaan, ms3.pengkajian_skala3
+        FROM master_triase_pemeriksaan mp
+        INNER JOIN master_triase_skala3 ms3 ON mp.kode_pemeriksaan = ms3.kode_pemeriksaan
+        INNER JOIN data_triase_igddetail_skala3 d ON ms3.kode_skala3 = d.kode_skala3
+        WHERE d.no_rawat = ?
+        ORDER BY mp.kode_pemeriksaan, d.kode_skala3
+      `, [noRawat]);
+      const skala3Grouped: Record<string, string[]> = {};
+      for (const row of skala3Rows) {
+        if (!skala3Grouped[row.nama_pemeriksaan]) skala3Grouped[row.nama_pemeriksaan] = [];
+        skala3Grouped[row.nama_pemeriksaan].push(row.pengkajian_skala3);
+      }
+      result.sekunder.skala3 = Object.entries(skala3Grouped).map(([nama, items]) => ({
+        nama_pemeriksaan: nama,
+        items,
+      }));
+
+      // Skala 4
+      const [skala4Rows]: any = await db.execute(`
+        SELECT mp.nama_pemeriksaan, ms4.pengkajian_skala4
+        FROM master_triase_pemeriksaan mp
+        INNER JOIN master_triase_skala4 ms4 ON mp.kode_pemeriksaan = ms4.kode_pemeriksaan
+        INNER JOIN data_triase_igddetail_skala4 d ON ms4.kode_skala4 = d.kode_skala4
+        WHERE d.no_rawat = ?
+        ORDER BY mp.kode_pemeriksaan, d.kode_skala4
+      `, [noRawat]);
+      const skala4Grouped: Record<string, string[]> = {};
+      for (const row of skala4Rows) {
+        if (!skala4Grouped[row.nama_pemeriksaan]) skala4Grouped[row.nama_pemeriksaan] = [];
+        skala4Grouped[row.nama_pemeriksaan].push(row.pengkajian_skala4);
+      }
+      result.sekunder.skala4 = Object.entries(skala4Grouped).map(([nama, items]) => ({
+        nama_pemeriksaan: nama,
+        items,
+      }));
+
+      // Skala 5
+      const [skala5Rows]: any = await db.execute(`
+        SELECT mp.nama_pemeriksaan, ms5.pengkajian_skala5
+        FROM master_triase_pemeriksaan mp
+        INNER JOIN master_triase_skala5 ms5 ON mp.kode_pemeriksaan = ms5.kode_pemeriksaan
+        INNER JOIN data_triase_igddetail_skala5 d ON ms5.kode_skala5 = d.kode_skala5
+        WHERE d.no_rawat = ?
+        ORDER BY mp.kode_pemeriksaan, d.kode_skala5
+      `, [noRawat]);
+      const skala5Grouped: Record<string, string[]> = {};
+      for (const row of skala5Rows) {
+        if (!skala5Grouped[row.nama_pemeriksaan]) skala5Grouped[row.nama_pemeriksaan] = [];
+        skala5Grouped[row.nama_pemeriksaan].push(row.pengkajian_skala5);
+      }
+      result.sekunder.skala5 = Object.entries(skala5Grouped).map(([nama, items]) => ({
+        nama_pemeriksaan: nama,
+        items,
+      }));
+    }
+
+    if (!result.has_primer && !result.has_sekunder) {
+      return { success: true, data: [] };
+    }
+
+    return { success: true, data: [result] };
   } catch (error: any) {
     return { success: false, message: "Gagal mengambil triase IGD", error: error.message, data: [] };
   }

@@ -1,7 +1,7 @@
 import React from "react";
 import {
   FaFileMedical, FaImage, FaDownload, FaLink, FaCheckCircle, FaTimesCircle,
-  FaUserMd, FaClipboardList, FaStethoscope
+  FaUserMd, FaClipboardList, FaStethoscope, FaAmbulance
 } from "react-icons/fa";
 
 // ─── Type ─────────────────────────────────────────────────────────────────────
@@ -401,6 +401,159 @@ export function renderOperasiLengkap(data: any[]): React.ReactNode {
   );
 }
 
+// ─── Triase renderer ─────────────────────────────────────────────────────────────
+
+function renderTriaseAssessment(
+  items: { nama_pemeriksaan: string; items: string[] }[],
+  bgColor: string,
+  label: string,
+) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div className="mt-2">
+      <div
+        className="text-[10px] font-bold text-white px-2 py-0.5 rounded-t"
+        style={{ backgroundColor: bgColor }}
+      >
+        {label}
+      </div>
+      <div className="border border-t-0" style={{ borderColor: bgColor }}>
+        {items.map((g, gi) => (
+          <div key={gi} className="border-b last:border-b-0 border-slate-200">
+            <div className="text-[10px] font-semibold px-2 py-1 bg-slate-50">
+              {g.nama_pemeriksaan}
+            </div>
+            {g.items.map((item, ii) => (
+              <div
+                key={ii}
+                className="text-[11px] px-2 py-0.5 text-white"
+                style={{ backgroundColor: bgColor }}
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function renderTriaseSection(
+  title: string,
+  data: any,
+  skalaConfigs: { key: string; bgColor: string; label: string }[],
+) {
+  if (!data) return null;
+  const planColor = skalaConfigs.length > 0 ? skalaConfigs[0].bgColor : "#6b7280";
+  const firstKey = skalaConfigs[0]?.key;
+  const hasAssessment = data[firstKey]?.length > 0;
+
+  return (
+    <div className="mt-3">
+      <div className="text-[11px] font-bold text-slate-500 mb-1">{title}</div>
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden text-xs">
+        <div className="p-2 space-y-1.5">
+          {title === "Triase Primer" && data.keluhan_utama && (
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold text-slate-400">Keluhan Utama</span>
+              <span className="text-slate-700 dark:text-slate-200 whitespace-pre-wrap">
+                {data.keluhan_utama}
+              </span>
+            </div>
+          )}
+          {title === "Triase Sekunder" && data.anamnesa_singkat && (
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold text-slate-400">Anamnesa Singkat</span>
+              <span className="text-slate-700 dark:text-slate-200 whitespace-pre-wrap">
+                {data.anamnesa_singkat}
+              </span>
+            </div>
+          )}
+          <div className="flex flex-col">
+            <span className="text-[10px] font-semibold text-slate-400">Tanda Vital</span>
+            <span className="text-slate-700 dark:text-slate-200">
+              Suhu (C): {valOrDash(data.suhu)}, Nyeri: {valOrDash(data.nyeri)},
+              Tensi: {valOrDash(data.tekanan_darah)}, Nadi(/menit): {valOrDash(data.nadi)},
+              Saturasi O&sup2;(%): {valOrDash(data.saturasi_o2)},
+              Respirasi(/menit): {valOrDash(data.pernapasan)}
+            </span>
+          </div>
+          {title === "Triase Primer" && data.kebutuhan_khusus && (
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold text-slate-400">Kebutuhan Khusus</span>
+              <span className="text-slate-700 dark:text-slate-200">{data.kebutuhan_khusus}</span>
+            </div>
+          )}
+        </div>
+
+        {skalaConfigs.map((cfg) => (
+          <React.Fragment key={cfg.key}>{renderTriaseAssessment(data[cfg.key], cfg.bgColor, cfg.label)}</React.Fragment>
+        ))}
+
+        <div className="p-2 space-y-1.5 border-t border-slate-200">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-semibold text-slate-400">Plan/Keputusan</span>
+            <span
+              className="text-white text-[11px] px-2 py-0.5 rounded inline-block"
+              style={{ backgroundColor: hasAssessment ? planColor : "#6b7280" }}
+            >
+              {title === "Triase Primer" ? `Zona Merah ${valOrDash(data.plan)}` : valOrDash(data.plan)}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-semibold text-slate-400">Tanggal & Jam</span>
+            <span className="text-slate-700 dark:text-slate-200">{valOrDash(data.tgl_triase)}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-semibold text-slate-400">Catatan</span>
+            <span className="text-slate-700 dark:text-slate-200 whitespace-pre-wrap">{valOrDash(data.catatan)}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-semibold text-slate-400">Dokter/Petugas IGD</span>
+            <span className="text-slate-700 dark:text-slate-200">{valOrDash(data.nik)} {valOrDash(data.nm_pegawai)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function renderTriase(data: any[]): React.ReactNode {
+  if (data.length === 0) return <EmptyState />;
+  const row = data[0];
+
+  const shared = row.primer || row.sekunder || {};
+  return (
+    <div className="space-y-2">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden text-xs">
+        <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/80 text-[11px] font-semibold text-slate-500 flex items-center gap-2">
+          <FaAmbulance className="text-slate-400" />
+          <span>Triase Gawat Darurat</span>
+        </div>
+        <div className="p-2 space-y-1.5">
+          <div className="flex"><span className="text-[10px] font-semibold text-slate-400 w-[120px]">Cara Masuk</span><span className="text-slate-700 dark:text-slate-200">{valOrDash(shared.cara_masuk)}</span></div>
+          <div className="flex"><span className="text-[10px] font-semibold text-slate-400 w-[120px]">Transportasi</span><span className="text-slate-700 dark:text-slate-200">{valOrDash(shared.alat_transportasi)}</span></div>
+          <div className="flex"><span className="text-[10px] font-semibold text-slate-400 w-[120px]">Alasan Kedatangan</span><span className="text-slate-700 dark:text-slate-200">{valOrDash(shared.alasan_kedatangan)}</span></div>
+          <div className="flex"><span className="text-[10px] font-semibold text-slate-400 w-[120px]">Keterangan Kedatangan</span><span className="text-slate-700 dark:text-slate-200">{valOrDash(shared.keterangan_kedatangan)}</span></div>
+          <div className="flex"><span className="text-[10px] font-semibold text-slate-400 w-[120px]">Macam Kasus</span><span className="text-slate-700 dark:text-slate-200">{valOrDash(shared.macam_kasus)}</span></div>
+        </div>
+      </div>
+
+      {row.has_primer && renderTriaseSection("Triase Primer", row.primer, [
+        { key: "skala1", bgColor: "#AA0000", label: "Immediate/Segera" },
+        { key: "skala2", bgColor: "#FF0000", label: "Emergensi" },
+      ])}
+
+      {row.has_sekunder && renderTriaseSection("Triase Sekunder", row.sekunder, [
+        { key: "skala3", bgColor: "#C8C800", label: "Urgensi" },
+        { key: "skala4", bgColor: "#00AA00", label: "Semi Urgensi/Urgensi Rendah" },
+        { key: "skala5", bgColor: "#969696", label: "Non Urgensi" },
+      ])}
+    </div>
+  );
+}
+
 // ─── Section renderer map ────────────────────────────────────────────────────────
 // Each section maps to a render function. The render function receives data: any[].
 
@@ -414,11 +567,6 @@ const columnDefs: Record<string, ColumnDef[]> = {
   prosedur: [
     { key: "kd_icd9", label: "Kode" },
     { key: "nm_icd9_1", label: "Prosedur" },
-  ],
-  triase: [
-    { key: "nama_pemeriksaan", label: "Pemeriksaan" },
-    { key: "hasil", label: "Hasil" },
-    { key: "nm_pegawai", label: "Petugas" },
   ],
   catatan_dokter: [
     { key: "tanggal", label: "Tanggal" },
@@ -945,6 +1093,7 @@ export function renderSection(sectionId: string, data: any[]): React.ReactNode {
   if (sectionId === "operasi_lengkap") return renderOperasiLengkap(data);
   if (sectionId.startsWith("resume_") || sectionId === "resume_pasien") return renderResume(data);
   if (sectionId === "berkas_digital") return renderBerkasDigital(data);
+  if (sectionId === "triase") return renderTriase(data);
 
   // Card-based sections
   if (cardFieldGroups[sectionId]) return renderCards(data, cardFieldGroups[sectionId]);
