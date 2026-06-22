@@ -152,6 +152,7 @@ function RiwayatPasienContent() {
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
   const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevFetchKeyRef = useRef('');
+  const autoDetectDoneRef = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
     if (isLoadingData) {
@@ -179,6 +180,42 @@ function RiwayatPasienContent() {
     return () => { if (clockRef.current) clearInterval(clockRef.current); };
   }, [isClockRunning]);
 
+  // Auto-detect section yang punya data saat perawatan tab dibuka
+  useEffect(() => {
+    if (activeTab !== 'perawatan' || !selectedVisit) return;
+    if (autoDetectDoneRef.current[selectedVisit]) return;
+    autoDetectDoneRef.current[selectedVisit] = true;
+
+    const run = async () => {
+      const results: Record<string, any[]> = {};
+      const sectionsWithData: string[] = [];
+      const BATCH_SIZE = 15;
+
+      for (let i = 0; i < allSectionIds.length; i += BATCH_SIZE) {
+        const batch = allSectionIds.slice(i, i + BATCH_SIZE);
+        const responses = await Promise.allSettled(
+          batch.map(id => fetchSectionData(id, selectedVisit))
+        );
+        for (let j = 0; j < batch.length; j++) {
+          const id = batch[j];
+          const res = responses[j];
+          if (res.status === 'fulfilled' && res.value.success && res.value.data.length > 0) {
+            results[id] = res.value.data;
+            sectionsWithData.push(id);
+          }
+        }
+      }
+
+      if (sectionsWithData.length === 0) return;
+
+      const newChecked: Record<string, boolean> = {};
+      sectionsWithData.forEach(id => { newChecked[id] = true; });
+      setSectionData(prev => ({ ...prev, ...results }));
+      setCheckedSections(newChecked);
+    };
+    run();
+  }, [activeTab, selectedVisit]);
+
   // Fetch data untuk section yang dicentang
   useEffect(() => {
     if (!selectedVisit) return;
@@ -187,6 +224,15 @@ function RiwayatPasienContent() {
       .map(([id]) => id)
       .sort();
     const fetchKey = checkedIds.join(',') + '|' + selectedVisit;
+
+    // Skip jika auto-detection sudah menyediakan data untuk semua section yang dicentang
+    if (checkedIds.length > 0 && checkedIds.every(id => id in sectionData)) {
+      if (fetchKey !== prevFetchKeyRef.current) {
+        prevFetchKeyRef.current = fetchKey;
+      }
+      return;
+    }
+
     if (fetchKey === prevFetchKeyRef.current) return;
     prevFetchKeyRef.current = fetchKey;
 
@@ -200,10 +246,10 @@ function RiwayatPasienContent() {
           results[sectionId] = res.success ? res.data : [];
         } catch { results[sectionId] = []; }
       }
-      setSectionData(results);
+      setSectionData(prev => ({ ...prev, ...results }));
     };
     fetchAll();
-  }, [checkedSections, selectedVisit]);
+  }, [checkedSections, selectedVisit, sectionData]);
 
   const fetchKunjungan = useCallback(async () => {
     setIsLoadingData(true);
