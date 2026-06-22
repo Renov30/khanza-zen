@@ -184,6 +184,7 @@ export const sectionGroups: SectionGroupDef[] = [
       { id: "skrining_gizi_lanjut", label: "Skrining Gizi Lanjut", icon: <FaAppleAlt /> },
       { id: "monitoring_gizi", label: "Monitoring Gizi", icon: <FaWeight /> },
       { id: "asuhan_gizi", label: "Asuhan Gizi", icon: <FaAppleAlt /> },
+      { id: "catatan_adime_gizi", label: "Catatan ADIME Gizi", icon: <FaAppleAlt /> },
       { id: "edukasi_pasien", label: "Edukasi Pasien & Keluarga Rawat Jalan", icon: <FaClipboardList /> },
       { id: "perencanaan_pemulangan", label: "Perencanaan Pemulangan", icon: <FaClipboardList /> },
       { id: "uji_fungsi_kfr", label: "Uji Fungsi/Prosedur KFR", icon: <FaFlask /> },

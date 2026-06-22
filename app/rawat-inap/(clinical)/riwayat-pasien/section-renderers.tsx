@@ -945,6 +945,16 @@ const columnDefs: Record<string, ColumnDef[]> = {
     { key: "instruksi", label: "Instruksi" },
     { key: "nm_pegawai", label: "Petugas" },
   ],
+  catatan_adime_gizi: [
+    { key: "tanggal", label: "Tanggal" },
+    { key: "asesmen", label: "Asesmen" },
+    { key: "diagnosis", label: "Diagnosis" },
+    { key: "intervensi", label: "Intervensi" },
+    { key: "monitoring", label: "Monitoring" },
+    { key: "evaluasi", label: "Evaluasi" },
+    { key: "instruksi", label: "Instruksi" },
+    { key: "nm_petugas", label: "Petugas" },
+  ],
   retur_obat: [
     { key: "nama_brng", label: "Nama Barang" },
     { key: "kode_sat", label: "Satuan" },

@@ -26,7 +26,7 @@ import {
   getAsuhanGiziRanap, getMonitoringGiziRanap,
   getSkriningGiziLanjutRanap, getSkriningNutrisiRanap,
   getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap,
-  getReturObat, getLaboratPAPasien,
+  getReturObat, getLaboratPAPasien, getCatatanADIMEGiziRanap,
 } from '@/lib/actions/ranap';
 import FormSection from "@/components/FormSection";
 import QRCodeDisplay from '@/components/QRCodeDisplay';
@@ -63,6 +63,7 @@ async function fetchSectionData(sectionId: string, noRawat: string) {
     skrining_gizi_lanjut: (nr: string) => getSkriningGiziLanjutRanap(nr),
     monitoring_gizi: (nr: string) => getMonitoringGiziRanap(nr),
     asuhan_gizi: (nr: string) => getAsuhanGiziRanap(nr),
+    catatan_adime_gizi: (nr: string) => getCatatanADIMEGiziRanap(nr),
     retur_obat: getReturObat,
     laboratorium_pa: getLaboratPAPasien,
   };
