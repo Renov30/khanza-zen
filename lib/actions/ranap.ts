@@ -3934,3 +3934,48 @@ export async function getResumeMata(noRawat: string) {
     return { success: false, message: "Gagal mengambil resume mata", error: error.message, data: [] };
   }
 }
+
+/**
+ * Mendapatkan data retur obat pasien.
+ */
+export async function getReturObat(noRawat: string) {
+  try {
+    const query = `
+      SELECT databarang.kode_brng, databarang.nama_brng, detreturjual.kode_sat,
+             detreturjual.h_retur, (detreturjual.jml_retur * -1) AS jumlah,
+             (detreturjual.subtotal * -1) AS total
+      FROM detreturjual
+      INNER JOIN databarang ON detreturjual.kode_brng = databarang.kode_brng
+      INNER JOIN returjual ON returjual.no_retur_jual = detreturjual.no_retur_jual
+      WHERE returjual.no_retur_jual LIKE ?
+      ORDER BY databarang.nama_brng
+    `;
+    const [rows]: any = await db.execute(query, [`%${noRawat}%`]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil retur obat", error: error.message, data: [] };
+  }
+}
+
+/**
+ * Mendapatkan data pemeriksaan laboratorium PA (Patologi Anatomi).
+ */
+export async function getLaboratPAPasien(noRawat: string) {
+  try {
+    const query = `
+      SELECT periksa_lab.tgl_periksa, periksa_lab.jam, periksa_lab.kd_jenis_prw,
+             jns_perawatan_lab.nm_perawatan, petugas.nama, periksa_lab.biaya,
+             periksa_lab.dokter_perujuk, dokter.nm_dokter
+      FROM periksa_lab
+      INNER JOIN jns_perawatan_lab ON periksa_lab.kd_jenis_prw = jns_perawatan_lab.kd_jenis_prw
+      INNER JOIN petugas ON periksa_lab.nip = petugas.nip
+      INNER JOIN dokter ON periksa_lab.kd_dokter = dokter.kd_dokter
+      WHERE periksa_lab.kategori = 'PA' AND periksa_lab.no_rawat = ?
+      ORDER BY periksa_lab.tgl_periksa, periksa_lab.jam
+    `;
+    const [rows]: any = await db.execute(query, [noRawat]);
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, message: "Gagal mengambil data laboratorium PA", error: error.message, data: [] };
+  }
+}

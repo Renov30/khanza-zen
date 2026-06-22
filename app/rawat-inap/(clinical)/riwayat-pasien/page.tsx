@@ -23,6 +23,10 @@ import {
   getTindakanRalanDokter, getTindakanRalanParamedis,
   getTindakanRalanDokterParamedis, getTindakanRanapDokterParamedis,
   getPenggunaanObatOperasi, getResumePasien, getResumeICU, getResumeMata,
+  getAsuhanGiziRanap, getMonitoringGiziRanap,
+  getSkriningGiziLanjutRanap, getSkriningNutrisiRanap,
+  getSkriningNutrisiAnakRanap, getSkriningNutrisiLansiaRanap,
+  getReturObat, getLaboratPAPasien,
 } from '@/lib/actions/ranap';
 import FormSection from "@/components/FormSection";
 import QRCodeDisplay from '@/components/QRCodeDisplay';
@@ -53,6 +57,14 @@ async function fetchSectionData(sectionId: string, noRawat: string) {
     tindakan_ralan_dokter_paramedis: getTindakanRalanDokterParamedis,
     tindakan_ranap_dokter_paramedis: getTindakanRanapDokterParamedis,
     penggunaan_obat_operasi: getPenggunaanObatOperasi,
+    skrining_nutrisi_dewasa: (nr: string) => getSkriningNutrisiRanap(nr),
+    skrining_nutrisi_anak: (nr: string) => getSkriningNutrisiAnakRanap(nr),
+    skrining_nutrisi_lansia: (nr: string) => getSkriningNutrisiLansiaRanap(nr),
+    skrining_gizi_lanjut: (nr: string) => getSkriningGiziLanjutRanap(nr),
+    monitoring_gizi: (nr: string) => getMonitoringGiziRanap(nr),
+    asuhan_gizi: (nr: string) => getAsuhanGiziRanap(nr),
+    retur_obat: getReturObat,
+    laboratorium_pa: getLaboratPAPasien,
   };
   const fn = specialized[sectionId];
   if (fn) return fn(noRawat);
