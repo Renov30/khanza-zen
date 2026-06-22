@@ -30,6 +30,35 @@ import SectionsSidebar from './SectionsSidebar';
 import { renderSection } from './section-renderers';
 import { sectionGroups, allSectionIds } from './section-groups';
 
+async function fetchSectionData(sectionId: string, noRawat: string) {
+  const specialized: Record<string, (noRawat: string) => Promise<{ success: boolean; data: any[] }>> = {
+    diagnosa: getDiagnosaPasien,
+    prosedur: getProsedurPasien,
+    triase: getTriaseIGD,
+    pemeriksaan_ranap: getPemeriksaanRanapRiwayat,
+    tindakan_ranap_dokter: getTindakanRanapDokter,
+    tindakan_ranap_paramedis: getTindakanRanapParamedis,
+    penggunaan_kamar: getPenggunaanKamar,
+    operasi: getOperasiPasien,
+    operasi_lengkap: getOperasiLengkap,
+    radiologi: getRadiologiPasien,
+    laboratorium: getLaboratPasien,
+    pemberian_obat: getPemberianObat,
+    berkas_digital: getBerkasDigital,
+    resume_pasien: getResumePasien,
+    resume_icu: getResumeICU,
+    resume_mata: getResumeMata,
+    tindakan_ralan_dokter: getTindakanRalanDokter,
+    tindakan_ralan_paramedis: getTindakanRalanParamedis,
+    tindakan_ralan_dokter_paramedis: getTindakanRalanDokterParamedis,
+    tindakan_ranap_dokter_paramedis: getTindakanRanapDokterParamedis,
+    penggunaan_obat_operasi: getPenggunaanObatOperasi,
+  };
+  const fn = specialized[sectionId];
+  if (fn) return fn(noRawat);
+  return getSectionData(sectionId, noRawat);
+}
+
 interface KunjunganRow {
   id: string; rowType: string; no_rawat: string; tgl: string; jam: string;
   kd_dokter: string; nm_dokter: string; umur: string; poli_kamar: string;
@@ -122,6 +151,7 @@ function RiwayatPasienContent() {
 
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
   const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevFetchKeyRef = useRef('');
 
   useEffect(() => {
     if (isLoadingData) {
@@ -148,6 +178,32 @@ function RiwayatPasienContent() {
     }
     return () => { if (clockRef.current) clearInterval(clockRef.current); };
   }, [isClockRunning]);
+
+  // Fetch data untuk section yang dicentang
+  useEffect(() => {
+    if (!selectedVisit) return;
+    const checkedIds = Object.entries(checkedSections)
+      .filter(([_, v]) => v)
+      .map(([id]) => id)
+      .sort();
+    const fetchKey = checkedIds.join(',') + '|' + selectedVisit;
+    if (fetchKey === prevFetchKeyRef.current) return;
+    prevFetchKeyRef.current = fetchKey;
+
+    if (checkedIds.length === 0) { setSectionData({}); return; }
+
+    const fetchAll = async () => {
+      const results: Record<string, any[]> = {};
+      for (const sectionId of checkedIds) {
+        try {
+          const res = await fetchSectionData(sectionId, selectedVisit);
+          results[sectionId] = res.success ? res.data : [];
+        } catch { results[sectionId] = []; }
+      }
+      setSectionData(results);
+    };
+    fetchAll();
+  }, [checkedSections, selectedVisit]);
 
   const fetchKunjungan = useCallback(async () => {
     setIsLoadingData(true);
@@ -694,7 +750,7 @@ function RiwayatPasienContent() {
                           </span>
                         </div>
                         <div className="p-3 bg-white dark:bg-slate-800/50">
-                          {renderSection(sectionId, [])}
+                          {renderSection(sectionId, sectionData[sectionId] || [])}
                         </div>
                       </div>
                     );
